@@ -1,0 +1,181 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:Query-{#####}",
+ "creation": "2024-04-30 18:49:13.800942",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "query_types",
+  "section_break_dlzt",
+  "raw_material",
+  "column_break_klxm",
+  "supplier",
+  "column_break_egbu",
+  "supplier_contact",
+  "column_break_aimu",
+  "manufacturer",
+  "column_break_lqca",
+  "manufacturer_contact",
+  "section_break_szly",
+  "documents"
+ ],
+ "fields": [
+  {
+   "fieldname": "query_types",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Query Types",
+   "options": "Query Types",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_dlzt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "raw_material",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Raw Material",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_klxm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Supplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_egbu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier_contact",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Supplier Contact\t",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_aimu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "manufacturer",
+   "fieldtype": "Data",
+   "label": "Manufacturer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_lqca",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "manufacturer_contact",
+   "fieldtype": "Data",
+   "label": "Manufacturer Contact",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_szly",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "documents",
+   "fieldtype": "Table",
+   "label": "Documents",
+   "options": "Documents"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-04-30 22:25:36.732249",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Query",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Client",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Evaluation",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "SB Uesr",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Certificate Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
