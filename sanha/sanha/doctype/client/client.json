@@ -1,0 +1,282 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:client_name",
+ "creation": "2024-05-01 10:29:14.481057",
+ "default_view": "List",
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "engine": "InnoDB",
+ "field_order": [
+  "contact_information_section",
+  "client_name",
+  "contact_no",
+  "column_break_drdy",
+  "email",
+  "business_name",
+  "column_break_yoao",
+  "client_code",
+  "contact_person",
+  "certification_section",
+  "certified_since",
+  "column_break_gjop",
+  "certified_expiry",
+  "column_break_lolh",
+  "ext",
+  "column_break_elbq",
+  "status",
+  "section_break_azvk",
+  "address_type",
+  "address",
+  "column_break_qcch",
+  "region",
+  "city",
+  "section_break_fcnh",
+  "catagory",
+  "standards",
+  "is_active",
+  "column_break_ljig",
+  "scope",
+  "products",
+  "email_contacts_section",
+  "emails",
+  "phone_contact_section",
+  "phone_nos"
+ ],
+ "fields": [
+  {
+   "fieldname": "contact_information_section",
+   "fieldtype": "Section Break",
+   "label": "Contact Information"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Client Name",
+   "options": "Name",
+   "reqd": 1,
+   "unique": 1,
+   "width": "4"
+  },
+  {
+   "fieldname": "contact_no",
+   "fieldtype": "Data",
+   "label": "Contact No",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "column_break_drdy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "fieldname": "business_name",
+   "fieldtype": "Data",
+   "label": "Business Name",
+   "options": "Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_yoao",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "client_code",
+   "fieldtype": "Data",
+   "label": "Client Code"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Data",
+   "label": "Contact Person",
+   "options": "Name"
+  },
+  {
+   "fieldname": "certification_section",
+   "fieldtype": "Section Break",
+   "label": "Certification"
+  },
+  {
+   "fieldname": "certified_since",
+   "fieldtype": "Date",
+   "label": "Certified Since"
+  },
+  {
+   "fieldname": "column_break_gjop",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "certified_expiry",
+   "fieldtype": "Date",
+   "label": "Certified Expiry"
+  },
+  {
+   "fieldname": "column_break_lolh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ext",
+   "fieldtype": "Date",
+   "label": "Ext."
+  },
+  {
+   "fieldname": "column_break_elbq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "label": "Status"
+  },
+  {
+   "fieldname": "section_break_azvk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "address_type",
+   "fieldtype": "Link",
+   "label": "Address Type",
+   "options": "Address"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Link",
+   "label": "Address",
+   "options": "Address"
+  },
+  {
+   "fieldname": "column_break_qcch",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "region",
+   "fieldtype": "Select",
+   "label": "Region",
+   "options": "Punjab"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Select",
+   "label": "City",
+   "options": "Karachi"
+  },
+  {
+   "fieldname": "section_break_fcnh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "catagory",
+   "fieldtype": "Data",
+   "label": "Catagory"
+  },
+  {
+   "fieldname": "standards",
+   "fieldtype": "Data",
+   "label": "Standards"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "is Active"
+  },
+  {
+   "fieldname": "column_break_ljig",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "scope",
+   "fieldtype": "Data",
+   "label": "Scope"
+  },
+  {
+   "fieldname": "products",
+   "fieldtype": "Data",
+   "label": "Products"
+  },
+  {
+   "fieldname": "email_contacts_section",
+   "fieldtype": "Section Break",
+   "label": "Email Contacts"
+  },
+  {
+   "fieldname": "emails",
+   "fieldtype": "Table",
+   "label": "Emails",
+   "options": "Contact Email"
+  },
+  {
+   "fieldname": "phone_contact_section",
+   "fieldtype": "Section Break",
+   "label": "Phone Contact"
+  },
+  {
+   "fieldname": "phone_nos",
+   "fieldtype": "Table",
+   "label": "Phone Nos",
+   "options": "Contact Phone"
+  }
+ ],
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-05-01 10:30:33.019858",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Client",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Admin",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Client",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "client_name"
+}

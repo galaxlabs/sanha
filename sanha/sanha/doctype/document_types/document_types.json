@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "field:document_name",
  "creation": "2024-04-30 18:57:14.802185",
@@ -24,7 +25,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-30 22:59:03.825203",
+ "modified": "2024-05-01 10:33:02.402358",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Document Types",
