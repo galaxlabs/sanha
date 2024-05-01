@@ -1,12 +1,15 @@
 # Copyright (c) 2024, Sanha Halal Pakistan  and contributors
 # For license information, please see license.txt
-
 import frappe
 from frappe import _
+from frappe.utils import random_string
+from frappe.utils import get_fullname
 from datetime import datetime ,timedelta
 from frappe.model.document import Document
+from frappe.utils import today, add_days
 
 class Client(Document):
+    
     def after_insert(self):
         # After inserting a new client, create a user
         user_doc = self.create_user()
@@ -20,7 +23,7 @@ class Client(Document):
             "full_name": self.business_name,
             "email": self.email,
             "first_name": self.client_name,
-            "phone": self.phone,            
+            # "phone": self.phone,            
             # Add other relevant fields from the client DocType to the user
         })
 
@@ -45,3 +48,22 @@ class Client(Document):
         user_doc.user_type = "System User"
         # Save the user document with updated properties
         user_doc.save()
+        
+# @frappe.whitelist()
+
+# def get_user_info():
+#     # Get the session user's email
+#     session_email = frappe.session.user
+#     # Fetch relevant data from the Client doctype
+#     client_data = frappe.get_all("Client", filters={"email": session_email}, fields=["*"])
+#     if not client_data:
+#         return None  # No client data found for the session user
+    
+#     client_name = client_data[0].get("client_name")
+#     # Fetch relevant data from the User doctype
+#     user_data = frappe.get_all("User", filters={"email": session_email, "full_name": client_name}, fields=["*"])
+#     if not user_data:
+#         return None  # No user data found for the session user
+    
+#     # Combine and return both sets of data
+#     return {"client_data": client_data[0], "user_data": user_data[0]}
