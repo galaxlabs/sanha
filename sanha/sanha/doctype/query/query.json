@@ -1,13 +1,16 @@
 {
  "actions": [],
+ "allow_events_in_timeline": 1,
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "format:Query-{#####}",
  "creation": "2024-04-30 18:49:13.800942",
+ "default_view": "List",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "query_types",
-  "section_break_dlzt",
+  "query_items_section",
   "raw_material",
   "column_break_klxm",
   "supplier",
@@ -17,7 +20,7 @@
   "manufacturer",
   "column_break_lqca",
   "manufacturer_contact",
-  "section_break_szly",
+  "documents_section",
   "documents"
  ],
  "fields": [
@@ -30,13 +33,10 @@
    "reqd": 1
   },
   {
-   "fieldname": "section_break_dlzt",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "raw_material",
    "fieldtype": "Data",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Raw Material",
    "reqd": 1
   },
@@ -45,9 +45,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "Only Supplier Name",
    "fieldname": "supplier",
    "fieldtype": "Data",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Supplier",
    "reqd": 1
   },
@@ -56,10 +58,12 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "insert Only Email ",
    "fieldname": "supplier_contact",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Supplier Contact\t",
+   "options": "Email",
    "reqd": 1
   },
   {
@@ -67,8 +71,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "Only Manufacturer Name",
    "fieldname": "manufacturer",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Manufacturer",
    "reqd": 1
   },
@@ -77,25 +84,35 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "insert Only Email ",
    "fieldname": "manufacturer_contact",
    "fieldtype": "Data",
    "label": "Manufacturer Contact",
+   "options": "Email",
    "reqd": 1
-  },
-  {
-   "fieldname": "section_break_szly",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "documents",
    "fieldtype": "Table",
    "label": "Documents",
    "options": "Documents"
+  },
+  {
+   "description": "Please Attach Available  Supporting Documents ",
+   "fieldname": "documents_section",
+   "fieldtype": "Section Break",
+   "label": "Documents Section"
+  },
+  {
+   "fieldname": "query_items_section",
+   "fieldtype": "Section Break",
+   "label": "Query Items Section"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-30 23:20:52.676902",
+ "make_attachments_public": 1,
+ "modified": "2024-05-01 19:26:41.994605",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",
@@ -175,6 +192,7 @@
    "write": 1
   }
  ],
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
