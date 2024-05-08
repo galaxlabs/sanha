@@ -1,0 +1,50 @@
+{% extends 'templates/print_formats/print_format.html' %}
+
+{% block content %}
+<h2 class="text-center">Custom Query Report</h2>
+<hr>
+
+<!-- Selected User's Full Name -->
+<p><strong>User's Full Name:</strong> {{ selected_user_full_name }}</p>
+
+<!-- Date Range -->
+<p><strong>Date Range:</strong> {{ creation }} to {{ creation }}</p>
+
+<!-- Query Table -->
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width: 15%">Query Type</th>
+            <th style="width: 20%">Raw Material</th>
+            <th style="width: 15%">Supplier</th>
+            <th style="width: 15%">Manufacturer</th>
+            <th style="width: 20%">Query Status</th>
+            <th style="width: 15%">Supplier Contact</th>
+            <th style="width: 15%">Manufacturer Contact</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% set current_query_type = '' %}
+        {% for query in queries %}
+        {% if current_query_type != query.query_types %}
+        <tr>
+            <td colspan="7"><strong>{{ query.query_types }}</strong></td>
+        </tr>
+        {% set current_query_type = query.query_types %}
+        {% endif %}
+        <tr>
+            <td>&nbsp;</td>
+            <td>{{ query.raw_material }}</td>
+            <td>{{ query.supplier }}</td>
+            <td>{{ query.manufacturer }}</td>
+            <td>{{ query.workflow_state }}</td>
+            <td>{{ query.supplier_contact }}</td>
+            <td>{{ query.manufacturer_contact }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Footer -->
+<p class="text-right text-muted">Printed On {{ current_date }}</p>
+{% endblock %}

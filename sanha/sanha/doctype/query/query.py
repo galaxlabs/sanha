@@ -5,8 +5,6 @@ import frappe
 from frappe.model.document import Document
 
 class Query(Document):
-    
-
     def validate(self):
         # Check if the documents table is hidden
         if not self.get("documents"):
@@ -58,7 +56,36 @@ class Query(Document):
         # If Halal Certificate is found but no expiry date is provided, raise an exception
         if found_halal_certificate and not any(doc.documents == "Halal Certificate" for doc in self.documents):
             frappe.throw("Halal Certificate requires Expiry Date.")
+    def validate_permission(doc, method):
+        if frappe.session.user != doc.owner:
+            frappe.throw("You don't have permission to access this document.")
+    # Define function to apply role-based and status-based filtering to list view
+            
+    # Define the server-side method
 
+    def validate_permission(doc, method):
+        if method == "delete" and doc.doctype == "Query":
+            # Check if the document is in Draft mode based on the value of the workflow_status field
+            if doc.workflow_status != "Draft" or doc.owner != frappe.session.user:
+                # Prevent deletion if the document is not in Draft mode or if the user is not the owner
+                frappe.throw("You don't have permission to delete this document.")
+
+    def after_insert(self):
+        pass
+
+
+    # def on_update(self):
+    #     # Fetch the session user's first name and location
+    #     first_name = frappe.get_value("User", frappe.session.user, "first_name")
+    #     location = frappe.get_value("User", frappe.session.user, "location")
+
+    #     # Use the location as the client code
+    #     client_code = location
+
+    #     # Update the client_name and client_code fields
+    #     self.client_name = first_name
+    #     self.client_code = client_code
+    # Define function to apply role-based and status-based filtering to list view
 
 
 

@@ -3,7 +3,7 @@
  "allow_events_in_timeline": 1,
  "allow_import": 1,
  "allow_rename": 1,
- "autoname": "format:Query-{#####}",
+ "autoname": "format:{query_types}-{owner}-Query-{#######}",
  "creation": "2024-04-30 18:49:13.800942",
  "default_view": "List",
  "doctype": "DocType",
@@ -21,7 +21,11 @@
   "column_break_lqca",
   "manufacturer_contact",
   "documents_section",
-  "documents"
+  "documents",
+  "section_break_zysd",
+  "client_name",
+  "column_break_ooht",
+  "client_code"
  ],
  "fields": [
   {
@@ -107,12 +111,34 @@
    "fieldname": "query_items_section",
    "fieldtype": "Section Break",
    "label": "Query Items Section"
+  },
+  {
+   "fieldname": "section_break_zysd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ooht",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "client_code",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Client Code"
+  },
+  {
+   "bold": 1,
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Client Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
  "make_attachments_public": 1,
- "modified": "2024-05-01 19:26:41.994605",
+ "modified": "2024-05-05 10:52:21.309630",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",
@@ -128,6 +154,7 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
    "write": 1
   },
@@ -140,6 +167,7 @@
    "read": 1,
    "report": 1,
    "role": "Admin",
+   "select": 1,
    "share": 1,
    "write": 1
   },
@@ -148,16 +176,18 @@
    "delete": 1,
    "email": 1,
    "export": 1,
+   "if_owner": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,
    "role": "Client",
+   "select": 1,
    "share": 1,
    "write": 1
   },
   {
    "create": 1,
-   "delete": 1,
    "email": 1,
    "export": 1,
    "print": 1,
@@ -169,7 +199,6 @@
   },
   {
    "create": 1,
-   "delete": 1,
    "email": 1,
    "export": 1,
    "print": 1,
@@ -180,21 +209,32 @@
    "write": 1
   },
   {
-   "create": 1,
-   "delete": 1,
    "email": 1,
    "export": 1,
    "print": 1,
    "read": 1,
    "report": 1,
    "role": "Certificate Manager",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator",
+   "select": 1,
    "share": 1,
    "write": 1
   }
  ],
  "show_title_field_in_link": 1,
  "sort_field": "modified",
- "sort_order": "DESC",
+ "sort_order": "ASC",
  "states": [],
  "title_field": "query_types",
  "track_changes": 1,

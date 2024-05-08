@@ -12,6 +12,7 @@
   "contact_information_section",
   "client_name",
   "contact_no",
+  "telephone",
   "column_break_drdy",
   "email",
   "business_name",
@@ -33,7 +34,7 @@
   "region",
   "city",
   "section_break_fcnh",
-  "catagory",
+  "category",
   "standards",
   "is_active",
   "column_break_ljig",
@@ -92,7 +93,12 @@
   {
    "fieldname": "client_code",
    "fieldtype": "Data",
-   "label": "Client Code"
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Client Code",
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "contact_person",
@@ -161,22 +167,17 @@
    "fieldname": "region",
    "fieldtype": "Select",
    "label": "Region",
-   "options": "Punjab"
+   "options": "Punjab\nSindh\nKPK"
   },
   {
    "fieldname": "city",
    "fieldtype": "Select",
    "label": "City",
-   "options": "Karachi"
+   "options": "Karachi\nLahore"
   },
   {
    "fieldname": "section_break_fcnh",
    "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "catagory",
-   "fieldtype": "Data",
-   "label": "Catagory"
   },
   {
    "fieldname": "standards",
@@ -224,12 +225,22 @@
    "fieldtype": "Table",
    "label": "Phone Nos",
    "options": "Contact Phone"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "label": "Catagory"
+  },
+  {
+   "fieldname": "telephone",
+   "fieldtype": "Data",
+   "label": "Telephone"
   }
  ],
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-01 10:30:33.019858",
+ "modified": "2024-05-04 23:45:25.972207",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Client",
@@ -262,17 +273,20 @@
    "write": 1
   },
   {
-   "create": 1,
-   "delete": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Client",
+   "select": 1
+  },
+  {
    "email": 1,
    "export": 1,
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Client",
-   "select": 1,
-   "share": 1,
-   "write": 1
+   "role": "Certificate Manager",
+   "share": 1
   }
  ],
  "sort_field": "modified",

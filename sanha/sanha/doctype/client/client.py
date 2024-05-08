@@ -9,7 +9,6 @@ from frappe.model.document import Document
 from frappe.utils import today, add_days
 
 class Client(Document):
-    
     def after_insert(self):
         # After inserting a new client, create a user
         user_doc = self.create_user()
@@ -23,7 +22,9 @@ class Client(Document):
             "full_name": self.business_name,
             "email": self.email,
             "first_name": self.client_name,
-            # "phone": self.phone,            
+            "location": self.client_code,
+            "phone": self.telephone,
+            "mobile_no": self.contact_no,          
             # Add other relevant fields from the client DocType to the user
         })
 
@@ -48,7 +49,28 @@ class Client(Document):
         user_doc.user_type = "System User"
         # Save the user document with updated properties
         user_doc.save()
+    
+
+
+# @frappe.whitelist()
+# def update_status():
+#     clients = frappe.get_all('Client', filters={'docstatus': 1})
+#     for client in clients:
+#         doc = frappe.get_doc('Client', client.name)
+#         days_until_expiry = (doc.certified_expiry - frappe.utils.today()).days
+
+#         if days_until_expiry > 60:
+#             doc.status = 'Expiring Soon'
+#         elif 30 <= days_until_expiry <= 60:
+#             doc.status = 'Expiring'
+#         elif 0 <= days_until_expiry < 30:
+#             doc.status = 'Expired'
+#         else:
+#             doc.status = 'Valid'
         
+#         doc.save()
+
+#     frappe.msgprint(_('Status updated successfully.'), indicator='green')    
 # @frappe.whitelist()
 
 # def get_user_info():

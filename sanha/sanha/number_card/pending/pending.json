@@ -1,0 +1,22 @@
+{
+ "creation": "2024-05-02 14:07:29.857832",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Query",
+ "dynamic_filters_json": "[]",
+ "filters_json": "[[\"Query\",\"workflow_state\",\"=\",\"Under Review\",false]]",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "label": "Pending",
+ "modified": "2024-05-02 15:37:44.140984",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Pending",
+ "owner": "Administrator",
+ "report_function": "Sum",
+ "show_percentage_stats": 0,
+ "stats_time_interval": "Daily",
+ "type": "Document Type"
+}

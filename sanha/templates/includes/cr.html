@@ -1,0 +1,22 @@
+<h2>{{ report_title }}</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Query Name</th>
+            <th>Raw Material</th>
+            <!-- Add more column headers as needed -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in report_data %}
+        <tr>
+            <td>{{ row.index }}</td>
+            <td>{{ row.query_name }}</td>
+            <td>{{ row.raw_material }}</td>
+            <!-- Populate other table cells with data -->
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

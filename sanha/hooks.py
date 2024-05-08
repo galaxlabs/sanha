@@ -1,3 +1,7 @@
+
+from __future__ import unicode_literals
+
+
 app_name = "sanha"
 app_title = "Sanha"
 app_publisher = "Sanha Halal Pakistan "
@@ -227,3 +231,16 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+
+def get_reports():
+    return [
+        {
+            "name": "cr",
+            "doctype": "Query",
+            "is_query_report": True,
+            "type": "Report",
+            "label": "Query Report",
+            "route": "sanha.reports.cr.render_custom_report",
+            # Add any additional fields as needed
+        }
+    ]

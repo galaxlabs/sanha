@@ -1,0 +1,26 @@
+{
+ "content": null,
+ "creation": "2024-05-07 13:09:50.734599",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2024-05-07 13:43:31.782427",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "cr-report",
+ "owner": "Administrator",
+ "page_name": "cr-report",
+ "roles": [
+  {
+   "role": "Administrator"
+  },
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 1,
+ "title": "Reports"
+}

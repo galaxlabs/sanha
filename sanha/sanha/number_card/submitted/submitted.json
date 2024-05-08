@@ -1,0 +1,22 @@
+{
+ "creation": "2024-05-02 14:07:29.909809",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Query",
+ "dynamic_filters_json": "[]",
+ "filters_json": "[[\"Query\",\"workflow_state\",\"=\",\"Submitted\",false]]",
+ "function": "Count",
+ "idx": 21,
+ "is_public": 0,
+ "is_standard": 1,
+ "label": "Submitted",
+ "modified": "2024-05-03 17:56:34.040032",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Submitted",
+ "owner": "Administrator",
+ "report_function": "Sum",
+ "show_percentage_stats": 0,
+ "stats_time_interval": "Daily",
+ "type": "Document Type"
+}
