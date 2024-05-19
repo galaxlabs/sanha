@@ -1,52 +1,133 @@
 frappe.pages['cr-report'].on_page_load = function(wrapper) {
     var page = frappe.ui.make_app_page({
         parent: wrapper,
-        title: 'Reports',
-        single_column: true
-    });
+        title: 'Reports Page',
+        single_column: true        
+    });    
 
-    // Header section with company logo and tagline
-    var header_section = $('<div>').addClass('header-section').appendTo(page.body);
-    header_section.css({
+    var action_section = $('<div>').addClass('action-section').appendTo(page.body);
+
+    // Print button
+    var printButton = $('<button>').text('Print').addClass('btn btn-primary').appendTo(action_section);
+    printButton.on('click', function() {
+        // Hide page title before printing
+        page.$title_area.hide();
+        // Hide filter row before printing
+        $('.filter-row').hide();
+        // Hide filter section before printing
+        $('.filter-section').hide();
+        // Print the page
+        
+        window.print();
+        // Show page title after printing
+        page.$title_area.show();
+        // Show filter row after printing
+        $('.filter-row').show();
+        // Show filter section after printing
+        $('.filter-section').show();
+    });
+    // Align action buttons to the right
+    action_section.css({
         'display': 'flex',
-        'align-items': 'center',
-        'justify-content': 'space-between',
-        'padding': '20px',
-        'margin-top': '40px', // Set header top margin to 40px
-        'border-bottom': '1px solid #ccc' // Add horizontal line at the bottom of the header
+        'justify-content': 'flex-end', // Align items to the right
+        'margin-bottom': '20px' // Add margin below action section
     });
+// Create filter section for query types dropdown
 
-    // Left part of the header - empty space
-    var left_header = $('<div>').appendTo(header_section);
+// Header section
 
-    // Center part of the header - company logo
-    var center_header = $('<div>').appendTo(header_section);
-    center_header.css({
-        'flex': '2',
-        'text-align': 'center' // Center the logo horizontally
+
+    var header_section = $('<div>').addClass('header-section').appendTo(page.body);
+header_section.css({
+    'padding': '20px',
+    'margin-bottom': '10px', // Add margin below the header section
+    'border-bottom': '1px solid #ccc', // Add horizontal line at the bottom of the header
+    'display': 'table',
+    'width': '100%'
+});
+
+// Logo container
+var logo_container = $('<div>').addClass('logo-container').appendTo(header_section);
+logo_container.css({
+    'display': 'table-cell',
+    'text-align': 'right',
+    'width': '55%'
+});
+var logo = $('<img>').attr('src', '/files/sanha-logo.png').addClass('img').appendTo(logo_container);
+// Resize the logo to a standard size
+logo.css({
+    'width': '150px',
+    'height': 'auto'
+});
+
+// Slogan container
+var slogan_container = $('<div>').addClass('slogan-container').appendTo(header_section);
+slogan_container.css({
+    'display': 'table-cell',
+    'text-align': 'right',
+    'vertical-align': 'middle',
+    'width': '45%'
+});
+$('<span>').text('Eat Halal, Be Healthy.').appendTo(slogan_container);
+
+    // Header section with company logo and slogan
+
+   
+    // Owner table section between the filter section and the data section
+    var owner_table_section = $('<div>').addClass('owner-table-section').appendTo(page.body);
+    owner_table_section.css({
+        'margin-bottom': '20px', // Add margin below the owner table section
+        'text-align': 'center' // Center the content within the owner table section
     });
-    $('<img>').attr('src', 'http://portal.sanha.org.pk/assets/dist/img/sanha-logo.png').addClass('img').css({
-        'width': 'auto',
-        'height': '95px',
-        'margin': 'auto' // Center the logo horizontally
-    }).appendTo(center_header);
-
-    // Right part of the header - slogan
-    var right_header = $('<div>').appendTo(header_section);
-    right_header.css({
-        'text-align': 'right'
+    
+    // Fetch current user's full name and location code
+    frappe.call({
+        method: 'frappe.client.get',
+        args: {
+            doctype: 'User',
+            filters: {
+                name: frappe.session.user // Get current session user's name
+            },
+            fields: ['full_name', 'location'] // Fetch full name and location fields
+        },
+        callback: function(response) {
+            var user = response.message;
+            if (user) {
+                // Create table for owner data
+                var owner_table = $('<table>').addClass('table').appendTo(owner_table_section);
+                var tbody = $('<tbody>').appendTo(owner_table);
+    
+                // First row: Full name and location code
+                var first_row = $('<tr>').appendTo(tbody);
+                var first_row_data = $('<td>').addClass('text-center').appendTo(first_row);
+                $('<h2>').text(user.full_name + ' (Code: ' + user.location + ')').appendTo(first_row_data);
+    
+                // Second row: Date range
+                var second_row = $('<tr>').appendTo(tbody);
+                var second_row_data = $('<td>').addClass('text-center').appendTo(second_row);
+                $('<span>').append($('<strong>').text('From Date: 09-Mar-2024 - To Date: 08-May-2024')).appendTo(second_row_data);
+            }
+        }
     });
-    $('<span>').text('Eat Halal, Be Healthy.').css({
-        'vertical-align': 'middle', // Align the slogan vertically to the center
-        'display': 'inline-block' // Set display to inline-block for vertical alignment
-    }).appendTo(right_header);
+    var data_section = $('<div>').addClass('data-section').appendTo(page.body);
+        data_section.css({
+            'margin-bottom': '20px', // Add margin below the data section
+            'display': 'flex',
+            'align-items': 'center',
+            'flex-wrap': 'wrap'
+        });
+        
 
-    // Add a table to display the report
     var table = $('<table>').addClass('table').appendTo(page.body);
+    var thead = $('<thead>').appendTo(table);
     var tbody = $('<tbody>').appendTo(table);
+    var tableHeaders = ['Raw Material', 'Supplier', 'Manufacturer', 'Query Types', 'Status'];
 
-    // Add a container to display the report content
-    var report_container = $('<div>').addClass('report-container').appendTo(page.body);
+    // Add table headers
+    var headerRow = $('<tr>').appendTo(thead);
+    $.each(tableHeaders, function(index, label) {
+        $('<th>').text(label).appendTo(headerRow);
+    });
 
     // Fetch data from the server and populate the table
     frappe.call({
@@ -56,596 +137,84 @@ frappe.pages['cr-report'].on_page_load = function(wrapper) {
             filters: {
                 workflow_state: ['!=', 'Draft']
             },
-            fields: ['raw_material', 'supplier', 'manufacturer', 'query_types', 'workflow_state', 'creation', 'owner']
+            fields: ['raw_material', 'supplier', 'manufacturer', 'query_types', 'workflow_state']
         },
         callback: function(response) {
             var data = response.message;
             $.each(data, function(index, row) {
                 var tableRow = $('<tr>').appendTo(tbody);
-                $('<td>').text(row.raw_material).appendTo(tableRow);
-                $('<td>').text(row.supplier).appendTo(tableRow);
-                $('<td>').text(row.manufacturer).appendTo(tableRow);
-                $('<td>').text(row.query_types).appendTo(tableRow);
-                $('<td>').text(row.workflow_state).appendTo(tableRow);
-                $('<td>').text(row.creation).appendTo(tableRow);
-                $('<td>').text(row.owner).appendTo(tableRow);
-               
+                $.each(tableHeaders, function(index, key) {
+                    if (key === 'Status') {
+                        $('<td>').text(row['workflow_state']).appendTo(tableRow);
+                    } else {
+                        $('<td>').text(row[key.toLowerCase().replace(' ', '_')]).appendTo(tableRow);
+                    }
+                });
             });
+
+            // Initialize DataTable with search and pagination
+            $(table).DataTable();
         }
     });
 
-    // Add footer with page number
+    // Filter function for each column
+    var filterColumns = {};
+    $.each(tableHeaders, function(index, label) {
+        filterColumns[label] = '';
+    });
+
+    // Add input fields for filtering
+    var filterRow = $('<tr>').appendTo(thead).addClass('filter-row');
+$.each(tableHeaders, function(index, label) {
+    var filterInput = $('<input>').attr('type', 'text').attr('placeholder', 'Filter ' + label).addClass('filter-input').appendTo($('<th>').appendTo(filterRow));
+    filterInput.css({
+        'border-radius': '20px', // Set border radius to 20px for rounded corners
+        'padding': '5px', // Add padding to the input fields
+        'margin': '5px' // Add margin around each input field
+    });
+    filterInput.on('keyup', function() {
+        filterColumns[label] = $(this).val().toLowerCase();
+        filterTable();
+    });
+});
+
+    // Function to filter the table based on input values
+    function filterTable() {
+        $(tbody).find('tr').each(function() {
+            var rowVisible = true;
+            var row = $(this);
+            $.each(tableHeaders, function(index, label) {
+                var cellText = row.find('td').eq(index).text().toLowerCase();
+                if (filterColumns[label] && cellText.indexOf(filterColumns[label]) === -1) {
+                    rowVisible = false;
+                }
+            });
+            if (rowVisible) {
+                row.show();
+            } else {
+                row.hide();
+            }
+        });
+    }
+
+// ### Working with filter ####
+    $('<hr>').appendTo(footer_section);
     var footer_section = $('<div>').addClass('footer-section').appendTo(page.body);
     footer_section.css({
         'margin-top': '25px', // Set footer top margin to 25px
         'border-top': '1px solid #ccc', // Add horizontal line at the top of the footer
         'padding-top': '10px', // Add padding to the top of the footer
-        'text-align': 'center'
+        'text-align': 'right'
     });
-
+    
     // Add horizontal lines on both ends of the footer
     $('<hr>').appendTo(footer_section);
+    $('<p>').html('<strong>Disclaimer:</strong>This Halal Evaluation Report is issued based on the information and documentation provided at the time of evaluation. It is valid only for the specified batch/lot and for the specific materials/products mentioned. Any misuse, alteration, or use of this report beyond its intended purpose is strictly prohibited. SANHA Halal Pakistan reserves the right to revoke this evaluation in case of any non-compliance or deviation from the Halal standards.').appendTo(footer_section);
     $('<hr>').appendTo(footer_section);
+        
+    
+    // Add company address
+    $('<p>').html('<strong>Sanha Halal Associates Pakistan PVT. LTD.</strong> Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama D.H.A. phase 5<br>Email: evaluation@sanha.org.pk - Ph: +92 21 35295263').appendTo(footer_section);
+    
+    // Add footer with page number
 };
-
-// frappe.pages['cr-report'].on_page_load = function(wrapper) {
-//     var page = frappe.ui.make_app_page({
-//         parent: wrapper,
-//         title: 'Reports',
-//         single_column: true
-//     });
-
-//     // Header section with company logo and tagline
-//     var header_section = $('<div>').addClass('header-section').appendTo(page.body);
-//     header_section.css({
-//         'display': 'flex',
-//         'align-items': 'center',
-//         'justify-content': 'space-between',
-//         'padding': '20px'
-//     });
-
-//     // Left part of the header - company name and tagline
-//     var left_header = $('<div>').appendTo(header_section);
-//     $('<span>').text('Eat Halal, Be Healthy.').appendTo(right_header);
-
-//     // Center part of the header - company logo
-//     var center_header = $('<div>').appendTo(header_section);
-//     $('<img>').attr('src', 'http://portal.sanha.org.pk/assets/dist/img/sanha-logo.png').addClass('img').css({
-//         'width': 'auto',
-//         'height': '95px'
-//     }).appendTo(center_header);
-
-//     // Right part of the header - empty space
-//     var right_header = $('<div>').appendTo(header_section);
-
-//     // Add a table to display the report
-//     var table = $('<table>').addClass('table').appendTo(page.body);
-//     var tbody = $('<tbody>').appendTo(table);
-
-//     // Add a container to display the report content
-//     var report_container = $('<div>').addClass('report-container').appendTo(page.body);
-
-//     // Fetch data from the server and populate the table
-//     frappe.call({
-//         method: 'frappe.client.get_list',
-//         args: {
-//             doctype: 'Query',
-//             filters: {
-//                 workflow_state: ['!=', 'Draft']
-//             },
-//             fields: ['name', 'raw_material', 'supplier', 'manufacturer', 'query_types', 'workflow_state', 'creation', 'owner',]
-//         },
-//         callback: function(response) {
-//             var data = response.message;
-//             $.each(data, function(index, row) {
-//                 var tableRow = $('<tr>').appendTo(tbody);
-//                 $('<td>').text(row.name).appendTo(tableRow);
-//                 $('<td>').text(row.raw_material).appendTo(tableRow);
-//                 $('<td>').text(row.supplier).appendTo(tableRow);
-//                 $('<td>').text(row.manufacturer).appendTo(tableRow);
-//                 $('<td>').text(row.query_types).appendTo(tableRow);
-//                 $('<td>').text(row.workflow_state).appendTo(tableRow);
-//                 $('<td>').text(row.creation).appendTo(tableRow);
-//                 $('<td>').text(row.owner).appendTo(tableRow);
-                
-//             });
-//         }
-//     });
-// };
-
-// frappe.pages['cr-report'].on_page_load = function(wrapper) {
-//     var page = frappe.ui.make_app_page({
-//         parent: wrapper,
-//         title: 'Reports',
-//         single_column: true
-//     });
-
-//     // Add the static header HTML
-//     var static_header = `
-//         <div class="header-section">
-//             <!-- Center part of the header - company logo -->
-//             <div style="flex: 1; text-align: center;">
-//                 <img src="http://portal.sanha.org.pk/assets/dist/img/sanha-logo.png" class="img" style="width: auto; height: 95px;">
-//             </div>
-//             <hr>
-//             <!-- Section with owner's full name and code -->
-//             <div class="owner-section" style="text-align: center;">
-//                 <strong>Name: John Doe</strong> <span> | </span> <strong>Code: ABC123</strong>
-//             </div>
-//             <hr>
-//             <!-- Last section - Date range "From - To" -->
-//             <div class="date-section" style="text-align: center;">
-//                 <span>From: </span><strong>2022-01-01</strong> <span> - </span> <span>To: </span><strong>2022-12-31</strong>
-//             </div>
-//             <hr>
-//             <!-- Right part of the header - company tagline -->
-//             <div style="flex: 1; text-align: right;">
-//                 <span>Eat Halal, Be Healthy.</span>
-//             </div>
-//             <hr>
-//         </div>
-//     `;
-
-//     // Append the static header HTML to the page body
-//     $(static_header).appendTo(page.body);
-
-//     // Fetch dynamic table data and populate the table
-//     fetchDynamicTableData();
-// };
-
-// function fetchDynamicTableData() {
-//     // Make an AJAX request to fetch dynamic table data from the server
-//     // Replace this with your actual AJAX call to fetch data from the database
-//     $.ajax({
-//         url: '/your-api-endpoint',
-//         method: 'GET',
-//         success: function(response) {
-//             // Populate the dynamic table content with the fetched data
-//             populateTable(response);
-//         },
-//         error: function(xhr, status, error) {
-//             console.error(error);
-//         }
-//     });
-// }
-
-// function populateTable(data) {
-//     // Construct the HTML for the dynamic table based on the fetched data
-//     var tableContent = `
-//         <div class="table-section">
-//             <table class="table table-bordered">
-//                 <thead>
-//                     <tr>
-//                         <th>Raw Material</th>
-//                         <th>Supplier</th>
-//                         <th>Manufacturer</th>
-//                         <th>Status</th>
-//                     </tr>
-//                 </thead>
-//                 <tbody>
-//                     <!-- Table body content goes here -->
-//                 </tbody>
-//             </table>
-//         </div>
-//     `;
-
-//     // Append the dynamic table HTML to the page body
-//     $(tableContent).appendTo('div.header-section');
-
-//     // Populate the table body with the fetched data
-//     var tbody = $('div.table-section tbody');
-//     $.each(data, function(index, row_data) {
-//         // Add the regular data row
-//         var data_row = $('<tr>').appendTo(tbody);
-//         $('<td>').text(row_data['Raw Material']).appendTo(data_row);
-//         $('<td>').text(row_data['Supplier']).appendTo(data_row);
-//         $('<td>').text(row_data['Manufacturer']).appendTo(data_row);
-//         $('<td>').text(row_data['Status']).appendTo(data_row);
-//     });
-
-//     // Add CSS for page breaks and header/footer display
-//     $("<style>")
-//         .prop("type", "text/css")
-//         .html(
-//             `@page {
-//                 size: A4 portrait;
-//                 margin: 1cm;
-//                 @bottom-right {
-//                     content: counter(page);
-//                 }
-//             }
-//             @media print {
-//                 .header-section {
-//                     display: block;
-//                     position: fixed;
-//                     left: 0;
-//                     right: 0;
-//                 }
-//                 table {
-//                     page-break-inside: auto;
-//                 }
-//                 tr {
-//                     page-break-inside: avoid;
-//                     page-break-after: auto;
-//                 }
-//                 thead {
-//                     display: table-header-group;
-//                 }
-//                 tbody {
-//                     display: table-row-group;
-//                 }
-//             }`
-//         )
-//         .appendTo("head");
-// }
-
-// frappe.pages['cr-report'].on_page_load = function(wrapper) {
-//     var page = frappe.ui.make_app_page({
-//         parent: wrapper,
-//         title: 'Reports',
-//         single_column: true
-//     });
-
-//     // Add the static header HTML
-//     var static_header = `
-//         <div class="header-section" style="margin-top: 40px;">
-//             <!-- Center part of the header - company logo -->
-//             <div style="flex: 1; text-align: center;">
-//                 <img src="http://portal.sanha.org.pk/assets/dist/img/sanha-logo.png" class="img" style="width: auto; height: 95px;">
-//             </div>
-//             <hr>
-//             <!-- Section with owner's full name and code -->
-//             <div class="owner-section" style="text-align: center;">
-//                 <strong id="owner-name"></strong> <span> | </span> <strong id="owner-code"></strong>
-//             </div>
-//             <hr>
-//             <!-- Last section - Date range "From - To" -->
-//             <div class="date-section" style="text-align: center;">
-//                 <span>From: </span><strong id="from-date"></strong> <span> - </span> <span>To: </span><strong id="to-date"></strong>
-//             </div>
-//             <hr>
-//             <!-- Right part of the header - company tagline -->
-//             <div style="flex: 1; text-align: right;">
-//                 <span>Eat Halal, Be Healthy.</span>
-//             </div>
-//             <hr>
-//         </div>
-//     `;
-
-//     // Append the static header HTML to the page body
-//     $(static_header).appendTo(page.body);
-
-//     // Fetch dynamic data for the owner's full name, code, and date range
-//     fetchDynamicHeaderData();
-// };
-// function fetchDynamicHeaderData() {
-//     // Make an AJAX request to fetch dynamic data from the server
-//     // Replace this with your actual AJAX call to fetch data from the database
-//     $.ajax({
-//         url: '/your-api-endpoint',
-//         method: 'GET',
-//         success: function(response) {
-//             // Populate the dynamic header content with the fetched data
-//             populateHeader(response);
-//         },
-//         error: function(xhr, status, error) {
-//             console.error(error);
-//         }
-//     });
-// }
-
-// function populateHeader(data) {
-//     // Populate owner's full name and code
-//     $('#owner-name').text(data.owner_name);
-//     $('#owner-code').text(data.owner_code);
-
-//     // Populate date range "From - To"
-//     $('#from-date').text(data.from_date);
-//     $('#to-date').text(data.to_date);
-// }
-// frappe.pages['cr-report'].on_page_load = function(wrapper) {
-//     var page = frappe.ui.make_app_page({
-//         parent: wrapper,
-//         title: 'Reports',
-//         single_column: true
-//     });
-
-//     // Header section
-//     var header_section = $('<div>').addClass('header-section').appendTo(page.body);
-
-//     // Center part of the header - company logo
-//     var center_header = $('<div>').appendTo(header_section).css({
-//         'flex': '1',
-//         'text-align': 'center'
-//     });
-//     $('<img>').attr('src', 'http://portal.sanha.org.pk/assets/dist/img/sanha-logo.png').addClass('img').css({
-//         'width': 'auto',
-//         'height': '95px'
-//     }).appendTo(center_header);
-
-//     // Add HR element below the header
-//     $('<hr>').appendTo(page.body);
-
-//     // Section with owner's full name and code
-//     var owner_section = $('<div>').addClass('owner-section').appendTo(page.body).css({
-//         'text-align': 'center'
-//     });
-//     $('<strong>').text('Name: John Doe').appendTo(owner_section); // Dummy data for owner's full name, replace with actual data from location field
-//     $('<span>').text(' | ').appendTo(owner_section); // Separator (you can change this to any other character)
-//     $('<strong>').text('Code: ABC123').appendTo(owner_section); // Dummy data for owner's code, replace with actual data
-
-//     // Add HR element below the owner section
-//     $('<hr>').appendTo(page.body);
-
-//     // Last section - Date range "From - To"
-//     var date_section = $('<div>').addClass('date-section').appendTo(page.body).css({
-//         'text-align': 'center'
-//     });
-//     $('<span>').text('From: ').appendTo(date_section);
-//     $('<strong>').text('2022-01-01').appendTo(date_section); // Replace with the actual "From" date
-//     $('<span>').text(' - ').appendTo(date_section);
-//     $('<span>').text('To: ').appendTo(date_section);
-//     $('<strong>').text('2022-12-31').appendTo(date_section); // Replace with the actual "To" date
-
-// 	$('<hr>').appendTo(page.body);
-
-//     // Right part of the header - company tagline
-//     var right_header = $('<div>').appendTo(header_section).css({
-//         'flex': '1',
-//         'text-align': 'right',
-// 		'align-self': 'center'
-//     });
-//     $('<span>').text('Eat Halal, Be Healthy.').appendTo(right_header);
-
-// 	$('<hr>').appendTo(page.body);
-
-//     // Table section
-//     var table_section = $('<div>').appendTo(page.body);
-
-//     // Table
-//     var table = $('<table>').addClass('table table-bordered').appendTo(table_section);
-//     var thead = $('<thead>').appendTo(table);
-//     var tbody = $('<tbody>').appendTo(table);
-
-//     // Table headers
-//     var headers = ['Raw Material', 'Supplier', 'Manufacturer', 'Status']; // Add more headers if needed
-//     var header_row = $('<tr>').appendTo(thead);
-//     $.each(headers, function(index, header) {
-//         $('<th>').text(header).appendTo(header_row);
-//     });
-
-//     // Table rows - sample data
-//     var sample_data = [
-//         { 'Raw Material': 'Material 1', 'Supplier': 'Supplier A', 'Manufacturer': 'Manufacturer X', 'Status': 'Approved' },
-//         { 'Raw Material': 'Material 2', 'Supplier': 'Supplier B', 'Manufacturer': 'Manufacturer Y', 'Status': 'Pending' },
-//         // Add more rows with actual data from your SQL query
-//     ];
-
-//     $.each(sample_data, function(index, row_data) {
-// 		if (index === 0 || row_data['Query Type'] !== sample_data[index - 1]['Query Type']) {
-// 			// Add a row to categorize the report by query type
-// 			var category_row = $('<tr>').appendTo(tbody);
-// 			category_row.css('line-height', '0px'); // Reduce line height for spacing
-// 			var category_cell = $('<td>').attr('colspan', headers.length).addClass('table-primary').css('background-color', '#b8daff').appendTo(category_row);
-// 			$('<h3>').text('Query Type: ' + row_data['Query Type']).appendTo(category_cell);
-// 		}
-	
-// 		// Add the regular data row
-// 		var data_row = $('<tr>').appendTo(tbody);
-// 		$.each(headers, function(index, header) {
-// 			$('<td>').text(row_data[header]).appendTo(data_row);
-// 		});
-// 	});
-// 	var footer_section = $('<div>').addClass('footer-section').appendTo(page.body);
-// $('<span>').text('Page ').appendTo(footer_section);
-// var page_number_span = $('<span>').addClass('page-number').appendTo(footer_section);
-// $('<hr>').appendTo(footer_section);
-
-// // Add CSS for page breaks and header/footer display
-// // Add CSS for page breaks and header/footer display
-// frappe.dom.freeze(__('Loading...'), 1);
-// $("<style>")
-//     .prop("type", "text/css")
-//     .html(
-//         `@page {
-//             size: A4 portrait;
-//             margin: 1cm;
-//             @bottom-right {
-//                 content: counter(page);
-//             }
-//         }
-//         @media print {
-//             .header-section, .footer-section {
-//                 display: block;
-//                 position: fixed;
-//                 left: 0;
-//                 right: 0;
-//             }
-//             .footer-section {
-//                 bottom: 0;
-//                 text-align: right;
-//                 border-top: 1px solid #ccc;
-//                 padding-top: 5px;
-//             }
-//             .page-number:after {
-//                 content: counter(page);
-//             }
-//             table {
-//                 page-break-inside: auto;
-//             }
-//             tr {
-//                 page-break-inside: avoid;
-//                 page-break-after: auto;
-//             }
-//             thead {
-//                 display: table-header-group;
-//             }
-//             tbody {
-//                 display: table-row-group;
-//             }
-//             .header-section, .footer-section {
-//                 visibility: visible;
-//             }
-//             .header-section:not(:first-of-type), .footer-section:not(:first-of-type) {
-//                 display: none;
-//             }
-//         }`
-//     )
-//     .appendTo("head");
-
-// // Add page numbers
-// var totalPages = $("table").length;
-// $(".page-number").text("1 / " + totalPages);
-// $(".table").each(function(index) {
-//     if (index !== 0) {
-//         $(this).find("tbody tr:first").before('<tr style="line-height: 0px;"><td colspan="10" class="table-primary" style="background-color: #b8daff;"> <h3>Query Type: Type ' + index + '</h3> </td></tr>');
-//     }
-// });
-
-// frappe.dom.unfreeze();
-
-// $('<hr>').appendTo(page.body);
-// var footer_section = $('<div>').addClass('footer-section').appendTo(page.body).css({
-//     'text-align': 'left'
-// });
-
-// // Add company address
-// $('<p>').html('<strong>Sanha Halal AssociatesPakistan PVT. LTD.</strong> Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama D.H.A. phase 5<br>Email: evaluation@sanha.org.pk - Ph: +92 21 35295263').appendTo(footer_section);
-
-
-
-// };
-
-// frappe.pages['cr-report'].on_page_load = function(wrapper) {
-//     var page = frappe.ui.make_app_page({
-//         parent: wrapper,
-//         title: 'Reports',
-//         single_column: true
-//     });
-
-//     // Header section
-//     var header_section = $('<div>').addClass('header-section').appendTo(page.body);
-
-//     // Center part of the header - company logo
-//     var center_header = $('<div>').appendTo(header_section).css({
-//         'flex': '1',
-//         'text-align': 'center'
-//     });
-//     $('<img>').attr('src', 'http://portal.sanha.org.pk/assets/dist/img/sanha-logo.png').addClass('img').css({
-//         'width': 'auto',
-//         'height': '95px'
-//     }).appendTo(center_header);
-
-//     // Add HR element below the header
-//     $('<hr>').appendTo(page.body);
-
-//     // Section with owner's full name and code
-//     var owner_section = $('<div>').addClass('owner-section').appendTo(page.body).css({
-//         'text-align': 'center'
-//     });
-//     $('<strong>').text('Name: John Doe').appendTo(owner_section); // Dummy data for owner's full name, replace with actual data from location field
-//     $('<span>').text(' | ').appendTo(owner_section); // Separator (you can change this to any other character)
-//     $('<strong>').text('Code: ABC123').appendTo(owner_section); // Dummy data for owner's code, replace with actual data
-
-//     // Add HR element below the owner section
-//     $('<hr>').appendTo(page.body);
-
-//     // Right part of the header - company tagline
-//     var right_header = $('<div>').appendTo(header_section).css({
-//         'flex': '1',
-//         'text-align': 'right'
-//     });
-//     $('<span>').text('Eat Halal, Be Healthy.').appendTo(right_header);
-// };
-
-
-
-// frappe.pages['cr-report'].on_page_load = function(wrapper) {
-//     var page = frappe.ui.make_app_page({
-//         parent: wrapper,
-//         title: 'Reports',
-//         single_column: true
-//     });
-
-//     // Add header section
-//     var header_section = $('<div>').addClass('header-section').appendTo(page.body);
-//     $('<h1>').text('Report Header').appendTo(header_section); // Add a heading for the header section
-//     $('<p>').text('This is the header section of the report page. Add any relevant information here.').appendTo(header_section); // Add description or other elements as needed
-
-//     // Add print button
-//     var print_button = $('<button>').text('Print Report').addClass('btn btn-primary').appendTo(page.body);
-//     print_button.on('click', function() {
-//         // Handle print button click event
-//         // You can add logic here to trigger printing functionality
-//         // For example, you can call a function to generate and format the report for printing
-//         frappe.msgprint('Printing functionality will be implemented here.');
-//     });
-
-//     // Add table
-//     var table = $('<table>').addClass('table table-bordered').appendTo(page.body);
-//     var thead = $('<thead>').appendTo(table);
-//     var tbody = $('<tbody>').appendTo(table);
-
-//     // Add table header row
-//     var headerRow = $('<tr>').appendTo(thead);
-//     $('<th>').text('#').appendTo(headerRow);
-//     $('<th>').text('Raw Material').appendTo(headerRow);
-//     $('<th>').text('RM. Type').appendTo(headerRow);
-//     $('<th>').text('Supplier').appendTo(headerRow);
-//     $('<th>').text('Supplier Code').appendTo(headerRow);
-//     $('<th>').text('Supplier Contact').appendTo(headerRow);
-//     $('<th>').text('Manufacturer').appendTo(headerRow);
-//     $('<th>').text('Manufacturer Contact').appendTo(headerRow);
-//     $('<th>').text('Status').appendTo(headerRow);
-//     $('<th>').text('Remarks').appendTo(headerRow);
-
-//     // Populate table with data
-//     // Replace this with your actual data fetching logic
-//     var data = [
-//         { id: 1, raw_material: 'yuyrtyr', rm_type: 'jkljkl;', supplier: 'sdfg', supplier_code: 'uioui', supplier_contact: 'nmb', manufacturer: 'wqerwer', manufacturer_contact: 'vcbfgh', status: 'Halal', remarks: '.' },
-//         // Add more data rows as needed
-//     ];
-
-//     // Add data rows to the table body
-//     $.each(data, function(index, row) {
-//         var tableRow = $('<tr>').appendTo(tbody);
-//         $('<td>').text(row.id).appendTo(tableRow);
-//         $('<td>').text(row.raw_material).appendTo(tableRow);
-//         $('<td>').text(row.rm_type).appendTo(tableRow);
-//         $('<td>').text(row.supplier).appendTo(tableRow);
-//         $('<td>').text(row.supplier_code).appendTo(tableRow);
-//         $('<td>').text(row.supplier_contact).appendTo(tableRow);
-//         $('<td>').text(row.manufacturer).appendTo(tableRow);
-//         $('<td>').text(row.manufacturer_contact).appendTo(tableRow);
-//         $('<td>').text(row.status).appendTo(tableRow);
-//         $('<td>').text(row.remarks).appendTo(tableRow);
-//     });
-
-//     // Add a container to display the report content
-//     $(wrapper).append('<div class="report-container"></div>');
-// };
-
-// frappe.pages['cr-report'].on_page_load = function(wrapper) {
-//     var page = frappe.ui.make_app_page({
-//         parent: wrapper,
-//         title: 'Reports',
-//         single_column: true
-//     });
-
-//     // Add header section
-//     var header_section = $('<div>').addClass('header-section').appendTo(page.body);
-//     $('<h1>').text('Report Header').appendTo(header_section); // Add a heading for the header section
-//     $('<p>').text('This is the header section of the report page. Add any relevant information here.').appendTo(header_section); // Add description or other elements as needed
-
-//     // Add print button
-//     var print_button = $('<button>').text('Print Report').addClass('btn btn-primary').appendTo(page.body);
-//     print_button.on('click', function() {
-//         // Handle print button click event
-//         // You can add logic here to trigger printing functionality
-//         // For example, you can call a function to generate and format the report for printing
-//         frappe.msgprint('Printing functionality will be implemented here.');
-//     });
-
-//     // Add a container to display the report content
-//     $(wrapper).append('<div class="report-container"></div>');
-// };

@@ -1,0 +1,63 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"koCBkHz2Oz\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"awPKLi4D8O\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"VW6ZwcTwlE\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Queries Submited\",\"col\":3}},{\"id\":\"vixfpSM4lN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Queries List\",\"col\":3}}]",
+ "creation": "2024-05-03 17:43:10.119550",
+ "custom_blocks": [
+  {
+   "custom_block_name": "Company Information",
+   "label": "Company Information"
+  }
+ ],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "color-review-points",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Evaluation",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Submit New Query",
+   "link_count": 0,
+   "link_to": "Query",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2024-05-16 13:09:30.278964",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Evaluation",
+ "number_cards": [
+  {
+   "label": "Queries Submited",
+   "number_card_name": "Submitted"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "Evaluation"
+  }
+ ],
+ "sequence_id": 3.1,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Queries List",
+   "link_to": "Query",
+   "stats_filter": "[[\"Query\",\"workflow_state\",\"=\",\"Submitted\",false]]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Evaluation"
+}

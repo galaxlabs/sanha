@@ -4,7 +4,7 @@
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2024-05-07 13:43:31.782427",
+ "modified": "2024-05-08 14:12:17.168963",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "cr-report",
@@ -16,6 +16,9 @@
   },
   {
    "role": "System Manager"
+  },
+  {
+   "role": "Client"
   }
  ],
  "script": null,

@@ -70,9 +70,53 @@ class Query(Document):
                 # Prevent deletion if the document is not in Draft mode or if the user is not the owner
                 frappe.throw("You don't have permission to delete this document.")
 
-    def after_insert(self):
-        pass
 
+
+    # def before_save(doc, method):
+    #     # Check if client name and client code are not set
+    #     if not doc.client_name and not doc.client_code:
+    #     # Fetch the session user's full name
+    #         user = frappe.get_doc("User", frappe.session.user)
+    #         full_name = user.full_name if user else frappe.session.user
+
+    #     # Use the full name as the client name
+    #     doc.client_name = full_name
+
+    #     # Use the email address as the client code (optional)
+    #     doc.client_code = frappe.session.user
+        
+    #     pass
+    # def before_save(self):
+    #     if not self.client_name and not self.client_code:
+    #         # Fetch the session user's full name and location
+    #         user = frappe.get_doc("User", frappe.session.user_fullname)
+    #         full_name = user.full_name
+    #         location = user.location
+
+    #         # Use the location as the client code
+    #         client_code = location
+
+    #         # Update the client_name and client_code fields
+    #         self.client_name = full_name
+    #         self.client_code = client_code
+    
+
+
+
+        #     first_name = user.first_name
+        #     location = user.location
+
+        #     # Use the location as the client code
+        #     client_code = location
+
+        #     # Update the client_name and client_code fields
+        #     self.client_name = first_name
+        #     self.client_code = client_code
+
+        # # Set the client_name to the session user
+        # self.client_name = frappe.session.user
+
+   
 
     # def on_update(self):
     #     # Fetch the session user's first name and location

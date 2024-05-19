@@ -1,0 +1,22 @@
+{
+ "content": null,
+ "creation": "2024-05-11 13:00:13.557351",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2024-05-11 13:00:13.557351",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "queries-report",
+ "owner": "Administrator",
+ "page_name": "queries-report",
+ "roles": [
+  {
+   "role": "Certificate Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0
+}

@@ -1,7 +1,4 @@
 
-from __future__ import unicode_literals
-
-
 app_name = "sanha"
 app_title = "Sanha"
 app_publisher = "Sanha Halal Pakistan "
@@ -9,14 +6,14 @@ app_description = "Sanha"
 app_email = "sanha@nomail.com"
 app_license = "mit"
 # required_apps = []
-
 # Includes in <head>
 # ------------------
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/sanha/css/sanha.css"
 # app_include_js = "/assets/sanha/js/sanha.js"
-
+    # JavaScript file for client_dashboard workspace
+    # Add similar entries for other workspaces if needed
 # include js, css files in header of web template
 # web_include_css = "/assets/sanha/css/sanha.css"
 # web_include_js = "/assets/sanha/js/sanha.js"
@@ -230,17 +227,3 @@ app_license = "mit"
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-
-
-def get_reports():
-    return [
-        {
-            "name": "cr",
-            "doctype": "Query",
-            "is_query_report": True,
-            "type": "Report",
-            "label": "Query Report",
-            "route": "sanha.reports.cr.render_custom_report",
-            # Add any additional fields as needed
-        }
-    ]
