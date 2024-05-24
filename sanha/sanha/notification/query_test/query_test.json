@@ -1,24 +1,22 @@
 {
  "attach_print": 0,
  "channel": "System Notification",
- "condition": "",
- "creation": "2024-05-03 18:28:29.405259",
+ "creation": "2024-05-20 14:14:19.921610",
  "days_in_advance": 0,
  "docstatus": 0,
  "doctype": "Notification",
  "document_type": "Query",
  "enabled": 1,
- "event": "New",
+ "event": "Value Change",
  "idx": 0,
  "is_standard": 1,
- "message": "<p>Add your message here</p>\n",
- "message_type": "Plain Text",
- "modified": "2024-05-20 14:09:29.190441",
+ "message": "Add your message here",
+ "message_type": "Markdown",
+ "modified": "2024-05-20 14:17:12.696440",
  "modified_by": "Administrator",
  "module": "Sanha",
- "name": "Query Submited",
+ "name": "Query Test",
  "owner": "Administrator",
- "print_format": "Query Reports",
  "recipients": [
   {
    "receiver_by_document_field": "owner",
@@ -27,7 +25,7 @@
  ],
  "send_system_notification": 0,
  "send_to_all_assignees": 0,
- "set_property_after_alert": "workflow_state",
- "subject": "Query Submitted",
- "value_changed": ""
+ "slack_webhook_url": "",
+ "subject": "Your {{ doc.name }} Status has been Updated ",
+ "value_changed": "workflow_state"
 }

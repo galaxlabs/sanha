@@ -62,14 +62,7 @@ class Query(Document):
     # Define function to apply role-based and status-based filtering to list view
             
     # Define the server-side method
-
-    def validate_permission(doc, method):
-        if method == "delete" and doc.doctype == "Query":
-            # Check if the document is in Draft mode based on the value of the workflow_status field
-            if doc.workflow_status != "Draft" or doc.owner != frappe.session.user:
-                # Prevent deletion if the document is not in Draft mode or if the user is not the owner
-                frappe.throw("You don't have permission to delete this document.")
-
+        pass    
 
 
     # def before_save(doc, method):

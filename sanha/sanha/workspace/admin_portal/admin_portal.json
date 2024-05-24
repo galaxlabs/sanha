@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"E0NmdrnUbm\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"1ETkg5H1Mt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"DsamRxJnx6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Queries List\",\"col\":3}},{\"id\":\"_1Y2JbUZDe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Client\",\"col\":3}},{\"id\":\"3s0MjdX_HN\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"I7k0YeEvNy\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h3\\\" data-sider-select-id=\\\"c0e71321-b6c6-46ce-8e48-ddeea3e40ea6\\\">Client Certification Expiry (Within 60 Days)</span><span class=\\\"h1\\\"></span>\",\"col\":12}},{\"id\":\"jgZT8I1MFe\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Client lists\",\"col\":4}},{\"id\":\"tAuotW8qkT\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b data-sider-select-id=\\\"4131abed-5dc0-466f-b880-c18eed51cbcd\\\">Queries Status</b></span>\",\"col\":12}},{\"id\":\"_XIV5esjyR\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Approved\",\"col\":3}},{\"id\":\"Ih7W2he8Yd\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Rejected\",\"col\":3}},{\"id\":\"uTMZozDfXw\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Hold\",\"col\":3}},{\"id\":\"bJSQnntp7O\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Haram\",\"col\":3}},{\"id\":\"KCZnOPnsxp\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Halal\",\"col\":3}},{\"id\":\"MhjTys1ehQ\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Pending\",\"col\":3}},{\"id\":\"jJgSujQgQB\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Under Review\",\"col\":3}},{\"id\":\"zLBygzd543\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Doubtful\",\"col\":3}},{\"id\":\"raK21j1VSu\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Queries Launched\",\"col\":3}},{\"id\":\"HrjdmBDAop\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Returned to Evaluation\",\"col\":3}},{\"id\":\"fuqcb6-uVx\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Returned\",\"col\":3}},{\"id\":\"vSfGH0eG3r\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Query Result</b></span>\",\"col\":12}},{\"id\":\"8D9DcMjtHa\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b data-sider-select-id=\\\"f000de32-78ec-489c-899f-f3eef1784b44\\\">Reports And Print</b></span>\",\"col\":6}}]",
+ "content": "[{\"id\":\"E0NmdrnUbm\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"1ETkg5H1Mt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"YdOjRoiLK5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create E-NUMBERS\",\"col\":3}},{\"id\":\"NGm4UfFrCl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"E-NUMBERS List\",\"col\":3}},{\"id\":\"NiT3BHiDFC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Template\",\"col\":3}},{\"id\":\"DsamRxJnx6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Queries List\",\"col\":3}},{\"id\":\"_1Y2JbUZDe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Client\",\"col\":3}},{\"id\":\"3s0MjdX_HN\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"I7k0YeEvNy\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h3\\\" data-sider-select-id=\\\"c0e71321-b6c6-46ce-8e48-ddeea3e40ea6\\\">Client Certification Expiry (Within 60 Days)</span><span class=\\\"h1\\\"></span>\",\"col\":12}},{\"id\":\"jgZT8I1MFe\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Client lists\",\"col\":4}},{\"id\":\"tAuotW8qkT\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b data-sider-select-id=\\\"4131abed-5dc0-466f-b880-c18eed51cbcd\\\">Queries Status</b></span>\",\"col\":12}},{\"id\":\"_XIV5esjyR\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Approved\",\"col\":3}},{\"id\":\"Ih7W2he8Yd\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Rejected\",\"col\":3}},{\"id\":\"uTMZozDfXw\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Hold\",\"col\":3}},{\"id\":\"bJSQnntp7O\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Haram\",\"col\":3}},{\"id\":\"KCZnOPnsxp\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Halal\",\"col\":3}},{\"id\":\"MhjTys1ehQ\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Pending\",\"col\":3}},{\"id\":\"jJgSujQgQB\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Under Review\",\"col\":3}},{\"id\":\"zLBygzd543\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Doubtful\",\"col\":3}},{\"id\":\"raK21j1VSu\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Queries Launched\",\"col\":3}},{\"id\":\"HrjdmBDAop\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Returned to Evaluation\",\"col\":3}},{\"id\":\"fuqcb6-uVx\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Returned\",\"col\":3}},{\"id\":\"vSfGH0eG3r\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Query Result</b></span>\",\"col\":12}},{\"id\":\"8D9DcMjtHa\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b data-sider-select-id=\\\"f000de32-78ec-489c-899f-f3eef1784b44\\\">Reports And Print</b></span>\",\"col\":6}}]",
  "creation": "2024-05-02 14:05:34.933971",
  "custom_blocks": [
   {
@@ -28,7 +28,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-05-03 17:47:16.438813",
+ "modified": "2024-05-20 17:00:41.827218",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Admin Portal",
@@ -112,16 +112,40 @@
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Dashboard",
-   "type": "Dashboard"
+   "label": "Create New Template",
+   "link_to": "Templates",
+   "stats_filter": "[]",
+   "type": "DocType"
   },
   {
    "color": "Grey",
+   "doc_view": "New",
+   "label": "Create E-NUMBERS",
+   "link_to": "E-NUMBERS",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
    "doc_view": "New",
    "label": "Create New Client",
    "link_to": "Client",
    "stats_filter": "[]",
    "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "E-NUMBERS List",
+   "link_to": "E-NUMBERS",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Dashboard",
+   "type": "Dashboard"
   }
  ],
  "title": "Admin Portal"

@@ -37,7 +37,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-05-18 22:30:36.073688",
+ "modified": "2024-05-21 15:25:09.862400",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Client Dashboard",
@@ -90,15 +90,6 @@
  "roles": [
   {
    "role": "Client"
-  },
-  {
-   "role": "System Manager"
-  },
-  {
-   "role": "Admin"
-  },
-  {
-   "role": "Administrator"
   }
  ],
  "sequence_id": 1.1,

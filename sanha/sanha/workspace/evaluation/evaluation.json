@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"koCBkHz2Oz\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"awPKLi4D8O\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"VW6ZwcTwlE\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Queries Submited\",\"col\":3}},{\"id\":\"vixfpSM4lN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Queries List\",\"col\":3}}]",
+ "content": "[{\"id\":\"koCBkHz2Oz\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"awPKLi4D8O\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"VW6ZwcTwlE\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Queries Submited\",\"col\":3}},{\"id\":\"UMA1-SmS4K\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"vixfpSM4lN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Queries List\",\"col\":3}},{\"id\":\"l1YatQFWLT\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create E-NUMBERS\",\"col\":3}}]",
  "creation": "2024-05-03 17:43:10.119550",
  "custom_blocks": [
   {
@@ -29,7 +29,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-05-16 13:09:30.278964",
+ "modified": "2024-05-21 14:44:35.005168",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Evaluation",
@@ -50,6 +50,14 @@
  ],
  "sequence_id": 3.1,
  "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Create E-NUMBERS",
+   "link_to": "E-NUMBERS",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
   {
    "color": "Grey",
    "doc_view": "List",

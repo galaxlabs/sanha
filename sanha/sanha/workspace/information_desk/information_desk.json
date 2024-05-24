@@ -1,0 +1,62 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"zKgY_KQqMc\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"4Pdi870FtF\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Information Desk</span>\",\"col\":12}},{\"id\":\"t-CqrYkl2z\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"1WNKAv20Lm\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"E Numbers\",\"col\":3}}]",
+ "creation": "2024-05-21 12:15:50.544946",
+ "custom_blocks": [
+  {
+   "custom_block_name": "Company Information",
+   "label": "Company Information"
+  }
+ ],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "solid-info",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Information Desk",
+ "links": [],
+ "modified": "2024-05-21 15:45:09.343228",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Information Desk",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "Admin"
+  },
+  {
+   "role": "Administrator"
+  },
+  {
+   "role": "Evaluation"
+  },
+  {
+   "role": "Client"
+  },
+  {
+   "role": "SB Uesr"
+  },
+  {
+   "role": "Certificate Manager"
+  }
+ ],
+ "sequence_id": 24.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "E Numbers",
+   "link_to": "E-NUMBERS",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Information Desk"
+}
