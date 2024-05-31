@@ -239,24 +239,8 @@
  ],
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
- "links": [
-  {
-   "group": "Queries",
-   "link_doctype": "Query",
-   "link_fieldname": "client_name"
-  },
-  {
-   "group": "Queries",
-   "link_doctype": "Query",
-   "link_fieldname": "client_code"
-  },
-  {
-   "group": "Queries",
-   "link_doctype": "Query",
-   "link_fieldname": "owner"
-  }
- ],
- "modified": "2024-05-24 12:18:11.459539",
+ "links": [],
+ "modified": "2024-05-31 16:05:53.520880",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Client",
