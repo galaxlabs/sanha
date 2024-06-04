@@ -41,6 +41,7 @@ frappe.pages['report-print-page'].on_page_load = function(wrapper) {
     var header_section = $('<div>').addClass('header-section').appendTo(page.body);
     header_section.css({
         'padding': '20px',
+        'margin-top': '30px', 
         'margin-bottom': '20px',
         'border-bottom': '1px solid #ccc',
         'display': 'table',
