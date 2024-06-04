@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "autoname": "format:{title}",
  "creation": "2024-05-20 15:44:00.204691",
  "doctype": "DocType",
@@ -22,7 +23,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-21 16:57:03.218404",
+ "modified": "2024-06-04 14:20:33.701821",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Templates",

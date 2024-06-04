@@ -219,7 +219,6 @@ frappe.ui.form.on('Query', {
         }
     }
 });
-
 // frappe.ui.form.on('Query', {
 // 	    onload: function(frm) {
 //         // Fetch user document based on session user's email
