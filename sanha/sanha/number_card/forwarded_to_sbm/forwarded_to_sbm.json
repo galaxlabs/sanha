@@ -1,5 +1,6 @@
 {
  "aggregate_function_based_on": "",
+ "color": "#5c6914",
  "creation": "2024-05-02 15:54:14.111877",
  "docstatus": 0,
  "doctype": "Number Card",
@@ -11,7 +12,7 @@
  "is_public": 0,
  "is_standard": 1,
  "label": "Forwarded to SBM  ",
- "modified": "2024-05-02 15:54:23.967800",
+ "modified": "2024-06-04 16:59:29.385578",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Forwarded to SBM",
