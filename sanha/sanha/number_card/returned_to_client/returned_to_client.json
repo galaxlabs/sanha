@@ -1,4 +1,5 @@
 {
+ "color": "#4463F0",
  "creation": "2024-05-02 14:07:29.868461",
  "docstatus": 0,
  "doctype": "Number Card",
@@ -10,7 +11,7 @@
  "is_public": 0,
  "is_standard": 1,
  "label": "Returned to Client",
- "modified": "2024-06-04 13:56:17.495504",
+ "modified": "2024-06-04 16:42:32.319570",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Returned to Client",
