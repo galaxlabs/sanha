@@ -22,9 +22,9 @@
  "hide_custom": 0,
  "icon": "color-review-points",
  "idx": 0,
- "indicator_color": "green",
+ "indicator_color": "",
  "is_hidden": 0,
- "label": "Client Dashboard",
+ "label": "User Dashboard",
  "links": [
   {
    "hidden": 0,
@@ -37,10 +37,10 @@
    "type": "Link"
   }
  ],
- "modified": "2024-05-21 15:25:09.862400",
+ "modified": "2024-06-04 18:22:04.392711",
  "modified_by": "Administrator",
  "module": "Sanha",
- "name": "Client Dashboard",
+ "name": "User Dashboard",
  "number_cards": [
   {
    "label": "Queries Launch",
@@ -118,5 +118,5 @@
    "type": "Page"
   }
  ],
- "title": "Client Dashboard"
+ "title": "User Dashboard"
 }

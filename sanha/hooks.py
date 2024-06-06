@@ -228,3 +228,10 @@ app_license = "mit"
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
+
+doc_events = {
+    "Query": {
+        "on_submit": "sanha.sanha.doctype.query.query_notification.send_email_on_submit",
+        "on_update": "sanha.sanha.doctype.query.query_notification.send_email_on_workflow_change"
+    }
+}

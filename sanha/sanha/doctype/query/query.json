@@ -135,21 +135,8 @@
  ],
  "index_web_pages_for_search": 1,
  "is_calendar_and_gantt": 1,
- "links": [
-  {
-   "link_doctype": "Client",
-   "link_fieldname": "client_name"
-  },
-  {
-   "link_doctype": "Client",
-   "link_fieldname": "client_code"
-  },
-  {
-   "link_doctype": "Client",
-   "link_fieldname": "email"
-  }
- ],
- "modified": "2024-05-24 12:19:14.483435",
+ "links": [],
+ "modified": "2024-06-05 15:05:59.155845",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",
