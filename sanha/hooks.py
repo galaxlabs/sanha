@@ -231,7 +231,15 @@ app_license = "mit"
 
 doc_events = {
     "Query": {
-        "on_submit": "sanha.sanha.doctype.query.query_notification.send_email_on_submit",
-        "on_update": "sanha.sanha.doctype.query.query_notification.send_email_on_workflow_change"
+        "on_submit": "sanha.sanha.doctype.query.query.send_query_notification",
+        "on_update": "sanha.sanha.doctype.query.query.send_status_update_notification"
+    }
+}
+
+scheduler_events = {
+    "cron": {
+        "*/1 * * * *": [
+            "sanha.sanha.doctype.query.query.flush_email_queue"
+        ]
     }
 }

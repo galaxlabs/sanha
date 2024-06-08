@@ -1,31 +1,73 @@
 {
  "attach_print": 0,
  "channel": "System Notification",
+ "condition": "",
  "creation": "2024-05-20 14:14:19.921610",
  "days_in_advance": 0,
  "docstatus": 0,
  "doctype": "Notification",
  "document_type": "Query",
- "enabled": 1,
+ "enabled": 0,
  "event": "Value Change",
  "idx": 0,
  "is_standard": 1,
- "message": "Add your message here",
+ "message": "<p>Add your message here</p>\n",
  "message_type": "Markdown",
- "modified": "2024-05-20 14:17:12.696440",
+ "modified": "2024-06-08 17:56:10.911837",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query Test",
  "owner": "Administrator",
  "recipients": [
   {
+   "condition": "doc.workflow_state==\"Approved\"",
    "receiver_by_document_field": "owner",
-   "receiver_by_role": "Client"
+   "receiver_by_role": ""
+  },
+  {
+   "condition": "doc.workflow_state==\"Halal\"",
+   "receiver_by_document_field": "owner",
+   "receiver_by_role": ""
+  },
+  {
+   "condition": "doc.workflow_state==\"Haram\"",
+   "receiver_by_document_field": "owner",
+   "receiver_by_role": ""
+  },
+  {
+   "condition": "doc.workflow_state==\"Rejected\"",
+   "receiver_by_document_field": "owner",
+   "receiver_by_role": ""
+  },
+  {
+   "condition": "doc.workflow_state==\"Hold\"",
+   "receiver_by_document_field": "owner",
+   "receiver_by_role": ""
+  },
+  {
+   "condition": "doc.workflow_state==\"Approved\"",
+   "receiver_by_role": "Admin"
+  },
+  {
+   "condition": "doc.workflow_state==\"Halal\"",
+   "receiver_by_role": "Admin"
+  },
+  {
+   "condition": "doc.workflow_state==\"Haram\"",
+   "receiver_by_role": "Admin"
+  },
+  {
+   "condition": "doc.workflow_state==\"Rejected\"",
+   "receiver_by_role": "Admin"
+  },
+  {
+   "condition": "doc.workflow_state==\"Hold\"",
+   "receiver_by_role": "Admin"
   }
  ],
  "send_system_notification": 0,
  "send_to_all_assignees": 0,
  "slack_webhook_url": "",
- "subject": "Your {{ doc.name }} Status has been Updated ",
+ "subject": "Your Query {{ doc.name }} Awnserd",
  "value_changed": "workflow_state"
 }

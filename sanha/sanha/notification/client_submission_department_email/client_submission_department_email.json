@@ -1,0 +1,40 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "condition": "",
+ "creation": "2024-06-06 17:29:09.687530",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Query",
+ "enabled": 0,
+ "event": "Save",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<h3>Dear [Admin/Evaluation Department],</h3>\n\nI hope this email finds you well.\n\nThis is to inform you that our client, {{doc.client_name}}, has successfully submitted a query titled {{doc.name}}. about {{doc.raw_material}},<br>\nThe query has been forwarded to the Evaluation Department for further processing.<br>\n\nPlease review the query and respond accordingly within the next 24 hours.<br>\n\nIf you have any further questions or require additional information, please do not hesitate to contact us.<br>\n\nBest regards,\n\nSystem Generated Email\n\n",
+ "message_type": "Plain Text",
+ "modified": "2024-06-08 17:55:40.324548",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Client Submission Department Email",
+ "owner": "Administrator",
+ "print_format": "Query Reports",
+ "recipients": [
+  {
+   "condition": "doc.workflow_state == \"Submitted\"",
+   "receiver_by_document_field": "",
+   "receiver_by_role": "Admin"
+  },
+  {
+   "condition": "doc.workflow_state == \"Submitted\"",
+   "receiver_by_role": "Evaluation"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender": "Sanha Evaluation",
+ "sender_email": "noreply@sanhapakistan.com",
+ "set_property_after_alert": "workflow_state",
+ "subject": "{{doc.client_name}} Query Submission Notification",
+ "value_changed": "workflow_state"
+}

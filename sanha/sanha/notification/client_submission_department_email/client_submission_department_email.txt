@@ -1,0 +1,15 @@
+<h3>Dear [Admin/Evaluation Department],</h3>
+
+I hope this email finds you well.
+
+This is to inform you that our client, {{doc.client_name}}, has successfully submitted a query titled {{doc.name}}. about {{doc.raw_material}},<br>
+The query has been forwarded to the Evaluation Department for further processing.<br>
+
+Please review the query and respond accordingly within the next 24 hours.<br>
+
+If you have any further questions or require additional information, please do not hesitate to contact us.<br>
+
+Best regards,
+
+System Generated Email
+
