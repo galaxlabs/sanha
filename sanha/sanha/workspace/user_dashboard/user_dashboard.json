@@ -1,15 +1,11 @@
 {
  "charts": [],
- "content": "[{\"id\":\"Xt5g8Jcbiq\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"PIxz0DxppF\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"user\",\"col\":12}},{\"id\":\"awPKLi4D8O\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"xCPElfCZO8\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Query\",\"col\":3}},{\"id\":\"z19v3DUGwS\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Print Report \",\"col\":3}},{\"id\":\"H8Qr2E8ngC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Query List\",\"col\":3}},{\"id\":\"xYHqdm8EjT\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"ODft-cZVCA\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b data-sider-select-id=\\\"394b380e-09cd-485e-93ad-577e4e6f23e5\\\">Download Query&nbsp; Format</b>\",\"col\":12}},{\"id\":\"p9SMJ2T9MF\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Download Query Format\",\"col\":12}},{\"id\":\"DYWNxKDQvJ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Query Status</b></span>\",\"col\":12}},{\"id\":\"LKLXcjb-qQ\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Queries Launch\",\"col\":3}},{\"id\":\"L6nKCrg0mz\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Forwarded to SBM\",\"col\":3}},{\"id\":\"Q69SpebCKS\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Returned\",\"col\":3}},{\"id\":\"tGHkCpZA-H\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Approved\",\"col\":3}},{\"id\":\"VS-thrK4p_\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Halal\",\"col\":3}},{\"id\":\"5Od3fH0q0m\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Haram\",\"col\":3}},{\"id\":\"u8dPqJZu6F\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Rejected\",\"col\":3}},{\"id\":\"GCkJCd1eTG\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Pending\",\"col\":3}},{\"id\":\"r3c1gqphnw\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Hold\",\"col\":3}},{\"id\":\"xCIkeErFS6\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Doubtful\",\"col\":3}},{\"id\":\"mz13IVwbI7\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"ptXhx_ccSf\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Query Results</b></span>\",\"col\":12}}]",
+ "content": "[{\"id\":\"Xt5g8Jcbiq\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"awPKLi4D8O\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"xCPElfCZO8\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Query\",\"col\":3}},{\"id\":\"z19v3DUGwS\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Print Report \",\"col\":3}},{\"id\":\"H8Qr2E8ngC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Query List\",\"col\":3}},{\"id\":\"xYHqdm8EjT\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"ODft-cZVCA\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b data-sider-select-id=\\\"394b380e-09cd-485e-93ad-577e4e6f23e5\\\">Download Query&nbsp; Format</b>\",\"col\":12}},{\"id\":\"p9SMJ2T9MF\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Download Query Format\",\"col\":12}},{\"id\":\"DYWNxKDQvJ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Query Status</b></span>\",\"col\":12}},{\"id\":\"LKLXcjb-qQ\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Queries Launch\",\"col\":3}},{\"id\":\"L6nKCrg0mz\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Forwarded to SBM\",\"col\":3}},{\"id\":\"Q69SpebCKS\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Returned\",\"col\":3}},{\"id\":\"tGHkCpZA-H\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Approved\",\"col\":3}},{\"id\":\"VS-thrK4p_\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Halal\",\"col\":3}},{\"id\":\"5Od3fH0q0m\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Haram\",\"col\":3}},{\"id\":\"u8dPqJZu6F\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Rejected\",\"col\":3}},{\"id\":\"GCkJCd1eTG\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Pending\",\"col\":3}},{\"id\":\"r3c1gqphnw\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Hold\",\"col\":3}},{\"id\":\"xCIkeErFS6\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Doubtful\",\"col\":3}},{\"id\":\"mz13IVwbI7\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"ptXhx_ccSf\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Query Results</b></span>\",\"col\":12}}]",
  "creation": "2024-05-03 13:58:37.162449",
  "custom_blocks": [
   {
    "custom_block_name": "Company Information",
    "label": "Company Information"
-  },
-  {
-   "custom_block_name": "user",
-   "label": "user"
   },
   {
    "custom_block_name": "Download Query Format",
@@ -37,7 +33,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-06-04 18:22:04.392711",
+ "modified": "2024-06-09 20:11:58.884020",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "User Dashboard",
