@@ -25,7 +25,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-04 13:58:47.215564",
+ "modified": "2024-06-11 17:46:46.251232",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query Types",
@@ -73,6 +73,7 @@
    "read": 1,
    "report": 1,
    "role": "Client",
+   "select": 1,
    "share": 1,
    "write": 1
   },
