@@ -1,60 +1,104 @@
-// # Define a client-side function to customize file upload options based on user roles
-frappe.ui.form.on('File', {
-  refresh: function(frm) {
-      if (frappe.user_roles.includes('Client')) {
-          // Hide all other file upload options except "My Device"
-          setTimeout(function() {
-              $('.file-upload-area .btn-file-upload').each(function() {
-                  var button = $(this);
-                  if (!button.text().includes('My Device')) {
-                      button.hide();
-                  }
-              });
-          }, 500); // Added delay to ensure the DOM is fully loaded
-      }
-  }
-});
+// // # Define a client-side function to customize file upload options based on user roles
+// frappe.ui.form.on('File', {
+//   refresh: function(frm) {
+//       if (frappe.user_roles.includes('Client')) {
+//           // Hide all other file upload options except "My Device"
+//           setTimeout(function() {
+//               $('.file-upload-area .btn-file-upload').each(function() {
+//                   var button = $(this);
+//                   if (!button.text().includes('My Device')) {
+//                       button.hide();
+//                   }
+//               });
+//           }, 500); // Added delay to ensure the DOM is fully loaded
+//       }
+//   }
+// });
 
-$(document).on('shown.bs.modal', '.modal', function() {
-  var modal = $(this);
-  if (modal.find('.modal-title').text().trim() === 'Upload') {
-      setTimeout(function() {
-          modal.find('.btn-file-upload').each(function() {
-              var button = $(this);
-              if (!button.text().includes('My Device')) {
-                  button.hide();
-              }
-          });
-      }, 500); // Added delay to ensure the DOM is fully loaded
+// $(document).on('shown.bs.modal', '.modal', function() {
+//     var modal = $(this);
+//     if (modal.find('.modal-title').text().trim() === 'Upload') {
+//         setTimeout(function() {
+//             modal.find('.btn-file-upload').each(function() {
+//                 var button = $(this);
+//                 if (!button.text().includes('My Device')) {
+//                     button.hide();
+//                 }
+//             });
+//         }, 500); // Added delay to ensure the DOM is fully loaded
 
-      // Custom upload event listener
-      modal.find('input[type="file"]').off('change').on('change', function() {
-          var file = this.files[0];
-          if (file) {
-              var reader = new FileReader();
-              reader.onload = function(e) {
-                  var filedata = e.target.result.split(',')[1];
-                  frappe.call({
-                      method: 'your_app.your_module.custom_upload',
-                      args: {
-                          doctype: cur_frm.doctype,
-                          docname: cur_frm.docname,
-                          filename: file.name,
-                          filedata: filedata,
-                          is_private: 1 // or 0 if not private
-                      },
-                      callback: function(r) {
-                          if (r.message) {
-                              console.log(r.message);
-                          }
-                      }
-                  });
-              };
-              reader.readAsDataURL(file);
-          }
-      });
-  }
-});
+//         // Custom upload event listener
+//         modal.find('input[type="file"]').off('change').on('change', function() {
+//             var file = this.files[0];
+//             if (file) {
+//                 var reader = new FileReader();
+//                 reader.onload = function(e) {
+//                     var filedata = e.target.result.split(',')[1];
+//                     frappe.call({
+//                         method: 'sanha.utils.upload.custom_upload',
+//                         args: {
+//                             doctype: cur_frm.doctype,
+//                             docname: cur_frm.docname,
+//                             filename: file.name,
+//                             filedata: filedata,
+//                             is_private: 1 // or 0 if not private
+//                         },
+//                         callback: function(r) {
+//                             if (r.message) {
+//                                 console.log(r.message);
+//                             }
+//                         },
+//                         error: function(r) {
+//                             console.error("Upload failed:", r);
+//                         }
+//                     });
+//                 };
+//                 reader.readAsDataURL(file);
+//             }
+//         });
+//     }
+// });
+
+// $(document).on('shown.bs.modal', '.modal', function() {
+//   var modal = $(this);
+//   if (modal.find('.modal-title').text().trim() === 'Upload') {
+//       setTimeout(function() {
+//           modal.find('.btn-file-upload').each(function() {
+//               var button = $(this);
+//               if (!button.text().includes('My Device')) {
+//                   button.hide();
+//               }
+//           });
+//       }, 500); // Added delay to ensure the DOM is fully loaded
+
+//       // Custom upload event listener
+//       modal.find('input[type="file"]').off('change').on('change', function() {
+//           var file = this.files[0];
+//           if (file) {
+//               var reader = new FileReader();
+//               reader.onload = function(e) {
+//                   var filedata = e.target.result.split(',')[1];
+//                   frappe.call({
+//                       method: 'your_app.your_module.custom_upload',
+//                       args: {
+//                           doctype: cur_frm.doctype,
+//                           docname: cur_frm.docname,
+//                           filename: file.name,
+//                           filedata: filedata,
+//                           is_private: 1 // or 0 if not private
+//                       },
+//                       callback: function(r) {
+//                           if (r.message) {
+//                               console.log(r.message);
+//                           }
+//                       }
+//                   });
+//               };
+//               reader.readAsDataURL(file);
+//           }
+//       });
+//   }
+// });
 
 
 // frappe.ui.form.on('File', {
