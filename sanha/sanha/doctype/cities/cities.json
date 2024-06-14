@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:city_name",
  "creation": "2024-06-14 12:24:14.135661",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -11,15 +12,17 @@
   {
    "fieldname": "city_name",
    "fieldtype": "Data",
-   "label": "City Name"
+   "label": "City Name",
+   "unique": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-14 12:27:43.037785",
+ "modified": "2024-06-14 13:13:36.210145",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Cities",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
