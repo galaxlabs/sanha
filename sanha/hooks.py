@@ -243,12 +243,3 @@ scheduler_events = {
         ]
     }
 }
-app_include_js = [
-    "/assets/sanha/js/file_upload.js"
-]
-
-doc_events = {
-    "File": {
-        "before_insert": "sanha.api.make_file_private"
-    }
-}

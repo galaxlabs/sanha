@@ -171,9 +171,9 @@
   },
   {
    "fieldname": "city",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "City",
-   "options": "Karachi\nLahore"
+   "options": "Cities"
   },
   {
    "fieldname": "section_break_fcnh",
@@ -240,7 +240,7 @@
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-31 16:05:53.520880",
+ "modified": "2024-06-14 12:26:16.300190",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Client",
