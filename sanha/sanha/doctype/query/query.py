@@ -58,69 +58,69 @@ class Query(Document):
         if found_halal_certificate and not any(doc.documents == "Halal Certificate" for doc in self.documents):
             frappe.throw("Halal Certificate requires Expiry Date.")
     
-    def send_query_notification(doc, method=None):
-        if doc.workflow_state == "Submitted":
-            send_email_to_client(doc)
-            send_email_to_admin_and_evaluation(doc)
-            flush_email_queue()
+#     def send_query_notification(doc, method=None):
+#         if doc.workflow_state == "Submitted":
+#             send_email_to_client(doc)
+#             send_email_to_admin_and_evaluation(doc)
+#             flush_email_queue()
 
-def send_status_update_notification(doc, method=None):
-    if doc.workflow_state in ["Rejected", "Approved", "Haram", "Hold", "Halal"]:
-        send_status_email_to_client_and_admin(doc)
-    flush_email_queue()
+# def send_status_update_notification(doc, method=None):
+#     if doc.workflow_state in ["Rejected", "Approved", "Haram", "Hold", "Halal"]:
+#         send_status_email_to_client_and_admin(doc)
+#     flush_email_queue()
 
-def send_email_to_client(doc):
-    subject = "Confirmation of Query Submission"
-    message = f"""
-    <b>Dear {doc.client_name},</b><br><br>
-    We are pleased to inform you that your query about <b>{doc.raw_material}</b> has been successfully submitted.<br>
-    It has been forwarded to our Evaluation Department for further processing.<br><br>
-    You can expect a response from us within the next 24 hours. We appreciate your patience and understanding.<br><br>
-    If you have any further questions or require additional assistance, please do not hesitate to contact us at <b>karachi@sanha.org.pk</b>.<br><br>
-    Best regards,<br><br>
-    System Generated Email
-    """
-    recipients = [doc.owner]
-    send_email(subject, message, recipients)
+# def send_email_to_client(doc):
+#     subject = "Confirmation of Query Submission"
+#     message = f"""
+#     <b>Dear {doc.client_name},</b><br><br>
+#     We are pleased to inform you that your query about <b>{doc.raw_material}</b> has been successfully submitted.<br>
+#     It has been forwarded to our Evaluation Department for further processing.<br><br>
+#     You can expect a response from us within the next 24 hours. We appreciate your patience and understanding.<br><br>
+#     If you have any further questions or require additional assistance, please do not hesitate to contact us at <b>karachi@sanha.org.pk</b>.<br><br>
+#     Best regards,<br><br>
+#     System Generated Email
+#     """
+#     recipients = [doc.owner]
+#     send_email(subject, message, recipients)
 
-def send_email_to_admin_and_evaluation(doc):
-    subject = f"{doc.client_name} Query Submission Notification"
-    message = f"""
-    Dear Admin/Evaluation Department,<br><br>
-    This is to inform you that our client, {doc.client_name}, has successfully submitted a query titled {doc.name} about {doc.raw_material}.<br>
-    The query has been forwarded to the Evaluation Department for further processing.<br><br>
-    Please review the query and respond accordingly within the next 24 hours.<br><br>
-    If you have any further questions or require additional information, please do not hesitate to contact us.<br><br>
-    Best regards,<br><br>
-    System Generated Email
-    """
-    recipients = ["karachi@sanha.org.pk", "evaluation@sanha.org.pk"]
-    send_email(subject, message, recipients)
+# def send_email_to_admin_and_evaluation(doc):
+#     subject = f"{doc.client_name} Query Submission Notification"
+#     message = f"""
+#     Dear Admin/Evaluation Department,<br><br>
+#     This is to inform you that our client, {doc.client_name}, has successfully submitted a query titled {doc.name} about {doc.raw_material}.<br>
+#     The query has been forwarded to the Evaluation Department for further processing.<br><br>
+#     Please review the query and respond accordingly within the next 24 hours.<br><br>
+#     If you have any further questions or require additional information, please do not hesitate to contact us.<br><br>
+#     Best regards,<br><br>
+#     System Generated Email
+#     """
+#     recipients = ["karachi@sanha.org.pk", "evaluation@sanha.org.pk"]
+#     send_email(subject, message, recipients)
 
-def send_status_email_to_client_and_admin(doc):
-    subject = f"Your Query has been {doc.workflow_state}"
-    message = f"""
-    <b>Dear {doc.client_name},</b><br><br>
-    Your query has been marked as {doc.workflow_state}.<br>
-    Please check the portal or find the attached document for more details.<br><br>
-    If you have any further questions or require additional assistance, please do not hesitate to contact us.<br><br>
-    Best regards,<br><br>
-    System Generated Email
-    """
-    recipients = [doc.owner, "karachi@sanha.org.pk"]
-    send_email(subject, message, recipients)
+# def send_status_email_to_client_and_admin(doc):
+#     subject = f"Your Query has been {doc.workflow_state}"
+#     message = f"""
+#     <b>Dear {doc.client_name},</b><br><br>
+#     Your query has been marked as {doc.workflow_state}.<br>
+#     Please check the portal or find the attached document for more details.<br><br>
+#     If you have any further questions or require additional assistance, please do not hesitate to contact us.<br><br>
+#     Best regards,<br><br>
+#     System Generated Email
+#     """
+#     recipients = [doc.owner, "karachi@sanha.org.pk"]
+#     send_email(subject, message, recipients)
 
-def send_email(subject, message, recipients):
-    frappe.sendmail(
-        recipients=recipients,
-        subject=subject,
-        message=message,
-        delayed=False
-    )
+# def send_email(subject, message, recipients):
+#     frappe.sendmail(
+#         recipients=recipients,
+#         subject=subject,
+#         message=message,
+#         delayed=False
+#     )
 
-def flush_email_queue():
-    flush()
-    frappe.logger().info("Email queue flushed and emails sent.")
+# def flush_email_queue():
+#     flush()
+#     frappe.logger().info("Email queue flushed and emails sent.")
 
 # ########################################################################
 
