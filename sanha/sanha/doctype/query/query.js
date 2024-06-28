@@ -173,36 +173,10 @@ frappe.ui.form.on('Query', {
         frm.toggle_display('documents', true);
     }
 });
-
 frappe.ui.form.on('Query', {
     onload: function(frm) {
-        // Fetch user document based on session user's email
-        frappe.call({
-            method: "frappe.client.get",
-            args: {
-                doctype: "User",
-                name: frappe.session.user
-            },
-            callback: function(r) {
-                if (r.message) {
-                    // Set client_name field with user's full name if it's empty
-                    if (!frm.doc.client_name) {
-                        frm.set_value('client_name', r.message.full_name);
-                    }
-                    
-                    // Set client_code field with user's location if it's empty
-                    if (!frm.doc.client_code) {
-                        frm.set_value('client_code', r.message.location);
-                    }
-                }
-            }
-        });
-    },
-
-    on_submit: function(frm) {
-        // Check if the document is transitioning from draft state
-        if (frm.doc.__islocal) {
-            // Fetch the current user's full name
+        if (frm.is_new()) {
+            // Fetch user document based on session user's email only for new documents
             frappe.call({
                 method: "frappe.client.get",
                 args: {
@@ -211,14 +185,105 @@ frappe.ui.form.on('Query', {
                 },
                 callback: function(r) {
                     if (r.message) {
-                        // Set owner_user_full_name field with user's full name
-                        frm.set_value('owner_user_full_name', r.message.full_name);
+                        // Set client_name field with user's full name if it's empty
+                        if (!frm.doc.client_name) {
+                            frm.set_value('client_name', r.message.full_name);
+                        }
+                        
+                        // Set client_code field with user's location if it's empty
+                        if (!frm.doc.client_code) {
+                            frm.set_value('client_code', r.message.location);
+                        }
                     }
                 }
             });
         }
+    },
+
+    before_save: function(frm) {
+        // Ensure client_name cannot be changed once it's set
+        if (!frm.is_new() && frm.doc.__unsaved) {
+            frappe.call({
+                method: "frappe.client.get",
+                args: {
+                    doctype: "Query",
+                    name: frm.doc.name
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        // Compare the existing client_name with the form client_name
+                        if (r.message.client_name && frm.doc.client_name !== r.message.client_name) {
+                            frm.set_value('client_name', r.message.client_name);
+                            frappe.throw(__('Client Name cannot be changed.'));
+                        }
+                    }
+                }
+            });
+        }
+    },
+
+    before_submit: function(frm) {
+        // Fetch the current user's full name and set owner_user_full_name
+        frappe.call({
+            method: "frappe.client.get",
+            args: {
+                doctype: "User",
+                name: frappe.session.user
+            },
+            callback: function(r) {
+                if (r.message) {
+                    frm.set_value('owner_user_full_name', r.message.full_name);
+                }
+            }
+        });
     }
 });
+
+// frappe.ui.form.on('Query', {
+//     onload: function(frm) {
+//         // Fetch user document based on session user's email
+//         frappe.call({
+//             method: "frappe.client.get",
+//             args: {
+//                 doctype: "User",
+//                 name: frappe.session.user
+//             },
+//             callback: function(r) {
+//                 if (r.message) {
+//                     // Set client_name field with user's full name if it's empty
+//                     if (!frm.doc.client_name) {
+//                         frm.set_value('client_name', r.message.full_name);
+//                     }
+                    
+//                     // Set client_code field with user's location if it's empty
+//                     if (!frm.doc.client_code) {
+//                         frm.set_value('client_code', r.message.location);
+//                     }
+//                 }
+//             }
+//         });
+//     },
+
+//     on_submit: function(frm) {
+//         // Check if the document is transitioning from draft state
+//         if (frm.doc.__islocal) {
+//             // Fetch the current user's full name
+//             frappe.call({
+//                 method: "frappe.client.get",
+//                 args: {
+//                     doctype: "User",
+//                     name: frappe.session.user
+//                 },
+//                 callback: function(r) {
+//                     if (r.message) {
+//                         // Set owner_user_full_name field with user's full name
+//                         frm.set_value('owner_user_full_name', r.message.full_name);
+//                     }
+//                 }
+//             });
+//         }
+//     }
+// });
 // frappe.ui.form.on('Query', {
 // 	    onload: function(frm) {
 //         // Fetch user document based on session user's email
