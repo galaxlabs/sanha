@@ -121,7 +121,7 @@ class Query(Document):
 # def flush_email_queue():
 #     flush()
 #     frappe.logger().info("Email queue flushed and emails sent.")
-
+    pass
 # ########################################################################
 
     # def flush_email_queue():
