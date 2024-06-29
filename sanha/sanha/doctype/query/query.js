@@ -176,7 +176,7 @@ frappe.ui.form.on('Query', {
 frappe.ui.form.on('Query', {
     onload: function(frm) {
         if (frm.is_new()) {
-            // Fetch user document based on session user's email only for new documents
+            // Fetch user document based on session user's email
             frappe.call({
                 method: "frappe.client.get",
                 args: {
@@ -189,7 +189,7 @@ frappe.ui.form.on('Query', {
                         if (!frm.doc.client_name) {
                             frm.set_value('client_name', r.message.full_name);
                         }
-                        
+
                         // Set client_code field with user's location if it's empty
                         if (!frm.doc.client_code) {
                             frm.set_value('client_code', r.message.location);
@@ -201,25 +201,46 @@ frappe.ui.form.on('Query', {
     },
 
     before_save: function(frm) {
-        // Ensure client_name cannot be changed once it's set
-        if (!frm.is_new() && frm.doc.__unsaved) {
-            frappe.call({
-                method: "frappe.client.get",
-                args: {
-                    doctype: "Query",
-                    name: frm.doc.name
-                },
-                callback: function(r) {
-                    if (r.message) {
-                        // Compare the existing client_name with the form client_name
-                        if (r.message.client_name && frm.doc.client_name !== r.message.client_name) {
-                            frm.set_value('client_name', r.message.client_name);
-                            frappe.throw(__('Client Name cannot be changed.'));
+        // Fetch user document based on session user's email
+        frappe.call({
+            method: "frappe.client.get",
+            args: {
+                doctype: "User",
+                name: frappe.session.user
+            },
+            callback: function(r) {
+                if (r.message) {
+                    let user_full_name = r.message.full_name;
+                    let user_email = r.message.email;
+
+                    // Fetch the roles of the current user
+                    frappe.call({
+                        method: "frappe.client.get_list",
+                        args: {
+                            doctype: "Has Role",
+                            filters: {
+                                parent: frappe.session.user
+                            },
+                            fields: ["role"]
+                        },
+                        callback: function(role_response) {
+                            let roles = role_response.message.map(role => role.role);
+
+                            // Check if the user has 'Client' role and the email matches the creator's email
+                            if (roles.includes("Client") && user_email === frm.doc.owner) {
+                                if (!frm.doc.client_name || frm.doc.client_name !== user_full_name) {
+                                    frm.set_value('client_name', user_full_name);
+                                }
+                            } else if (frm.doc.client_name !== user_full_name) {
+                                // Prevent changes to client_name if the current user is not the creator or does not have 'Client' role
+                                frm.set_value('client_name', frm.get_doc_before_save().client_name);
+                                frappe.throw(__('You are not allowed to change the Client Name.'));
+                            }
                         }
-                    }
+                    });
                 }
-            });
-        }
+            }
+        });
     },
 
     before_submit: function(frm) {
