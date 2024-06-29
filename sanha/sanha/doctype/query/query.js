@@ -173,34 +173,9 @@ frappe.ui.form.on('Query', {
         frm.toggle_display('documents', true);
     }
 });
+
 frappe.ui.form.on('Query', {
     onload: function(frm) {
-        if (frm.is_new()) {
-            // Fetch user document based on session user's email
-            frappe.call({
-                method: "frappe.client.get",
-                args: {
-                    doctype: "User",
-                    name: frappe.session.user
-                },
-                callback: function(r) {
-                    if (r.message) {
-                        // Set client_name field with user's full name if it's empty
-                        if (!frm.doc.client_name) {
-                            frm.set_value('client_name', r.message.full_name);
-                        }
-
-                        // Set client_code field with user's location if it's empty
-                        if (!frm.doc.client_code) {
-                            frm.set_value('client_code', r.message.location);
-                        }
-                    }
-                }
-            });
-        }
-    },
-
-    before_save: function(frm) {
         // Fetch user document based on session user's email
         frappe.call({
             method: "frappe.client.get",
@@ -210,101 +185,40 @@ frappe.ui.form.on('Query', {
             },
             callback: function(r) {
                 if (r.message) {
-                    let user_full_name = r.message.full_name;
-                    let user_email = r.message.email;
-
-                    // Fetch the roles of the current user
-                    frappe.call({
-                        method: "frappe.client.get_list",
-                        args: {
-                            doctype: "Has Role",
-                            filters: {
-                                parent: frappe.session.user
-                            },
-                            fields: ["role"]
-                        },
-                        callback: function(role_response) {
-                            let roles = role_response.message.map(role => role.role);
-
-                            // Check if the user has 'Client' role and the email matches the creator's email
-                            if (roles.includes("Client") && user_email === frm.doc.owner) {
-                                if (!frm.doc.client_name || frm.doc.client_name !== user_full_name) {
-                                    frm.set_value('client_name', user_full_name);
-                                }
-                            } else if (frm.doc.client_name !== user_full_name) {
-                                // Prevent changes to client_name if the current user is not the creator or does not have 'Client' role
-                                frm.set_value('client_name', frm.get_doc_before_save().client_name);
-                                frappe.throw(__('You are not allowed to change the Client Name.'));
-                            }
-                        }
-                    });
+                    // Set client_name field with user's full name if it's empty
+                    if (!frm.doc.client_name) {
+                        frm.set_value('client_name', r.message.full_name);
+                    }
+                    
+                    // Set client_code field with user's location if it's empty
+                    if (!frm.doc.client_code) {
+                        frm.set_value('client_code', r.message.location);
+                    }
                 }
             }
         });
     },
 
-    before_submit: function(frm) {
-        // Fetch the current user's full name and set owner_user_full_name
-        frappe.call({
-            method: "frappe.client.get",
-            args: {
-                doctype: "User",
-                name: frappe.session.user
-            },
-            callback: function(r) {
-                if (r.message) {
-                    frm.set_value('owner_user_full_name', r.message.full_name);
+    on_submit: function(frm) {
+        // Check if the document is transitioning from draft state
+        if (frm.doc.__islocal) {
+            // Fetch the current user's full name
+            frappe.call({
+                method: "frappe.client.get",
+                args: {
+                    doctype: "User",
+                    name: frappe.session.user
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        // Set owner_user_full_name field with user's full name
+                        frm.set_value('owner_user_full_name', r.message.full_name);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 });
-
-// frappe.ui.form.on('Query', {
-//     onload: function(frm) {
-//         // Fetch user document based on session user's email
-//         frappe.call({
-//             method: "frappe.client.get",
-//             args: {
-//                 doctype: "User",
-//                 name: frappe.session.user
-//             },
-//             callback: function(r) {
-//                 if (r.message) {
-//                     // Set client_name field with user's full name if it's empty
-//                     if (!frm.doc.client_name) {
-//                         frm.set_value('client_name', r.message.full_name);
-//                     }
-                    
-//                     // Set client_code field with user's location if it's empty
-//                     if (!frm.doc.client_code) {
-//                         frm.set_value('client_code', r.message.location);
-//                     }
-//                 }
-//             }
-//         });
-//     },
-
-//     on_submit: function(frm) {
-//         // Check if the document is transitioning from draft state
-//         if (frm.doc.__islocal) {
-//             // Fetch the current user's full name
-//             frappe.call({
-//                 method: "frappe.client.get",
-//                 args: {
-//                     doctype: "User",
-//                     name: frappe.session.user
-//                 },
-//                 callback: function(r) {
-//                     if (r.message) {
-//                         // Set owner_user_full_name field with user's full name
-//                         frm.set_value('owner_user_full_name', r.message.full_name);
-//                     }
-//                 }
-//             });
-//         }
-//     }
-// });
 // frappe.ui.form.on('Query', {
 // 	    onload: function(frm) {
 //         // Fetch user document based on session user's email
