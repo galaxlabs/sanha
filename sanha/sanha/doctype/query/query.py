@@ -109,9 +109,7 @@ class Query(Document):
 #     System Generated Email
 #     """
 #     recipients = [doc.owner, "karachi@sanha.org.pk"]
-#     send_email(subject, message, recipients)
-<<<<<<< HEAD
-    
+#     send_email(subject, message, recipients)    
 # def send_expired_document_notification(self, expired_documents):
 #     subject = "Notification of Expired Documents"
 #     message = f"""
@@ -140,8 +138,6 @@ class Query(Document):
 # def flush_email_queue():
 #     flush()
 #     frappe.logger().info("Email queue flushed and emails sent.")
-=======
-
 # def send_email(subject, message, recipients):
 #     frappe.sendmail(
 #         recipients=recipients,
@@ -149,8 +145,6 @@ class Query(Document):
 #         message=message,
 #         delayed=False
 #     )
->>>>>>> 8dec8ca4567c0ad696abc85290516dcddb4a3098
-
 # def flush_email_queue():
 #     flush()
 #     frappe.logger().info("Email queue flushed and emails sent.")
