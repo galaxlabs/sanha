@@ -12,6 +12,7 @@ app_license = "mit"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/sanha/css/sanha.css"
 # app_include_js = "/assets/sanha/js/sanha.js"
+ 
 
     # JavaScript file for client_dashboard workspace
     # Add similar entries for other workspaces if needed
@@ -229,17 +230,17 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
-doc_events = {
-    "Query": {
-        "on_submit": "sanha.sanha.doctype.query.query.send_query_notification",
-        "on_update": "sanha.sanha.doctype.query.query.send_status_update_notification"
-    }
-}
+# doc_events = {
+#     "Query": {
+#         "on_submit": "sanha.sanha.doctype.query.query.send_query_notification",
+#         "on_update": "sanha.sanha.doctype.query.query.send_status_update_notification"
+#     }
+# }
 
-scheduler_events = {
-    "cron": {
-        "*/1 * * * *": [
-            "sanha.sanha.doctype.query.query.flush_email_queue"
-        ]
-    }
-}
+# scheduler_events = {
+#     "cron": {
+#         "*/1 * * * *": [
+#             "sanha.sanha.doctype.query.query.flush_email_queue"
+#         ]
+#     }
+# }
