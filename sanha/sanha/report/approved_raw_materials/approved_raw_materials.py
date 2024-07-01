@@ -25,7 +25,7 @@ def get_all_queries(filters):
         SELECT
             owner, name, raw_material, supplier, manufacturer, query_types, workflow_state, creation
         FROM `tabQuery`
-        WHERE workflow_state NOT IN ('Draft', 'Delisted', 'Rejected', 'Submitted', 'Haram')
+        WHERE workflow_state NOT IN ('Draft', 'Delisted', 'Rejected', 'Submitted', 'Haram', 'Submitted to SB','Returned','Hold', 'Doubtful','Pending','Under Review','Forwarded','Returned To Evaluation')
     """, as_dict=True)
 
     return query_data

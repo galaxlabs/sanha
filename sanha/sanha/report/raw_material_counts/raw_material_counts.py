@@ -22,7 +22,7 @@ def execute(filters=None):
         FROM
             `tabQuery` q
         WHERE
-            q.workflow_state NOT IN ('Draft', 'Delisted')
+            q.workflow_state NOT IN ('Draft', 'Delisted','Returned')
         GROUP BY
             q.raw_material, q.supplier, q.manufacturer, q.workflow_state
     """, as_dict=True)
