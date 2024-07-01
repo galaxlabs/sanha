@@ -65,7 +65,7 @@
    "fieldname": "supplier_contact",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Supplier Contact\t"
+   "label": "Supplier Contact"
   },
   {
    "fieldname": "column_break_aimu",

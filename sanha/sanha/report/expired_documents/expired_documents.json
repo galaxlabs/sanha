@@ -1,0 +1,42 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2024-06-30 19:29:13.471176",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "Sanha",
+ "letterhead": null,
+ "modified": "2024-06-30 19:29:21.926874",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Expired Documents",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Query",
+ "report_name": "Expired Documents",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "SB Uesr"
+  },
+  {
+   "role": "Evaluation"
+  },
+  {
+   "role": "Certificate Manager"
+  },
+  {
+   "role": "Admin"
+  },
+  {
+   "role": "Client"
+  }
+ ]
+}
