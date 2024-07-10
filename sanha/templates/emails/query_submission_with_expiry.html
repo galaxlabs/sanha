@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Query Submission Confirmation with Expiry Warning</title>
+</head>
+<body>
+    <p><b>Dear {{ doc.client_name }},</b></p>
+    <p>We are pleased to inform you that your query about <b>{{ doc.raw_material }}</b> has been successfully submitted.</p>
+    <p>However, please note that the following documents are close to expiring:</p>
+    <ul>
+        {% for exp_doc in expiring_documents %}
+        <li>{{ exp_doc.name }} (expires in {{ exp_doc.remaining_days }} days)</li>
+        {% endfor %}
+    </ul>
+    <p>It has been forwarded to our Evaluation Department for further processing.</p>
+    <p>You can expect a response from us within the next 24 hours. We appreciate your patience and understanding.</p>
+    <p>If you have any further questions or require additional assistance, please do not hesitate to contact us at <b>karachi@sanha.org.pk</b>.</p>
+    <p>Best regards,</p>
+    <p><i>System Generated Email</i></p>
+</body>
+</html>

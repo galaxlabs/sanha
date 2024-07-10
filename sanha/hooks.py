@@ -233,7 +233,8 @@ app_license = "mit"
 doc_events = {
     "Query": {
         "on_submit": "sanha.sanha.doctype.query.query.send_query_notification",
-        "on_update": "sanha.sanha.doctype.query.query.send_status_update_notification"
+        # "on_update": "sanha.sanha.doctype.query.query.send_status_update_notification",
+        # "validate":  "sanha.sanha.doctype.query.query.notify_expiring_documents"
     }
 }
 

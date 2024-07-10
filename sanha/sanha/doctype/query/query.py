@@ -1,23 +1,15 @@
 # Copyright (c) 2024, Sanha Halal Pakistan  and contributors
 # For license information, please see license.txt
-
 import frappe
 from frappe.model.document import Document
 from frappe.email.queue import flush
-from frappe import _
-from datetime import datetime
-
-
-# # Configure logging
+from frappe.utils import getdate, nowdate, add_days
 
 class Query(Document):
 
     def validate(self):
-
         if not self.get("documents"):
-
             return
-        
 
         if not self.documents:
             frappe.throw('Please add documents before saving.')
@@ -25,10 +17,12 @@ class Query(Document):
         required_documents = ["TDS", "SDS", "Product Spec", "PDS", "Lab Sample Report", "Halal Questionnaire", "Declaration", "Halal Certificate", "MSDS", "COA"]
         found_msd = False
         found_halal_certificate = False
-        
+
+        today = getdate(nowdate())
+        sixty_days_later = add_days(today, 60)
+        expiring_documents = []
 
         for row in self.documents:
-
             if row.documents in required_documents and not row.issue_date and not row.attachment:
                 frappe.throw(f"Issue Date and Attachment are required for {row.documents}.")
 
@@ -36,118 +30,304 @@ class Query(Document):
                 frappe.throw(f"Issue Date is required for {row.documents}.")
 
             if not row.attachment:
-                frappe.throw(f"Attachment is required for {row.documents}.")    
+                frappe.throw(f"Attachment is required for {row.documents}.")
 
             if row.documents == "MSDS":
                 found_msd = True
-
                 if not row.issue_date:
                     frappe.throw("Issue Date and Attachment are required for MSDS.")
 
             if row.documents == "Halal Certificate":
                 found_halal_certificate = True
-
                 if not row.issue_date or not row.expiry_date:
                     frappe.throw("Halal Certificate requires both Issue Date and Expiry Date.")
 
                 if not row.attachment:
-                    frappe.throw("Attachment is required for Halal Certificate.")        
+                    frappe.throw("Attachment is required for Halal Certificate.")
+
+            if row.expiry_date:
+                expiry_date = getdate(row.expiry_date)
+                if expiry_date < today:
+                    frappe.throw(f"Document {row.documents} has already expired on {row.expiry_date}.")
+                elif today <= expiry_date <= sixty_days_later:
+                    expiring_documents.append({
+                        "name": row.documents,
+                        "expiry_date": row.expiry_date,
+                        "remaining_days": (expiry_date - today).days
+                    })
 
         if not found_msd:
             frappe.throw("MSDS is mandatory.")
 
         if found_halal_certificate and not any(doc.documents == "Halal Certificate" for doc in self.documents):
             frappe.throw("Halal Certificate requires Expiry Date.")
+
+        if self.workflow_state == "Submitted":
+            self.send_query_notification(expiring_documents)
+
+    def send_query_notification(self, expiring_documents):
+        send_email_to_client(self, expiring_documents)
+        send_email_to_admin_and_evaluation(self)
+        flush()
+
+def get_emails_by_role(role):
+    """Get email addresses of users with a specific role."""
+    users = frappe.get_all('Has Role', filters={'role': role, 'parenttype': 'User'}, fields=['parent'])
+    emails = [frappe.db.get_value('User', user['parent'], 'email') for user in users if user['parent']]
+    return emails
+
+def send_email(subject, message, recipients):
+    frappe.sendmail(recipients=recipients, subject=subject, message=message)
+    flush()
     
-    def send_query_notification(doc, method=None):
-        if doc.workflow_state == "Submitted":
-            send_email_to_client(doc)
-            send_email_to_admin_and_evaluation(doc)
-            flush_email_queue()
-
-def send_status_update_notification(doc, method=None):
-    if doc.workflow_state in ["Rejected", "Approved", "Haram", "Hold", "Halal"]:
-        send_status_email_to_client_and_admin(doc)
-    flush_email_queue()
-
-def send_email_to_client(doc):
+def send_email_to_client(doc, expiring_documents):
     subject = "Confirmation of Query Submission"
-    message = f"""
-    <b>Dear {doc.client_name},</b><br><br>
-    We are pleased to inform you that your query about <b>{doc.raw_material}</b> has been successfully submitted.<br>
-    It has been forwarded to our Evaluation Department for further processing.<br><br>
-    You can expect a response from us within the next 24 hours. We appreciate your patience and understanding.<br><br>
-    If you have any further questions or require additional assistance, please do not hesitate to contact us at <b>karachi@sanha.org.pk</b>.<br><br>
-    Best regards,<br><br>
-    System Generated Email
-    """
+    if expiring_documents:
+        expiring_docs_str = ", ".join([f"{d['name']} (expires in {d['remaining_days']} days)" for d in expiring_documents])
+        message = frappe.render_template("templates/emails/query_submission_with_expiry.html", {"doc": doc, "expiring_docs_str": expiring_docs_str})
+    else:
+        message = frappe.render_template("templates/emails/query_submission.html", {"doc": doc})
     recipients = [doc.owner]
     send_email(subject, message, recipients)
 
 def send_email_to_admin_and_evaluation(doc):
     subject = f"{doc.client_name} Query Submission Notification"
-    message = f"""
-    Dear Admin/Evaluation Department,<br><br>
-    This is to inform you that our client, {doc.client_name}, has successfully submitted a query titled {doc.name} about {doc.raw_material}.<br>
-    The query has been forwarded to the Evaluation Department for further processing.<br><br>
-    Please review the query and respond accordingly within the next 24 hours.<br><br>
-    If you have any further questions or require additional information, please do not hesitate to contact us.<br><br>
-    Best regards,<br><br>
-    System Generated Email
-    """
-    recipients = ["karachi@sanha.org.pk", "evaluation@sanha.org.pk"]
+    message = frappe.render_template("templates/emails/admin_query_notification.html", {"doc": doc})
+    admin_emails = get_emails_by_role("Admin")
+    evaluation_emails = get_emails_by_role("Evaluation")
+    recipients = admin_emails + evaluation_emails
     send_email(subject, message, recipients)
 
-def send_status_email_to_client_and_admin(doc):
-    subject = f"Your Query has been {doc.workflow_state}"
-    message = f"""
-    <b>Dear {doc.client_name},</b><br><br>
-    Your query has been marked as {doc.workflow_state}.<br>
-    Please check the portal or find the attached document for more details.<br><br>
-    If you have any further questions or require additional assistance, please do not hesitate to contact us.<br><br>
-    Best regards,<br><br>
-    System Generated Email
-    """
-    recipients = [doc.owner, "karachi@sanha.org.pk"]
-    send_email(subject, message, recipients)    
-def send_expired_document_notification(self, expired_documents):
-    subject = "Notification of Expired Documents"
-    message = f"""
-    <b>Dear Admin,</b><br><br>
-    The following documents in Query <b>{self.name}</b> have expired:<br>
-    <ul>
-    {"".join(f"<li>{doc}</li>" for doc in expired_documents)}
-    </ul>
-    Please take necessary actions to renew these documents.<br><br>
-    Best regards,<br><br>
-    System Generated Email
-    """
-    recipients = [doc.owner, "karachi@sanha.org.pk"]  # Adjust admin email as needed
+def send_status_email_to_client_and_roles(doc, roles):
+    subject = f"Status Update: {doc.workflow_state}"
+    message = frappe.render_template("templates/emails/status_update.html", {"doc": doc})
+    client_emails = [doc.owner]
+    role_emails = []
+    for role in roles:
+        role_emails.extend(get_emails_by_role(role))
+    recipients = client_emails + role_emails
     send_email(subject, message, recipients)
-    flush_email_queue()
-    
-    
-def send_email(subject, message, recipients):
-    frappe.sendmail(
-        recipients=recipients,
-        subject=subject,
-        message=message,
-        delayed=False
-    )
+    flush()
 
-def flush_email_queue():
-    flush()
-    frappe.logger().info("Email queue flushed and emails sent.")
-def send_email(subject, message, recipients):
-    frappe.sendmail(
-        recipients=recipients,
-        subject=subject,
-        message=message,
-        delayed=False
-    )
-def flush_email_queue():
-    flush()
-    frappe.logger().info("Email queue flushed and emails sent.")
+def send_query_notification(doc, method=None):
+    if doc.workflow_state == "Submitted":
+        send_email_to_client(doc, [])
+        send_email_to_admin_and_evaluation(doc)
+        flush()
+
+def send_status_update_notification(doc, method=None):
+    if doc.workflow_state in ["Rejected", "Approved", "Haram", "Hold", "Halal"]:
+        send_status_email_to_client_and_roles(doc, ["Admin", "Evaluation"])
+        flush()
+
+
+
+# import frappe
+# from frappe.model.document import Document
+# from frappe.email.queue import flush
+# from frappe import _
+# from datetime import datetime
+
+
+# # # Configure logging
+
+# class Query(Document):
+
+#     def validate(self):
+
+#         if not self.get("documents"):
+
+#             return
+        
+
+#         if not self.documents:
+#             frappe.throw('Please add documents before saving.')
+
+#         required_documents = ["TDS", "SDS", "Product Spec", "PDS", "Lab Sample Report", "Halal Questionnaire", "Declaration", "Halal Certificate", "MSDS", "COA"]
+#         found_msd = False
+#         found_halal_certificate = False
+        
+
+#         for row in self.documents:
+
+#             if row.documents in required_documents and not row.issue_date and not row.attachment:
+#                 frappe.throw(f"Issue Date and Attachment are required for {row.documents}.")
+
+#             if row.documents in required_documents and not row.issue_date:
+#                 frappe.throw(f"Issue Date is required for {row.documents}.")
+
+#             if not row.attachment:
+#                 frappe.throw(f"Attachment is required for {row.documents}.")    
+
+#             if row.documents == "MSDS":
+#                 found_msd = True
+
+#                 if not row.issue_date:
+#                     frappe.throw("Issue Date and Attachment are required for MSDS.")
+
+#             if row.documents == "Halal Certificate":
+#                 found_halal_certificate = True
+
+#                 if not row.issue_date or not row.expiry_date:
+#                     frappe.throw("Halal Certificate requires both Issue Date and Expiry Date.")
+
+#                 if not row.attachment:
+#                     frappe.throw("Attachment is required for Halal Certificate.")        
+
+#         if not found_msd:
+#             frappe.throw("MSDS is mandatory.")
+
+#         if found_halal_certificate and not any(doc.documents == "Halal Certificate" for doc in self.documents):
+#             frappe.throw("Halal Certificate requires Expiry Date.")
+    
+#     def get_emails_by_role(role):
+#         """Get email addresses of users with a specific role."""
+#         users = frappe.get_all('Has Role', filters={'role': role, 'parenttype': 'User'}, fields=['parent'])
+#         emails = [frappe.db.get_value('User', user['parent'], 'email') for user in users if user['parent']]
+#         return emails
+
+# def send_query_notification(doc, method=None):
+#     if doc.workflow_state == "Submitted":
+#         send_email_to_client(doc)
+#         send_email_to_roles(doc, ["Admin", "Evaluation"])
+#         flush_email_queue()
+
+# def send_status_update_notification(doc, method=None):
+#     if doc.workflow_state in ["Rejected", "Approved", "Haram", "Hold", "Halal"]:
+#         send_status_email_to_client_and_roles(doc, ["Admin", "Evaluation"])
+#     flush_email_queue()
+
+# def send_email_to_client(doc):
+#     subject = "Confirmation of Query Submission"
+#     message = f"""
+#     <b>Dear {doc.client_name},</b><br><br>
+#     We are pleased to inform you that your query about <b>{doc.raw_material}</b> has been successfully submitted.<br>
+#     It has been forwarded to our Evaluation Department for further processing.<br><br>
+#     You can expect a response from us within the next 24 hours. We appreciate your patience and understanding.<br><br>
+#     If you have any further questions or require additional assistance, please do not hesitate to contact us at <b>karachi@sanha.org.pk</b>.<br><br>
+#     Best regards,<br><br>
+#     System Generated Email
+#     """
+#     recipients = [doc.owner]
+#     send_email(subject, message, recipients)
+
+# def send_email_to_roles(doc, roles):
+#     subject = f"{doc.client_name} Query Submission Notification"
+#     message = f"""
+#     Dear Admin/Evaluation Department,<br><br>
+#     This is to inform you that our client, {doc.client_name}, has successfully submitted a query titled {doc.name} about {doc.raw_material}.<br>
+#     The query has been forwarded to the Evaluation Department for further processing.<br><br>
+#     Please review the query and respond accordingly within the next 24 hours.<br><br>
+#     If you have any further questions or require additional information, please do not hesitate to contact us.<br><br>
+#     Best regards,<br><br>
+#     System Generated Email
+#     """
+#     recipients = []
+#     for role in roles:
+#         recipients.extend(get_emails_by_role(role))
+#     send_email(subject, message, recipients)
+
+# def send_email(subject, message, recipients):
+#     frappe.sendmail(
+#         recipients=recipients,
+#         subject=subject,
+#         message=message,
+#         delayed=False
+#     )
+
+# def flush_email_queue():
+#     flush()
+#     frappe.logger().info("Email queue flushed and emails sent.")
+
+#     def send_query_notification(doc, method=None):
+#         if doc.workflow_state == "Submitted":
+#             send_email_to_client(doc)
+#             send_email_to_admin_and_evaluation(doc)
+#             flush_email_queue()
+
+# def send_status_update_notification(doc, method=None):
+#     if doc.workflow_state in ["Rejected", "Approved", "Haram", "Hold", "Halal"]:
+#         send_status_email_to_client_and_admin(doc)
+#     flush_email_queue()
+
+# def send_email_to_client(doc):
+#     subject = "Confirmation of Query Submission"
+#     message = f"""
+#     <b>Dear {doc.client_name},</b><br><br>
+#     We are pleased to inform you that your query about <b>{doc.raw_material}</b> has been successfully submitted.<br>
+#     It has been forwarded to our Evaluation Department for further processing.<br><br>
+#     You can expect a response from us within the next 24 hours. We appreciate your patience and understanding.<br><br>
+#     If you have any further questions or require additional assistance, please do not hesitate to contact us at <b>karachi@sanha.org.pk</b>.<br><br>
+#     Best regards,<br><br>
+#     System Generated Email
+#     """
+#     recipients = [doc.owner]
+#     send_email(subject, message, recipients)
+
+# def send_email_to_admin_and_evaluation(doc):
+#     subject = f"{doc.client_name} Query Submission Notification"
+#     message = f"""
+#     Dear Admin/Evaluation Department,<br><br>
+#     This is to inform you that our client, {doc.client_name}, has successfully submitted a query titled {doc.name} about {doc.raw_material}.<br>
+#     The query has been forwarded to the Evaluation Department for further processing.<br><br>
+#     Please review the query and respond accordingly within the next 24 hours.<br><br>
+#     If you have any further questions or require additional information, please do not hesitate to contact us.<br><br>
+#     Best regards,<br><br>
+#     System Generated Email
+#     """
+#     recipients = ["karachi@sanha.org.pk", "evaluation@sanha.org.pk"]
+#     send_email(subject, message, recipients)
+
+# def send_status_email_to_client_and_admin(doc):
+#     subject = f"Your Query has been {doc.workflow_state}"
+#     message = f"""
+#     <b>Dear {doc.client_name},</b><br><br>
+#     Your query has been marked as {doc.workflow_state}.<br>
+#     Please check the portal or find the attached document for more details.<br><br>
+#     If you have any further questions or require additional assistance, please do not hesitate to contact us.<br><br>
+#     Best regards,<br><br>
+#     System Generated Email
+#     """
+#     recipients = [doc.owner, "karachi@sanha.org.pk"]
+#     send_email(subject, message, recipients)    
+# def send_expired_document_notification(self, expired_documents):
+#     subject = "Notification of Expired Documents"
+#     message = f"""
+#     <b>Dear Admin,</b><br><br>
+#     The following documents in Query <b>{self.name}</b> have expired:<br>
+#     <ul>
+#     {"".join(f"<li>{doc}</li>" for doc in expired_documents)}
+#     </ul>
+#     Please take necessary actions to renew these documents.<br><br>
+#     Best regards,<br><br>
+#     System Generated Email
+#     """
+#     recipients = [doc.owner, "karachi@sanha.org.pk"]  # Adjust admin email as needed
+#     send_email(subject, message, recipients)
+#     flush_email_queue()
+    
+    
+# def send_email(subject, message, recipients):
+#     frappe.sendmail(
+#         recipients=recipients,
+#         subject=subject,
+#         message=message,
+#         delayed=False
+#     )
+
+# def flush_email_queue():
+#     flush()
+#     frappe.logger().info("Email queue flushed and emails sent.")
+# def send_email(subject, message, recipients):
+#     frappe.sendmail(
+#         recipients=recipients,
+#         subject=subject,
+#         message=message,
+#         delayed=False
+#     )
+# def flush_email_queue():
+#     flush()
+#     frappe.logger().info("Email queue flushed and emails sent.")
     
 # ########################################################################
 

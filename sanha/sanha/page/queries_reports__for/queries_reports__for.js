@@ -175,7 +175,7 @@ nextButton.css({
 });
 
 var currentPage = 1;
-var itemsPerPage = 50;
+var itemsPerPage = 200;
 
 function fetchAllData(doctype, fields, filters, callback) {
     var start = 0;
@@ -238,7 +238,7 @@ fetchAllData('Query', ['query_types'], [], function(queryTypes) {
 
 // Fetch and display data for the selected client and query type
 function fetchData(client, queryType, page, limit) {
-    var filters = { workflow_state: ['!=', 'Draft'] };
+    var filters = { workflow_state: ['in', ['Approved', 'Halal', 'Haram', 'Rejected', 'Hold', 'Doubtful']] };
     if (client && client !== 'Select Client') {
         filters.client_name = client;
     }
