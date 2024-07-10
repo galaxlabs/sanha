@@ -149,11 +149,14 @@ tableHeaders.forEach(function(label) {
 });
 
 // Add input fields for filtering below the headers
-var filterRow = $('<tr>').appendTo(thead);
-tableHeaders.forEach(function(label) {
-    $('<td>').append($('<input>').addClass('form-control').attr('placeholder', 'Filter ' + label)).appendTo(filterRow);
-});
-
+// var filterRow = $('<tr>').appendTo(thead);
+// tableHeaders.forEach(function(label) {
+//     $('<td>').append($('<input>').addClass('form-control').attr('placeholder', 'Filter ' + label)).appendTo(filterRow);
+// });
+var filterRow = $('<tr>').addClass('filter-row').appendTo(thead);
+    tableHeaders.forEach(function(label) {
+        $('<td>').append($('<input>').addClass('form-control').attr('placeholder', 'Filter ' + label)).appendTo(filterRow);
+    });
 // Add pagination controls
 var pagination_section = $('<div>').addClass('pagination-section').appendTo(page.body);
 pagination_section.css({
