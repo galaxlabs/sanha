@@ -18,9 +18,9 @@ class Query(Document):
         found_msd = False
         found_halal_certificate = False
 
-        today = getdate(nowdate())
-        sixty_days_later = add_days(today, 60)
-        expiring_documents = []
+        # today = getdate(nowdate())
+        # sixty_days_later = add_days(today, 60)
+        # expiring_documents = []
 
         for row in self.documents:
             if row.documents in required_documents and not row.issue_date and not row.attachment:
@@ -45,16 +45,16 @@ class Query(Document):
                 if not row.attachment:
                     frappe.throw("Attachment is required for Halal Certificate.")
 
-            if row.expiry_date:
-                expiry_date = getdate(row.expiry_date)
-                if expiry_date < today:
-                    frappe.throw(f"Document {row.documents} has already expired on {row.expiry_date}.")
-                elif today <= expiry_date <= sixty_days_later:
-                    expiring_documents.append({
-                        "name": row.documents,
-                        "expiry_date": row.expiry_date,
-                        "remaining_days": (expiry_date - today).days
-                    })
+            # if row.expiry_date:
+            #     expiry_date = getdate(row.expiry_date)
+            #     if expiry_date < today:
+            #         frappe.throw(f"Document {row.documents} has already expired on {row.expiry_date}.")
+            #     elif today <= expiry_date <= sixty_days_later:
+            #         expiring_documents.append({
+            #             "name": row.documents,
+            #             "expiry_date": row.expiry_date,
+            #             "remaining_days": (expiry_date - today).days
+            #         })
 
         if not found_msd:
             frappe.throw("MSDS is mandatory.")
