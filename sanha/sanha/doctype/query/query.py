@@ -65,60 +65,60 @@ class Query(Document):
         if self.workflow_state == "Submitted":
             self.send_query_notification(expiring_documents)
 
-    def send_query_notification(self, expiring_documents):
-        send_email_to_client(self, expiring_documents)
-        send_email_to_admin_and_evaluation(self)
-        flush()
+#     def send_query_notification(self, expiring_documents):
+#         send_email_to_client(self, expiring_documents)
+#         send_email_to_admin_and_evaluation(self)
+#         flush()
 
-def get_emails_by_role(role):
-    """Get email addresses of users with a specific role."""
-    users = frappe.get_all('Has Role', filters={'role': role, 'parenttype': 'User'}, fields=['parent'])
-    emails = [frappe.db.get_value('User', user['parent'], 'email') for user in users if user['parent']]
-    return emails
+# def get_emails_by_role(role):
+#     """Get email addresses of users with a specific role."""
+#     users = frappe.get_all('Has Role', filters={'role': role, 'parenttype': 'User'}, fields=['parent'])
+#     emails = [frappe.db.get_value('User', user['parent'], 'email') for user in users if user['parent']]
+#     return emails
 
-def send_email(subject, message, recipients):
-    frappe.sendmail(recipients=recipients, subject=subject, message=message)
-    flush()
+# def send_email(subject, message, recipients):
+#     frappe.sendmail(recipients=recipients, subject=subject, message=message)
+#     flush()
     
-def send_email_to_client(doc, expiring_documents):
-    subject = "Confirmation of Query Submission"
-    if expiring_documents:
-        expiring_docs_str = ", ".join([f"{d['name']} (expires in {d['remaining_days']} days)" for d in expiring_documents])
-        message = frappe.render_template("templates/emails/query_submission_with_expiry.html", {"doc": doc, "expiring_docs_str": expiring_docs_str})
-    else:
-        message = frappe.render_template("templates/emails/query_submission.html", {"doc": doc})
-    recipients = [doc.owner]
-    send_email(subject, message, recipients)
+# def send_email_to_client(doc, expiring_documents):
+#     subject = "Confirmation of Query Submission"
+#     if expiring_documents:
+#         expiring_docs_str = ", ".join([f"{d['name']} (expires in {d['remaining_days']} days)" for d in expiring_documents])
+#         message = frappe.render_template("templates/emails/query_submission_with_expiry.html", {"doc": doc, "expiring_docs_str": expiring_docs_str})
+#     else:
+#         message = frappe.render_template("templates/emails/query_submission.html", {"doc": doc})
+#     recipients = [doc.owner]
+#     send_email(subject, message, recipients)
 
-def send_email_to_admin_and_evaluation(doc):
-    subject = f"{doc.client_name} Query Submission Notification"
-    message = frappe.render_template("templates/emails/admin_query_notification.html", {"doc": doc})
-    admin_emails = get_emails_by_role("Admin")
-    evaluation_emails = get_emails_by_role("Evaluation")
-    recipients = admin_emails + evaluation_emails
-    send_email(subject, message, recipients)
+# def send_email_to_admin_and_evaluation(doc):
+#     subject = f"{doc.client_name} Query Submission Notification"
+#     message = frappe.render_template("templates/emails/admin_query_notification.html", {"doc": doc})
+#     admin_emails = get_emails_by_role("Admin")
+#     evaluation_emails = get_emails_by_role("Evaluation")
+#     recipients = admin_emails + evaluation_emails
+#     send_email(subject, message, recipients)
 
-def send_status_email_to_client_and_roles(doc, roles):
-    subject = f"Status Update: {doc.workflow_state}"
-    message = frappe.render_template("templates/emails/status_update.html", {"doc": doc})
-    client_emails = [doc.owner]
-    role_emails = []
-    for role in roles:
-        role_emails.extend(get_emails_by_role(role))
-    recipients = client_emails + role_emails
-    send_email(subject, message, recipients)
-    flush()
+# def send_status_email_to_client_and_roles(doc, roles):
+#     subject = f"Status Update: {doc.workflow_state}"
+#     message = frappe.render_template("templates/emails/status_update.html", {"doc": doc})
+#     client_emails = [doc.owner]
+#     role_emails = []
+#     for role in roles:
+#         role_emails.extend(get_emails_by_role(role))
+#     recipients = client_emails + role_emails
+#     send_email(subject, message, recipients)
+#     flush()
 
-def send_query_notification(doc, method=None):
-    if doc.workflow_state == "Submitted":
-        send_email_to_client(doc, [])
-        send_email_to_admin_and_evaluation(doc)
-        flush()
+# def send_query_notification(doc, method=None):
+#     if doc.workflow_state == "Submitted":
+#         send_email_to_client(doc, [])
+#         send_email_to_admin_and_evaluation(doc)
+#         flush()
 
-def send_status_update_notification(doc, method=None):
-    if doc.workflow_state in ["Rejected", "Approved", "Haram", "Hold", "Halal"]:
-        send_status_email_to_client_and_roles(doc, ["Admin", "Evaluation"])
-        flush()
+# def send_status_update_notification(doc, method=None):
+#     if doc.workflow_state in ["Rejected", "Approved", "Haram", "Hold", "Halal"]:
+#         send_status_email_to_client_and_roles(doc, ["Admin", "Evaluation"])
+#         flush()
 
 
 
