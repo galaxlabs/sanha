@@ -1,5 +1,6 @@
 # Copyright (c) 2024, Sanha Halal Pakistan  and contributors
 # For license information, please see license.txt
+
 import frappe
 from frappe.model.document import Document
 from frappe.email.queue import flush
@@ -17,11 +18,7 @@ class Query(Document):
         required_documents = ["TDS", "SDS", "Product Spec", "PDS", "Lab Sample Report", "Halal Questionnaire", "Declaration", "Halal Certificate", "MSDS", "COA"]
         found_msd = False
         found_halal_certificate = False
-
-        # today = getdate(nowdate())
-        # sixty_days_later = add_days(today, 60)
-        # expiring_documents = []
-
+        
         for row in self.documents:
             if row.documents in required_documents and not row.issue_date and not row.attachment:
                 frappe.throw(f"Issue Date and Attachment are required for {row.documents}.")
@@ -45,16 +42,6 @@ class Query(Document):
                 if not row.attachment:
                     frappe.throw("Attachment is required for Halal Certificate.")
 
-            # if row.expiry_date:
-            #     expiry_date = getdate(row.expiry_date)
-            #     if expiry_date < today:
-            #         frappe.throw(f"Document {row.documents} has already expired on {row.expiry_date}.")
-            #     elif today <= expiry_date <= sixty_days_later:
-            #         expiring_documents.append({
-            #             "name": row.documents,
-            #             "expiry_date": row.expiry_date,
-            #             "remaining_days": (expiry_date - today).days
-            #         })
 
         if not found_msd:
             frappe.throw("MSDS is mandatory.")
@@ -62,65 +49,128 @@ class Query(Document):
         if found_halal_certificate and not any(doc.documents == "Halal Certificate" for doc in self.documents):
             frappe.throw("Halal Certificate requires Expiry Date.")
 
-        if self.workflow_state == "Submitted":
-            self.send_query_notification(expiring_documents)
+#####################################################
+# import frappe
+# from frappe.model.document import Document
+# from frappe.email.queue import flush
+# from frappe.utils import getdate, nowdate, add_days
 
-#     def send_query_notification(self, expiring_documents):
-#         send_email_to_client(self, expiring_documents)
-#         send_email_to_admin_and_evaluation(self)
-#         flush()
+# class Query(Document):
 
-# def get_emails_by_role(role):
-#     """Get email addresses of users with a specific role."""
-#     users = frappe.get_all('Has Role', filters={'role': role, 'parenttype': 'User'}, fields=['parent'])
-#     emails = [frappe.db.get_value('User', user['parent'], 'email') for user in users if user['parent']]
-#     return emails
+#     def validate(self):
+#         if not self.get("documents"):
+#             return
 
-# def send_email(subject, message, recipients):
-#     frappe.sendmail(recipients=recipients, subject=subject, message=message)
-#     flush()
+#         if not self.documents:
+#             frappe.throw('Please add documents before saving.')
+
+#         required_documents = ["TDS", "SDS", "Product Spec", "PDS", "Lab Sample Report", "Halal Questionnaire", "Declaration", "Halal Certificate", "MSDS", "COA"]
+#         found_msd = False
+#         found_halal_certificate = False
+
+#         # today = getdate(nowdate())
+#         # sixty_days_later = add_days(today, 60)
+#         # expiring_documents = []
+
+#         for row in self.documents:
+#             if row.documents in required_documents and not row.issue_date and not row.attachment:
+#                 frappe.throw(f"Issue Date and Attachment are required for {row.documents}.")
+
+#             if row.documents in required_documents and not row.issue_date:
+#                 frappe.throw(f"Issue Date is required for {row.documents}.")
+
+#             if not row.attachment:
+#                 frappe.throw(f"Attachment is required for {row.documents}.")
+
+#             if row.documents == "MSDS":
+#                 found_msd = True
+#                 if not row.issue_date:
+#                     frappe.throw("Issue Date and Attachment are required for MSDS.")
+
+#             if row.documents == "Halal Certificate":
+#                 found_halal_certificate = True
+#                 if not row.issue_date or not row.expiry_date:
+#                     frappe.throw("Halal Certificate requires both Issue Date and Expiry Date.")
+
+#                 if not row.attachment:
+#                     frappe.throw("Attachment is required for Halal Certificate.")
+
+#             # if row.expiry_date:
+#             #     expiry_date = getdate(row.expiry_date)
+#             #     if expiry_date < today:
+#             #         frappe.throw(f"Document {row.documents} has already expired on {row.expiry_date}.")
+#             #     elif today <= expiry_date <= sixty_days_later:
+#             #         expiring_documents.append({
+#             #             "name": row.documents,
+#             #             "expiry_date": row.expiry_date,
+#             #             "remaining_days": (expiry_date - today).days
+#             #         })
+
+#         if not found_msd:
+#             frappe.throw("MSDS is mandatory.")
+
+#         if found_halal_certificate and not any(doc.documents == "Halal Certificate" for doc in self.documents):
+#             frappe.throw("Halal Certificate requires Expiry Date.")
+
+#         if self.workflow_state == "Submitted":
+#             self.send_query_notification(expiring_documents)
+
+# #     def send_query_notification(self, expiring_documents):
+# #         send_email_to_client(self, expiring_documents)
+# #         send_email_to_admin_and_evaluation(self)
+# #         flush()
+
+# # def get_emails_by_role(role):
+# #     """Get email addresses of users with a specific role."""
+# #     users = frappe.get_all('Has Role', filters={'role': role, 'parenttype': 'User'}, fields=['parent'])
+# #     emails = [frappe.db.get_value('User', user['parent'], 'email') for user in users if user['parent']]
+# #     return emails
+
+# # def send_email(subject, message, recipients):
+# #     frappe.sendmail(recipients=recipients, subject=subject, message=message)
+# #     flush()
     
-# def send_email_to_client(doc, expiring_documents):
-#     subject = "Confirmation of Query Submission"
-#     if expiring_documents:
-#         expiring_docs_str = ", ".join([f"{d['name']} (expires in {d['remaining_days']} days)" for d in expiring_documents])
-#         message = frappe.render_template("templates/emails/query_submission_with_expiry.html", {"doc": doc, "expiring_docs_str": expiring_docs_str})
-#     else:
-#         message = frappe.render_template("templates/emails/query_submission.html", {"doc": doc})
-#     recipients = [doc.owner]
-#     send_email(subject, message, recipients)
+# # def send_email_to_client(doc, expiring_documents):
+# #     subject = "Confirmation of Query Submission"
+# #     if expiring_documents:
+# #         expiring_docs_str = ", ".join([f"{d['name']} (expires in {d['remaining_days']} days)" for d in expiring_documents])
+# #         message = frappe.render_template("templates/emails/query_submission_with_expiry.html", {"doc": doc, "expiring_docs_str": expiring_docs_str})
+# #     else:
+# #         message = frappe.render_template("templates/emails/query_submission.html", {"doc": doc})
+# #     recipients = [doc.owner]
+# #     send_email(subject, message, recipients)
 
-# def send_email_to_admin_and_evaluation(doc):
-#     subject = f"{doc.client_name} Query Submission Notification"
-#     message = frappe.render_template("templates/emails/admin_query_notification.html", {"doc": doc})
-#     admin_emails = get_emails_by_role("Admin")
-#     evaluation_emails = get_emails_by_role("Evaluation")
-#     recipients = admin_emails + evaluation_emails
-#     send_email(subject, message, recipients)
+# # def send_email_to_admin_and_evaluation(doc):
+# #     subject = f"{doc.client_name} Query Submission Notification"
+# #     message = frappe.render_template("templates/emails/admin_query_notification.html", {"doc": doc})
+# #     admin_emails = get_emails_by_role("Admin")
+# #     evaluation_emails = get_emails_by_role("Evaluation")
+# #     recipients = admin_emails + evaluation_emails
+# #     send_email(subject, message, recipients)
 
-# def send_status_email_to_client_and_roles(doc, roles):
-#     subject = f"Status Update: {doc.workflow_state}"
-#     message = frappe.render_template("templates/emails/status_update.html", {"doc": doc})
-#     client_emails = [doc.owner]
-#     role_emails = []
-#     for role in roles:
-#         role_emails.extend(get_emails_by_role(role))
-#     recipients = client_emails + role_emails
-#     send_email(subject, message, recipients)
-#     flush()
+# # def send_status_email_to_client_and_roles(doc, roles):
+# #     subject = f"Status Update: {doc.workflow_state}"
+# #     message = frappe.render_template("templates/emails/status_update.html", {"doc": doc})
+# #     client_emails = [doc.owner]
+# #     role_emails = []
+# #     for role in roles:
+# #         role_emails.extend(get_emails_by_role(role))
+# #     recipients = client_emails + role_emails
+# #     send_email(subject, message, recipients)
+# #     flush()
 
-# def send_query_notification(doc, method=None):
-#     if doc.workflow_state == "Submitted":
-#         send_email_to_client(doc, [])
-#         send_email_to_admin_and_evaluation(doc)
-#         flush()
+# # def send_query_notification(doc, method=None):
+# #     if doc.workflow_state == "Submitted":
+# #         send_email_to_client(doc, [])
+# #         send_email_to_admin_and_evaluation(doc)
+# #         flush()
 
-# def send_status_update_notification(doc, method=None):
-#     if doc.workflow_state in ["Rejected", "Approved", "Haram", "Hold", "Halal"]:
-#         send_status_email_to_client_and_roles(doc, ["Admin", "Evaluation"])
-#         flush()
+# # def send_status_update_notification(doc, method=None):
+# #     if doc.workflow_state in ["Rejected", "Approved", "Haram", "Hold", "Halal"]:
+# #         send_status_email_to_client_and_roles(doc, ["Admin", "Evaluation"])
+# #         flush()
 
-
+##############################################################################################
 
 # import frappe
 # from frappe.model.document import Document
