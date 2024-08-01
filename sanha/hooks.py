@@ -13,7 +13,7 @@ app_license = "mit"
 # app_include_css = "/assets/sanha/css/sanha.css"
 # app_include_js = "/assets/sanha/js/sanha.js"
 
-app_include_js = "/assets/sanha/js/workspace.js
+app_include_js = "/assets/sanha/js/workspace.js"
 
     # JavaScript file for client_dashboard workspace
     # Add similar entries for other workspaces if needed
