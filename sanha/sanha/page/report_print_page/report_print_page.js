@@ -92,7 +92,7 @@ function showSections() {
         'width': '55%'
     });
 
-    var logo = $('<img>').attr('src', 'http://portal.sanha.org.pk/assets/dist/img/sanha-logo.png').addClass('img').appendTo(logo_container);
+    var logo = $('<img>').attr('src', '/files/sanha-logo.png').addClass('img').appendTo(logo_container);
     logo.css({
         'width': '150px',
         'height': 'auto'
