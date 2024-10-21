@@ -38,24 +38,6 @@ frappe.pages['queries-reports--for'].on_page_load = function(wrapper) {
         'margin-bottom': '10px' // Add margin below action section
     });
 
-// Create filter section for query types dropdown
-// var filterSection = $('<div>').addClass('filter-section').appendTo(page.body);
-// filterSection.css({
-//     'margin-bottom': '35px', // Add margin below the filter section
-//     'display': 'flex',
-//     'justify-content': 'space-between', // Align items with space between
-//     'align-items': 'center' // Align items at the center vertically
-// });
-// var clientNameDropdown = $('<select>').addClass('form-control').appendTo(filterSection);
-// $('<option>').text('Select Client').appendTo(clientNameDropdown);
-// // Client selection dropdown
-// // var clientNameDropdown = $('<select>').addClass('form-control').appendTo(filterSection);
-// // $('<option>').text('Select Client').appendTo(clientNameDropdown);
-
-// // Query type selection dropdown
-// var queryTypeDropdown = $('<select>').addClass('form-control').appendTo(filterSection);
-// $('<option>').text('Select Query Type').appendTo(queryTypeDropdown);
-// Header section
 
 
     var header_section = $('<div>').addClass('header-section').appendTo(page.body);
@@ -105,10 +87,6 @@ $('<option>').text('Select Client').appendTo(clientNameDropdown);
 clientNameDropdown.css({
     'margin-right': '10px' // Adjust as needed
 });
-// Client selection dropdown
-// var clientNameDropdown = $('<select>').addClass('form-control').appendTo(filterSection);
-// $('<option>').text('Select Client').appendTo(clientNameDropdown);
-
 // Query type selection dropdown
 var queryTypeDropdown = $('<select>').addClass('form-control').appendTo(filterSection);
 $('<option>').text('Select Query Type').appendTo(queryTypeDropdown);
@@ -130,6 +108,8 @@ date_range_section.css({
     'text-align': 'center'
 });
 // Initialize data section and table
+// Define the table section
+
 var data_section = $('<div>').addClass('data-section').appendTo(page.body);
 data_section.css({
     'margin-bottom': '20px',
@@ -141,7 +121,8 @@ data_section.css({
 var table = $('<table>').addClass('table').appendTo(data_section);
 var thead = $('<thead>').appendTo(table);
 var tbody = $('<tbody>').appendTo(table);
-var tableHeaders = ['Raw Material', 'Supplier', 'Manufacturer', 'Query Types', 'Status'];
+var tfoot = $('<tfoot>').appendTo(table);
+var tableHeaders = ['S No','Raw Material', 'Supplier', 'Manufacturer', 'Query Types', 'Status'];
 
 var headerRow = $('<tr>').appendTo(thead);
 tableHeaders.forEach(function(label) {
@@ -149,10 +130,6 @@ tableHeaders.forEach(function(label) {
 });
 
 // Add input fields for filtering below the headers
-// var filterRow = $('<tr>').appendTo(thead);
-// tableHeaders.forEach(function(label) {
-//     $('<td>').append($('<input>').addClass('form-control').attr('placeholder', 'Filter ' + label)).appendTo(filterRow);
-// });
 var filterRow = $('<tr>').addClass('filter-row').appendTo(thead);
     tableHeaders.forEach(function(label) {
         $('<td>').append($('<input>').addClass('form-control').attr('placeholder', 'Filter ' + label)).appendTo(filterRow);
@@ -241,7 +218,10 @@ fetchAllData('Query', ['query_types'], [], function(queryTypes) {
 
 // Fetch and display data for the selected client and query type
 function fetchData(client, queryType, page, limit) {
-    var filters = { workflow_state: ['in', ['Approved', 'Halal', 'Haram', 'Rejected', 'Hold', 'Doubtful']] };
+    var filters = { 
+        workflow_state: ['in', ['Approved', 'Halal', 'Haram', 'Rejected', 'Hold', 'Doubtful']],
+        workflow_state: ['not in', ['Draft']],
+    };
     if (client && client !== 'Select Client') {
         filters.client_name = client;
     }

@@ -109,63 +109,76 @@ $('<span>').text('Eat Halal, Be Healthy.').appendTo(slogan_container);
             }
         }
     });
+
     var data_section = $('<div>').addClass('data-section').appendTo(page.body);
-        data_section.css({
-            'margin-bottom': '20px', // Add margin below the data section
-            'display': 'flex',
-            'align-items': 'center',
-            'flex-wrap': 'wrap'
-        });
-        
+data_section.css({
+    'margin-bottom': '20px', // Add margin below the data section
+    'display': 'flex',
+    'align-items': 'center',
+    'flex-wrap': 'wrap'
+});
 
-    var table = $('<table>').addClass('table').appendTo(page.body);
-    var thead = $('<thead>').appendTo(table);
-    var tbody = $('<tbody>').appendTo(table);
-    var tableHeaders = ['Raw Material', 'Supplier', 'Manufacturer', 'Query Types', 'Status'];
+// Section to display the count of total items for the current user
+var itemCountSection = $('<div>').addClass('item-count').appendTo(data_section);
 
-    // Add table headers
-    var headerRow = $('<tr>').appendTo(thead);
-    $.each(tableHeaders, function(index, label) {
-        $('<th>').text(label).appendTo(headerRow);
-    });
+// Function to update item count
+function updateItemCount(count) {
+    itemCountSection.text('Total items: ' + count);
+}
 
-    // Fetch data from the server and populate the table
-    frappe.call({
-        method: 'frappe.client.get_list',
-        args: {
-            doctype: 'Query',
-            filters: {
-                workflow_state: ['!=', 'Draft']
-            },
-            fields: ['raw_material', 'supplier', 'manufacturer', 'query_types', 'workflow_state']
-        },
-        callback: function(response) {
-            var data = response.message;
-            $.each(data, function(index, row) {
-                var tableRow = $('<tr>').appendTo(tbody);
-                $.each(tableHeaders, function(index, key) {
-                    if (key === 'Status') {
-                        $('<td>').text(row['workflow_state']).appendTo(tableRow);
-                    } else {
-                        $('<td>').text(row[key.toLowerCase().replace(' ', '_')]).appendTo(tableRow);
-                    }
-                });
-            });
-
-            // Initialize DataTable with search and pagination
-            $(table).DataTable();
-        }
-    });
-
-    // Filter function for each column
-    var filterColumns = {};
-    $.each(tableHeaders, function(index, label) {
-        filterColumns[label] = '';
-    });
-
-    // Add input fields for filtering
-    var filterRow = $('<tr>').appendTo(thead).addClass('filter-row');
+var table = $('<table>').addClass('table').appendTo(page.body);
+var thead = $('<thead>').appendTo(table);
+var tbody = $('<tbody>').appendTo(table);
+var tableHeaders = ['Serial No', 'Select', 'Raw Material', 'Supplier', 'Manufacturer', 'Query Types', 'Status'];
+// Add table headers
+var headerRow = $('<tr>').appendTo(thead);
 $.each(tableHeaders, function(index, label) {
+    $('<th>').text(label).appendTo(headerRow);
+});
+
+// Fetch data from the server and populate the table
+frappe.call({
+    method: 'frappe.client.get_list',
+    args: {
+        doctype: 'Query',
+        filters: {
+            workflow_state: ['!=', 'Draft'],
+            owner: frappe.session.user // Filter by the current session user owner
+        },
+        fields: ['name', 'raw_material', 'supplier', 'manufacturer', 'query_types', 'workflow_state'],
+        limit_page_length: 100 // Increase data display limit
+    },
+    callback: function(response) {
+        var data = response.message;
+        updateItemCount(data.length); // Update the item count
+        $.each(data, function(index, row) {
+            var tableRow = $('<tr>').appendTo(tbody);
+            // Add serial number
+            $('<td>').text(index + 1).appendTo(tableRow);
+            // Add checkbox for selection
+            var checkbox = $('<input>').attr('type', 'checkbox').appendTo($('<td>').appendTo(tableRow));
+            $.each(tableHeaders.slice(2), function(index, key) { // Skip 'Serial No' and 'Select'
+                if (key === 'Status') {
+                    $('<td>').text(row['workflow_state']).appendTo(tableRow);
+                } else {
+                    $('<td>').text(row[key.toLowerCase().replace(' ', '_')]).appendTo(tableRow);
+                }
+            });
+        });
+        // Initialize DataTable with search and pagination
+        $(table).DataTable();
+    }
+});
+
+// Filter function for each column
+var filterColumns = {};
+$.each(tableHeaders.slice(2), function(index, label) { // Skip 'Serial No' and 'Select'
+    filterColumns[label] = '';
+});
+
+// Add input fields for filtering
+var filterRow = $('<tr>').appendTo(thead).addClass('filter-row');
+$.each(tableHeaders.slice(2), function(index, label) { // Skip 'Serial No' and 'Select'
     var filterInput = $('<input>').attr('type', 'text').attr('placeholder', 'Filter ' + label).addClass('filter-input').appendTo($('<th>').appendTo(filterRow));
     filterInput.css({
         'border-radius': '20px', // Set border radius to 20px for rounded corners
@@ -178,40 +191,226 @@ $.each(tableHeaders, function(index, label) {
     });
 });
 
-    // Function to filter the table based on input values
-    function filterTable() {
-        $(tbody).find('tr').each(function() {
-            var rowVisible = true;
-            var row = $(this);
-            $.each(tableHeaders, function(index, label) {
-                var cellText = row.find('td').eq(index).text().toLowerCase();
-                if (filterColumns[label] && cellText.indexOf(filterColumns[label]) === -1) {
-                    rowVisible = false;
-                }
-            });
-            if (rowVisible) {
-                row.show();
-            } else {
-                row.hide();
+// Function to filter the table based on input values
+function filterTable() {
+    $(tbody).find('tr').each(function() {
+        var rowVisible = true;
+        var row = $(this);
+        $.each(tableHeaders.slice(2), function(index, label) { // Skip 'Serial No' and 'Select'
+            var cellText = row.find('td').eq(index + 2).text().toLowerCase(); // Adjust index for 'Serial No' and 'Select'
+            if (filterColumns[label] && cellText.indexOf(filterColumns[label]) === -1) {
+                rowVisible = false;
             }
         });
-    }
+        if (rowVisible) {
+            row.show();
+        } else {
+            row.hide();
+        }
+    });
+}
+// ############
+//     var data_section = $('<div>').addClass('data-section').appendTo(page.body);
+// data_section.css({
+//     'margin-bottom': '20px', // Add margin below the data section
+//     'display': 'flex',
+//     'align-items': 'center',
+//     'flex-wrap': 'wrap'
+// });
+
+// // Section to display the count of total items for the current user
+// var itemCountSection = $('<div>').addClass('item-count').appendTo(data_section);
+
+// // Function to update item count
+// function updateItemCount(count) {
+//     itemCountSection.text('Total items: ' + count);
+// }
+
+// var table = $('<table>').addClass('table').appendTo(page.body);
+// var thead = $('<thead>').appendTo(table);
+// var tbody = $('<tbody>').appendTo(table);
+// var tableHeaders = ['Serial No', 'Select', 'Raw Material', 'Supplier', 'Manufacturer', 'Query Types', 'Status'];
+// // Add table headers
+// var headerRow = $('<tr>').appendTo(thead);
+// $.each(tableHeaders, function(index, label) {
+//     $('<th>').text(label).appendTo(headerRow);
+// });
+
+// // Fetch data from the server and populate the table
+// frappe.call({
+//     method: 'frappe.client.get_list',
+//     args: {
+//         doctype: 'Query',
+//         filters: {
+//             workflow_state: ['!=', 'Draft']
+//         },
+//         fields: ['name', 'raw_material', 'supplier', 'manufacturer', 'query_types', 'workflow_state'],
+//         limit_page_length: 1000 // Increase data display limit
+//     },
+//     callback: function(response) {
+//         var data = response.message;
+//         updateItemCount(data.length); // Update the item count
+//         $.each(data, function(index, row) {
+//             var tableRow = $('<tr>').appendTo(tbody);
+//             // Add serial number
+//             $('<td>').text(index + 1).appendTo(tableRow);
+//             // Add checkbox for selection
+//             var checkbox = $('<input>').attr('type', 'checkbox').appendTo($('<td>').appendTo(tableRow));
+//             $.each(tableHeaders.slice(2), function(index, key) { // Skip 'Serial No' and 'Select'
+//                 if (key === 'Status') {
+//                     $('<td>').text(row['workflow_state']).appendTo(tableRow);
+//                 } else {
+//                     $('<td>').text(row[key.toLowerCase().replace(' ', '_')]).appendTo(tableRow);
+//                 }
+//             });
+//         });
+//         // Initialize DataTable with search and pagination
+//         $(table).DataTable();
+//     }
+// });
+
+// // Filter function for each column
+// var filterColumns = {};
+// $.each(tableHeaders.slice(2), function(index, label) { // Skip 'Serial No' and 'Select'
+//     filterColumns[label] = '';
+// });
+
+// // Add input fields for filtering
+// var filterRow = $('<tr>').appendTo(thead).addClass('filter-row');
+// $.each(tableHeaders.slice(2), function(index, label) { // Skip 'Serial No' and 'Select'
+//     var filterInput = $('<input>').attr('type', 'text').attr('placeholder', 'Filter ' + label).addClass('filter-input').appendTo($('<th>').appendTo(filterRow));
+//     filterInput.css({
+//         'border-radius': '20px', // Set border radius to 20px for rounded corners
+//         'padding': '5px', // Add padding to the input fields
+//         'margin': '5px' // Add margin around each input field
+//     });
+//     filterInput.on('keyup', function() {
+//         filterColumns[label] = $(this).val().toLowerCase();
+//         filterTable();
+//     });
+// });
+
+// // Function to filter the table based on input values
+// function filterTable() {
+//     $(tbody).find('tr').each(function() {
+//         var rowVisible = true;
+//         var row = $(this);
+//         $.each(tableHeaders.slice(2), function(index, label) { // Skip 'Serial No' and 'Select'
+//             var cellText = row.find('td').eq(index + 2).text().toLowerCase(); // Adjust index for 'Serial No' and 'Select'
+//             if (filterColumns[label] && cellText.indexOf(filterColumns[label]) === -1) {
+//                 rowVisible = false;
+//             }
+//         });
+//         if (rowVisible) {
+//             row.show();
+//         } else {
+//             row.hide();
+//         }
+//     });
+// }
+// #####################
+//     var data_section = $('<div>').addClass('data-section').appendTo(page.body);
+//         data_section.css({
+//             'margin-bottom': '20px', // Add margin below the data section
+//             'display': 'flex',
+//             'align-items': 'center',
+//             'flex-wrap': 'wrap'
+//         });
+        
+
+//     var table = $('<table>').addClass('table').appendTo(page.body);
+//     var thead = $('<thead>').appendTo(table);
+//     var tbody = $('<tbody>').appendTo(table);
+//     var tableHeaders = ['Raw Material', 'Supplier', 'Manufacturer', 'Query Types', 'Status'];
+
+//     // Add table headers
+//     var headerRow = $('<tr>').appendTo(thead);
+//     $.each(tableHeaders, function(index, label) {
+//         $('<th>').text(label).appendTo(headerRow);
+//     });
+
+//     // Fetch data from the server and populate the table
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'Query',
+//             filters: {
+//                 workflow_state: ['!=', 'Draft']
+//             },
+//             fields: ['raw_material', 'supplier', 'manufacturer', 'query_types', 'workflow_state']
+//         },
+//         callback: function(response) {
+//             var data = response.message;
+//             $.each(data, function(index, row) {
+//                 var tableRow = $('<tr>').appendTo(tbody);
+//                 $.each(tableHeaders, function(index, key) {
+//                     if (key === 'Status') {
+//                         $('<td>').text(row['workflow_state']).appendTo(tableRow);
+//                     } else {
+//                         $('<td>').text(row[key.toLowerCase().replace(' ', '_')]).appendTo(tableRow);
+//                     }
+//                 });
+//             });
+
+//             // Initialize DataTable with search and pagination
+//             $(table).DataTable();
+//         }
+//     });
+
+//     // Filter function for each column
+//     var filterColumns = {};
+//     $.each(tableHeaders, function(index, label) {
+//         filterColumns[label] = '';
+//     });
+
+//     // Add input fields for filtering
+//     var filterRow = $('<tr>').appendTo(thead).addClass('filter-row');
+// $.each(tableHeaders, function(index, label) {
+//     var filterInput = $('<input>').attr('type', 'text').attr('placeholder', 'Filter ' + label).addClass('filter-input').appendTo($('<th>').appendTo(filterRow));
+//     filterInput.css({
+//         'border-radius': '20px', // Set border radius to 20px for rounded corners
+//         'padding': '5px', // Add padding to the input fields
+//         'margin': '5px' // Add margin around each input field
+//     });
+//     filterInput.on('keyup', function() {
+//         filterColumns[label] = $(this).val().toLowerCase();
+//         filterTable();
+//     });
+// });
+
+//     // Function to filter the table based on input values
+//     function filterTable() {
+//         $(tbody).find('tr').each(function() {
+//             var rowVisible = true;
+//             var row = $(this);
+//             $.each(tableHeaders, function(index, label) {
+//                 var cellText = row.find('td').eq(index).text().toLowerCase();
+//                 if (filterColumns[label] && cellText.indexOf(filterColumns[label]) === -1) {
+//                     rowVisible = false;
+//                 }
+//             });
+//             if (rowVisible) {
+//                 row.show();
+//             } else {
+//                 row.hide();
+//             }
+//         });
+//     }
 
 // ### Working with filter ####
-    $('<hr>').appendTo(footer_section);
+    $('<hr>').appendTo(footer_section)
+    // Add horizontal lines on both ends of the footer
     var footer_section = $('<div>').addClass('footer-section').appendTo(page.body);
     footer_section.css({
-        'margin-top': '25px', // Set footer top margin to 25px
-        'border-top': '1px solid #ccc', // Add horizontal line at the top of the footer
-        'padding-top': '10px', // Add padding to the top of the footer
-        'text-align': 'right'
+        'margin-top': '25px',
+        'border-top': '1px solid #ccc',
+        'padding-top': '10px',
+        'text-align': 'left'
     });
-    
-    // Add horizontal lines on both ends of the footer
+
     $('<hr>').appendTo(footer_section);
-    
-    // Add company address
-    $('<p>').html('<strong>Sanha Halal Associates Pakistan PVT. LTD.</strong> Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama D.H.A. phase 5<br>Email: evaluation@sanha.org.pk - Ph: +92 21 35295263').appendTo(footer_section);
-    
+    $('<p>').html('<strong>Disclaimer:</strong>This Halal Evaluation Report is issued based on the information and documentation provided at the time of evaluation. It is valid only for the specified batch/lot and for the specific materials/products mentioned. Any misuse, alteration, or use of this report beyond its intended purpose is strictly prohibited. SANHA Halal Pakistan reserves the right to revoke this evaluation in case of any non-compliance or deviation from the Halal standards.').appendTo(footer_section);
+    $('<hr>').appendTo(footer_section);
+    $('<p>').html('<strong>Sanha Halal Associates Pakistan PVT. LTD.</strong> Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama D.H.A. phase 5  <strong> Email: </strong>evaluation@sanha.org.pk - <strong>Ph: +92 21 35295263</strong>').appendTo(footer_section);
     // Add footer with page number
 };
