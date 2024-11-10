@@ -44,27 +44,6 @@ printButton.on('click', function() {
     });
 });
 
-// printButton.on('click', function() {
-//     console.log("Print button clicked!");  // Debugging statement to check if the button works
-
-//     // Hide elements that should not appear in the print
-//     page.$title_area.hide();              // Hide page title
-//     $('.filter-row').hide();              // Hide filter row
-//     $('.filter-section').hide();          // Hide filter section
-//     $('.pagination-section').hide();      // Hide pagination
-//     $('.action-section').hide();          // Hide action buttons
-
-//     // Trigger the print dialog
-//     window.print();
-
-//     // Show the elements again after printing
-//     page.$title_area.show();              // Show page title
-//     $('.filter-row').show();              // Show filter row
-//     $('.filter-section').show();          // Show filter section
-//     $('.pagination-section').show();      // Show pagination
-//     $('.action-section').show();          // Show action buttons
-// });
-
 // Align action buttons to the right
 action_section.css({
     'display': 'flex',
@@ -72,88 +51,12 @@ action_section.css({
     'margin-bottom': '10px'         // Add margin below the action section
 });
 
-// printButton.on('click', function() {
-//     // Hide elements that should not appear in the print
-//     page.$title_area.hide();              // Hide page title
-//     $('.filter-row').hide();              // Hide filter row
-//     $('.filter-section').hide();          // Hide filter section
-//     $('.pagination-section').hide();      // Hide pagination
-//     $('.action-section').hide();          // Hide action buttons
-
-//     // Trigger the print dialog
-//     window.print();
-
-//     // Show the elements again after printing
-//     page.$title_area.show();              // Show page title
-//     $('.filter-row').show();              // Show filter row
-//     $('.filter-section').show();          // Show filter section
-//     $('.pagination-section').show();      // Show pagination
-//     $('.action-section').show();          // Show action buttons
-// });
-
 // Align action buttons to the right
 action_section.css({
     'display': 'flex',
     'justify-content': 'flex-end',  // Align buttons to the right
     'margin-bottom': '10px'         // Add margin below the action section
 });
-
-
-// Global variable to track selected items across pages
-
-
-// var printButton = $('<button>').text('Print').addClass('btn btn-primary').appendTo(action_section);
-
-// printButton.on('click', function() {
-//     var selectedItems = getSelectedItems();
-//     console.log('Selected Items:', selectedItems); // Debugging to see selected items
-
-//     if (selectedItems.length > 0) {
-//         // Fetch and print only selected items
-//         fetchSelectedData(selectedItems, function(filteredData) {
-//             var groupedData = groupDataByHeader(filteredData);
-//             updateDateRangeForSelected(filteredData);
-
-//             // Hide sections before printing
-//             hideSections();
-
-//             // Render selected data into table for printing
-//             renderTable(groupedData);
-
-//             window.print();
-
-//             // Show sections after printing
-//             showSections();
-//         });
-//     } else {
-//         alert("Please select items to print.");
-//     }
-// });
-
-// // Function to hide sections before printing
-// function hideSections() {
-//     page.$title_area.hide();
-//     $('.filter-row').hide();
-//     $('.filter-section').hide();
-//     $('.pagination-section').hide();
-//     $('.action-section').hide();
-
-//     // Add a print media query to hide checkboxes during printing
-//     $('<style>@media print {.select-checkbox {display: none;}} </style>').appendTo('head');
-// }
-
-// // Function to show sections after printing
-// function showSections() {
-//     page.$title_area.show();
-//     $('.filter-row').show();
-//     $('.filter-section').show();
-//     $('.pagination-section').show();
-//     $('.action-section').show();
-
-//     // Remove the print media query after printing
-//     $('style').remove();
-// }
-
     
 // Align action buttons to the right
     action_section.css({
@@ -647,8 +550,9 @@ function fetchSelectedDataOrAll(callback) {
  
  // Update date range based on selected filters
  updateDateRange(filters);
- });
- // Function to update the date range based on the fetched data
+});
+
+// Function to update the date range based on the fetched data
 function updateDateRange(filters) {
     frappe.call({
         method: 'frappe.client.get_list',
@@ -659,20 +563,41 @@ function updateDateRange(filters) {
             order_by: 'creation asc',  // Ensure it’s sorted by creation date
         },
         callback: function(response) {
-            var dates = response.message.map(item => item.creation);
-            if (dates.length > 0) {
-                // Use the first and last date for the date range
-                var oldestDate = moment(dates[0]).format('DD-MM-YYYY hh:mm A');
-                var latestDate = moment(dates[dates.length - 1]).format('DD-MM-YYYY hh:mm A');
+            if (response.message && response.message.length > 0) {
+                var dates = response.message.map(item => new Date(item.creation));
+                
+                // Format dates as 'DD-MM-YYYY hh:mm AM/PM'
+                function formatDate(date) {
+                    let day = String(date.getDate()).padStart(2, '0');
+                    let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                    let year = date.getFullYear();
+                    let hours = date.getHours();
+                    let minutes = String(date.getMinutes()).padStart(2, '0');
+                    let ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12 || 12;  // Convert to 12-hour format and handle midnight
+                    return `${day}-${month}-${year} ${hours}:${minutes} ${ampm}`;
+                }
+
+                // Get formatted oldest and latest dates
+                var oldestDate = formatDate(dates[0]);
+                var latestDate = formatDate(dates[dates.length - 1]);
+
+                // Update the date range section
                 date_range_section.empty();
-                $('<p>').html('Date Range: <strong>From: ' + oldestDate + '</strong> To: <strong>' + latestDate + '</strong>').appendTo(date_range_section);
+                $('<p>').html(`Date Range: <strong>From: ${oldestDate}</strong> To: <strong>${latestDate}</strong>`).appendTo(date_range_section);
             } else {
                 date_range_section.empty();
                 $('<p>').text('Date Range: No Data Available').appendTo(date_range_section);
             }
+        },
+        error: function(error) {
+            console.error("Error fetching date range:", error);
+            date_range_section.empty();
+            $('<p>').text('Date Range: Error fetching data').appendTo(date_range_section);
         }
     });
 }
+
 
  // Update date range for selected items
  
@@ -823,31 +748,6 @@ function fetchSelectedDataOrAll(callback) {
     }
 }
 // Function to render the table with data for printing
-// function renderTable(groupedData) {
-//     tbody.empty();  // Clear the table before rendering
-
-//     // Render grouped data into the table
-//     Object.keys(groupedData).forEach(function(queryType) {
-//         var headerRow = $('<tr>').appendTo(tbody);
-//         $('<th>').attr('colspan', tableHeaders.length + 1).text(queryType).appendTo(headerRow);  // Add query type header
-
-//         groupedData[queryType].forEach(function(row) {
-//             var tableRow = $('<tr>').appendTo(tbody);
-//             $('<td>').html('<input type="checkbox" class="select-checkbox" data-name="' + row.name + '" style="display: none;">').appendTo(tableRow);  // Hidden checkbox
-
-//             tableHeaders.forEach(function(key) {
-//                 var field = key.toLowerCase().replace(' ', '_');
-//                 if (field === 'workflow_state') field = 'workflow_state';
-//                 if (field === 'creation') {
-//                     var formattedDate = moment(row.creation).format('DD-MM-YYYY hh:mm A');
-//                     $('<td>').text(formattedDate).appendTo(tableRow);  // Add formatted date
-//                 } else {
-//                     $('<td>').text(row[field]).appendTo(tableRow);  // Add data to the table
-//                 }
-//             });
-//         });
-//     });
-// }
 function renderTable(groupedData) {
     tbody.empty();  // Clear the table before rendering
 

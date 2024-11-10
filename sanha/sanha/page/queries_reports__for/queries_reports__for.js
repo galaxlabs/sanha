@@ -75,31 +75,321 @@ slogan_container.css({
 });
 $('<span>').text('Eat Halal, Be Healthy.').appendTo(slogan_container);
 
+// var filterSection = $('<div>').addClass('filter-section').appendTo(page.body);
+// filterSection.css({
+//     'margin-bottom': '35px', // Add margin below the filter section
+//     'display': 'flex',
+//     'justify-content': 'space-between', // Align items with space between
+//     'align-items': 'center' // Align items at the center vertically
+// });
+// var clientNameDropdown = $('<select>').addClass('form-control').appendTo(filterSection);
+// $('<option>').text('Select Client').appendTo(clientNameDropdown);
+// clientNameDropdown.css({
+//     'margin-right': '10px' // Adjust as needed
+// });
+// // Query type selection dropdown
+// var queryTypeDropdown = $('<select>').addClass('form-control').appendTo(filterSection);
+// $('<option>').text('Select Query Type').appendTo(queryTypeDropdown);
+
+// var owner_table_section_container = $('<div>').appendTo(page.body);
+
+// var owner_table_section = $('<div>').addClass('owner-table-section').appendTo(owner_table_section_container);
+// owner_table_section.css({
+//     'margin-bottom': '20px',
+//     'text-align': 'center'
+// });
+
+// // Date range section
+// var date_range_section_container = $('<div>').appendTo(page.body);
+// $('<hr>').appendTo(date_range_section_container);
+// var date_range_section = $('<div>').addClass('date-range-section').appendTo(date_range_section_container);
+// date_range_section.css({
+//     'margin-bottom': '20px',
+//     'text-align': 'center'
+// });
+// // Initialize data section and table
+// // Define the table section
+
+// var data_section = $('<div>').addClass('data-section').appendTo(page.body);
+// data_section.css({
+//     'margin-bottom': '20px',
+//     'display': 'flex',
+//     'align-items': 'center',
+//     'flex-wrap': 'wrap'
+// });
+
+// var table = $('<table>').addClass('table').appendTo(data_section);
+// var thead = $('<thead>').appendTo(table);
+// var tbody = $('<tbody>').appendTo(table);
+// var tfoot = $('<tfoot>').appendTo(table);
+// var tableHeaders = ['S No','Raw Material', 'Supplier', 'Manufacturer', 'Query Types', 'Status'];
+
+// var headerRow = $('<tr>').appendTo(thead);
+// tableHeaders.forEach(function(label) {
+//     $('<th>').text(label).appendTo(headerRow);
+// });
+
+// // Add input fields for filtering below the headers
+// var filterRow = $('<tr>').addClass('filter-row').appendTo(thead);
+//     tableHeaders.forEach(function(label) {
+//         $('<td>').append($('<input>').addClass('form-control').attr('placeholder', 'Filter ' + label)).appendTo(filterRow);
+//     });
+// // Add pagination controls
+// var pagination_section = $('<div>').addClass('pagination-section').appendTo(page.body);
+// pagination_section.css({
+//     'display': 'flex',
+//     'justify-content': 'center',
+//     'margin-top': '20px'
+// });
+
+// var prevButton = $('<button>').text('Previous').addClass('btn btn-secondary').appendTo(pagination_section);
+// var nextButton = $('<button>').text('Next').addClass('btn btn-secondary').appendTo(pagination_section);
+
+// prevButton.css({
+//     'order': '1', // Display the "Previous" button first
+//     'margin-right': 'auto' // Push the "Previous" button to the left
+// });
+
+// nextButton.css({
+//     'order': '2' // Display the "Next" button second
+// });
+
+// var currentPage = 1;
+// var itemsPerPage = 200;
+
+// function fetchAllData(doctype, fields, filters, callback) {
+//     var start = 0;
+//     var limit = 500; // Adjust limit as necessary for your environment
+//     var allData = [];
+
+//     function fetchData() {
+//         frappe.call({
+//             method: 'frappe.client.get_list',
+//             args: {
+//                 doctype: doctype,
+//                 fields: fields,
+//                 filters: filters,
+//                 limit_start: start,
+//                 limit_page_length: limit,
+//                 order_by: 'raw_material asc'
+//             },
+//             callback: function(response) {
+//                 var data = response.message;
+//                 if (data.length > 0) {
+//                     allData = allData.concat(data);
+//                     start += limit;
+//                     fetchData();
+//                 } else {
+//                     callback(allData);
+//                 }
+//             }
+//         });
+//     }
+
+//     fetchData();
+// }
+
+// // Populate client dropdown
+// fetchAllData('Query', ['client_name'], [], function(clients) {
+//     var uniqueClients = new Set();
+//     clients.forEach(function(client) {
+//         if (!uniqueClients.has(client.client_name)) {
+//             uniqueClients.add(client.client_name);
+//             $('<option>').text(client.client_name).appendTo(clientNameDropdown);
+//         }
+//     });
+// });
+
+// // Populate query type dropdown
+// fetchAllData('Query', ['query_types'], [], function(queryTypes) {
+//     var uniqueQueryTypes = new Set();
+//     queryTypes.forEach(function(query) {
+//         if (query.query_types) {
+//             query.query_types.split(',').forEach(function(type) {
+//                 type = type.trim();
+//                 if (type) uniqueQueryTypes.add(type);
+//             });
+//         }
+//     });
+//     uniqueQueryTypes.forEach(function(type) {
+//         $('<option>').text(type).appendTo(queryTypeDropdown);
+//     });
+// });
+
+// // Fetch and display data for the selected client and query type
+// function fetchData(client, queryType, page, limit) {
+//     var filters = { 
+//         workflow_state: ['in', ['Submitted','Approved', 'Halal', 'Haram', 'Rejected', 'Hold', 'Doubtful']],
+//         workflow_state: ['not in', ['Draft']],
+//     };
+//     if (client && client !== 'Select Client') {
+//         filters.client_name = client;
+//     }
+//     if (queryType && queryType !== 'Select Query Type') {
+//         filters.query_types = ['like', '%' + queryType + '%'];
+//     }
+
+//     var additionalFilters = {};
+//     filterRow.find('input').each(function(index) {
+//         var value = $(this).val();
+//         if (value) {
+//             // Map label to actual field name
+//             var fieldMap = {
+//                 'Raw Material': 'raw_material',
+//                 'Supplier': 'supplier',
+//                 'Manufacturer': 'manufacturer',
+//                 'Query Types': 'query_types',
+//                 'Status': 'workflow_state' // Map Status to workflow_state
+//             };
+//             var field = fieldMap[tableHeaders[index]];
+//             if (field) {
+//                 additionalFilters[field] = ['like', '%' + value + '%'];
+//             }
+//         }
+//     });
+
+//     Object.assign(filters, additionalFilters);
+
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'Query',
+//             fields: ['raw_material', 'supplier', 'manufacturer', 'query_types', 'workflow_state', 'creation'],
+//             filters: filters,
+//             limit_start: (page - 1) * limit,
+//             limit_page_length: limit,
+//             order_by: 'raw_material asc'
+//         },
+//         callback: function(response) {
+//             var data = response.message;
+//             tbody.empty(); // Clear existing table data
+//             data.forEach(function(row) {
+//                 var tableRow = $('<tr>').appendTo(tbody);
+//                 tableHeaders.forEach(function(key) {
+//                     var field = key.toLowerCase().replace(' ', '_');
+//                     if (field === 'status') field = 'workflow_state'; // Use actual field name for Status
+//                     if (field === 'creation') {
+//                         // Format the creation date using moment.js
+//                         var formattedDate = moment(row.creation).format('DD-MM-YYYY hh:mm A');
+//                         $('<td>').text(formattedDate).appendTo(tableRow);
+//                     } else {
+//                         $('<td>').text(row[field]).appendTo(tableRow);
+//                     }
+//                 });
+//             });
+//             updateDateRange(filters);
+//         }
+//     });
+// }
+
+// // Update owner table based on selected client
+// function updateOwnerTable(selectedClient) {
+//     if (selectedClient !== 'Select Client') {
+//         owner_table_section.empty();
+
+//         frappe.call({
+//             method: 'frappe.client.get_list',
+//             args: {
+//                 doctype: 'Query',
+//                 filters: {
+//                     client_name: selectedClient
+//                 },
+//                 fields: ['client_code']
+//             },
+//             callback: function(response) {
+//                 var clientData = response.message[0];
+//                 if (clientData) {
+//                     var ownerTable = $('<table>').addClass('table').appendTo(owner_table_section);
+//                     var tbody = $('<tbody>').appendTo(ownerTable);
+//                     var firstRow = $('<tr>').appendTo(tbody);
+//                     var firstRowData = $('<td>').addClass('text-center').appendTo(firstRow);
+//                     $('<h2>').text(selectedClient + ' (Code: ' + clientData.client_code + ')').appendTo(firstRowData);
+//                 }
+//             }
+//         });
+//     } else {
+//         owner_table_section.empty();
+//     }
+// }
+
+// // Update date range based on filtered data
+// function updateDateRange(filters) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'Query',
+//             fields: ['creation'],
+//             filters: filters,
+//             order_by: 'creation asc'
+//         },
+//         callback: function(response) {
+//             var data = response.message;
+//             if (data.length > 0) {
+//                 var oldestDate = moment(data[0].creation).format('DD-MM-YYYY hh:mm A');
+//                 var latestDate = moment(data[data.length - 1].creation).format('DD-MM-YYYY hh:mm A');
+//                 date_range_section.empty();
+//                 $('<p>').html('Date Range: <strong>From: ' + oldestDate + '</strong> To: <strong>' + latestDate + '</strong>').appendTo(date_range_section);
+//             } else {
+//                 date_range_section.empty();
+//                 $('<p>').text('Date Range: No Data Available').appendTo(date_range_section);
+//             }
+//         }
+//     });
+// }
+
+// clientNameDropdown.on('change', function() {
+//     selectedClient = clientNameDropdown.val();
+//     updateOwnerTable(selectedClient);
+//     currentPage = 1;
+//     fetchData(selectedClient, queryTypeDropdown.val(), currentPage, itemsPerPage);
+// });
+
+// queryTypeDropdown.on('change', function() {
+//     currentPage = 1;
+//     fetchData(clientNameDropdown.val(), $(this).val(), currentPage, itemsPerPage);
+// });
+
+// filterRow.find('input').on('input', function() {
+//     fetchData(clientNameDropdown.val(), queryTypeDropdown.val(), currentPage, itemsPerPage);
+// });
+
+// prevButton.on('click', function() {
+//     if (currentPage > 1) {
+//         currentPage--;
+//         fetchData(clientNameDropdown.val(), queryTypeDropdown.val(), currentPage, itemsPerPage);
+//     }
+// });
+
+// nextButton.on('click', function() {
+//     currentPage++;
+//     fetchData(clientNameDropdown.val(), queryTypeDropdown.val(), currentPage, itemsPerPage);
+// });
+
+// fetchData(clientNameDropdown.val(), queryTypeDropdown.val(), currentPage, itemsPerPage);
 var filterSection = $('<div>').addClass('filter-section').appendTo(page.body);
 filterSection.css({
-    'margin-bottom': '35px', // Add margin below the filter section
+    'margin-bottom': '35px',
     'display': 'flex',
-    'justify-content': 'space-between', // Align items with space between
-    'align-items': 'center' // Align items at the center vertically
+    'justify-content': 'space-between',
+    'align-items': 'center'
 });
+
 var clientNameDropdown = $('<select>').addClass('form-control').appendTo(filterSection);
 $('<option>').text('Select Client').appendTo(clientNameDropdown);
 clientNameDropdown.css({
-    'margin-right': '10px' // Adjust as needed
+    'margin-right': '10px'
 });
-// Query type selection dropdown
+
 var queryTypeDropdown = $('<select>').addClass('form-control').appendTo(filterSection);
 $('<option>').text('Select Query Type').appendTo(queryTypeDropdown);
 
 var owner_table_section_container = $('<div>').appendTo(page.body);
-
 var owner_table_section = $('<div>').addClass('owner-table-section').appendTo(owner_table_section_container);
 owner_table_section.css({
     'margin-bottom': '20px',
     'text-align': 'center'
 });
 
-// Date range section
 var date_range_section_container = $('<div>').appendTo(page.body);
 $('<hr>').appendTo(date_range_section_container);
 var date_range_section = $('<div>').addClass('date-range-section').appendTo(date_range_section_container);
@@ -107,8 +397,6 @@ date_range_section.css({
     'margin-bottom': '20px',
     'text-align': 'center'
 });
-// Initialize data section and table
-// Define the table section
 
 var data_section = $('<div>').addClass('data-section').appendTo(page.body);
 data_section.css({
@@ -122,19 +410,18 @@ var table = $('<table>').addClass('table').appendTo(data_section);
 var thead = $('<thead>').appendTo(table);
 var tbody = $('<tbody>').appendTo(table);
 var tfoot = $('<tfoot>').appendTo(table);
-var tableHeaders = ['S No','Raw Material', 'Supplier', 'Manufacturer', 'Query Types', 'Status'];
+var tableHeaders = ['S No', 'Raw Material', 'Supplier', 'Manufacturer', 'Query Types', 'Status'];
 
 var headerRow = $('<tr>').appendTo(thead);
 tableHeaders.forEach(function(label) {
     $('<th>').text(label).appendTo(headerRow);
 });
 
-// Add input fields for filtering below the headers
 var filterRow = $('<tr>').addClass('filter-row').appendTo(thead);
-    tableHeaders.forEach(function(label) {
-        $('<td>').append($('<input>').addClass('form-control').attr('placeholder', 'Filter ' + label)).appendTo(filterRow);
-    });
-// Add pagination controls
+tableHeaders.forEach(function(label) {
+    $('<td>').append($('<input>').addClass('form-control').attr('placeholder', 'Filter ' + label)).appendTo(filterRow);
+});
+
 var pagination_section = $('<div>').addClass('pagination-section').appendTo(page.body);
 pagination_section.css({
     'display': 'flex',
@@ -146,12 +433,12 @@ var prevButton = $('<button>').text('Previous').addClass('btn btn-secondary').ap
 var nextButton = $('<button>').text('Next').addClass('btn btn-secondary').appendTo(pagination_section);
 
 prevButton.css({
-    'order': '1', // Display the "Previous" button first
-    'margin-right': 'auto' // Push the "Previous" button to the left
+    'order': '1',
+    'margin-right': 'auto'
 });
 
 nextButton.css({
-    'order': '2' // Display the "Next" button second
+    'order': '2'
 });
 
 var currentPage = 1;
@@ -159,7 +446,7 @@ var itemsPerPage = 200;
 
 function fetchAllData(doctype, fields, filters, callback) {
     var start = 0;
-    var limit = 500; // Adjust limit as necessary for your environment
+    var limit = 500;
     var allData = [];
 
     function fetchData() {
@@ -189,7 +476,6 @@ function fetchAllData(doctype, fields, filters, callback) {
     fetchData();
 }
 
-// Populate client dropdown
 fetchAllData('Query', ['client_name'], [], function(clients) {
     var uniqueClients = new Set();
     clients.forEach(function(client) {
@@ -200,7 +486,6 @@ fetchAllData('Query', ['client_name'], [], function(clients) {
     });
 });
 
-// Populate query type dropdown
 fetchAllData('Query', ['query_types'], [], function(queryTypes) {
     var uniqueQueryTypes = new Set();
     queryTypes.forEach(function(query) {
@@ -216,10 +501,9 @@ fetchAllData('Query', ['query_types'], [], function(queryTypes) {
     });
 });
 
-// Fetch and display data for the selected client and query type
 function fetchData(client, queryType, page, limit) {
     var filters = { 
-        workflow_state: ['in', ['Approved', 'Halal', 'Haram', 'Rejected', 'Hold', 'Doubtful']],
+        workflow_state: ['in', ['Submitted','Approved', 'Halal', 'Haram', 'Rejected', 'Hold', 'Doubtful']],
         workflow_state: ['not in', ['Draft']],
     };
     if (client && client !== 'Select Client') {
@@ -233,13 +517,12 @@ function fetchData(client, queryType, page, limit) {
     filterRow.find('input').each(function(index) {
         var value = $(this).val();
         if (value) {
-            // Map label to actual field name
             var fieldMap = {
                 'Raw Material': 'raw_material',
                 'Supplier': 'supplier',
                 'Manufacturer': 'manufacturer',
                 'Query Types': 'query_types',
-                'Status': 'workflow_state' // Map Status to workflow_state
+                'Status': 'workflow_state'
             };
             var field = fieldMap[tableHeaders[index]];
             if (field) {
@@ -262,18 +545,18 @@ function fetchData(client, queryType, page, limit) {
         },
         callback: function(response) {
             var data = response.message;
-            tbody.empty(); // Clear existing table data
-            data.forEach(function(row) {
+            tbody.empty();
+            data.forEach(function(row, index) {
                 var tableRow = $('<tr>').appendTo(tbody);
-                tableHeaders.forEach(function(key) {
+                $('<td>').text((page - 1) * limit + index + 1).appendTo(tableRow); // Serial number
+                tableHeaders.slice(1).forEach(function(key) {
                     var field = key.toLowerCase().replace(' ', '_');
-                    if (field === 'status') field = 'workflow_state'; // Use actual field name for Status
+                    if (field === 'status') field = 'workflow_state';
                     if (field === 'creation') {
-                        // Format the creation date using moment.js
                         var formattedDate = moment(row.creation).format('DD-MM-YYYY hh:mm A');
                         $('<td>').text(formattedDate).appendTo(tableRow);
                     } else {
-                        $('<td>').text(row[field]).appendTo(tableRow);
+                        $('<td>').text(row[field] || '').appendTo(tableRow);
                     }
                 });
             });
@@ -282,18 +565,14 @@ function fetchData(client, queryType, page, limit) {
     });
 }
 
-// Update owner table based on selected client
 function updateOwnerTable(selectedClient) {
     if (selectedClient !== 'Select Client') {
         owner_table_section.empty();
-
         frappe.call({
             method: 'frappe.client.get_list',
             args: {
                 doctype: 'Query',
-                filters: {
-                    client_name: selectedClient
-                },
+                filters: { client_name: selectedClient },
                 fields: ['client_code']
             },
             callback: function(response) {
@@ -302,8 +581,7 @@ function updateOwnerTable(selectedClient) {
                     var ownerTable = $('<table>').addClass('table').appendTo(owner_table_section);
                     var tbody = $('<tbody>').appendTo(ownerTable);
                     var firstRow = $('<tr>').appendTo(tbody);
-                    var firstRowData = $('<td>').addClass('text-center').appendTo(firstRow);
-                    $('<h2>').text(selectedClient + ' (Code: ' + clientData.client_code + ')').appendTo(firstRowData);
+                    $('<h2>').text(selectedClient + ' (Code: ' + clientData.client_code + ')').appendTo(firstRow);
                 }
             }
         });
@@ -312,7 +590,6 @@ function updateOwnerTable(selectedClient) {
     }
 }
 
-// Update date range based on filtered data
 function updateDateRange(filters) {
     frappe.call({
         method: 'frappe.client.get_list',
