@@ -116,23 +116,29 @@
   },
   {
    "bold": 1,
+   "fetch_from": "client_name.client_code",
    "fieldname": "client_code",
    "fieldtype": "Data",
-   "hidden": 1,
    "label": "Client Code"
   },
   {
    "bold": 1,
    "fieldname": "client_name",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Client Name"
+   "fieldtype": "Link",
+   "label": "Client Name",
+   "options": "Client",
+   "search_index": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_calendar_and_gantt": 1,
- "links": [],
- "modified": "2024-06-26 20:41:05.312674",
+ "links": [
+  {
+   "link_doctype": "Client",
+   "link_fieldname": "client_name"
+  }
+ ],
+ "modified": "2024-12-24 05:53:57.924880",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",
@@ -225,6 +231,7 @@
    "write": 1
   }
  ],
+ "show_name_in_global_search": 1,
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "ASC",
