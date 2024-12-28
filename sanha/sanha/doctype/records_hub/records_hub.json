@@ -1,0 +1,46 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-12-28 15:54:45.030357",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "doc_type",
+  "date",
+  "attach_ilxb"
+ ],
+ "fields": [
+  {
+   "fieldname": "attach_ilxb",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Attach"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date"
+  },
+  {
+   "fieldname": "doc_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Doc Type ",
+   "options": "MOA\nStage 1 Audit Report\nStage 2 Audit Report\n1st Surveillance Audit Report\n2nd Surveillance Audit Report\nRe-Certification Audit Report\nRe-Certification 1 Audit Report\nRe-Certification 2 Audit Report"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-12-28 16:04:58.270545",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Records Hub",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

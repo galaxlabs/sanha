@@ -125,6 +125,7 @@
    "bold": 1,
    "fieldname": "client_name",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Client Name",
    "options": "Client",
    "search_index": 1
@@ -138,7 +139,7 @@
    "link_fieldname": "client_name"
   }
  ],
- "modified": "2024-12-24 05:53:57.924880",
+ "modified": "2024-12-24 06:32:47.887544",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",

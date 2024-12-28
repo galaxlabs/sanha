@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"E0NmdrnUbm\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"1ETkg5H1Mt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"YdOjRoiLK5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create E-NUMBERS\",\"col\":3}},{\"id\":\"NGm4UfFrCl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"E-NUMBERS List\",\"col\":3}},{\"id\":\"NiT3BHiDFC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Template\",\"col\":3}},{\"id\":\"DsamRxJnx6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Queries List\",\"col\":3}},{\"id\":\"_1Y2JbUZDe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Client\",\"col\":3}},{\"id\":\"3s0MjdX_HN\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"I7k0YeEvNy\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h3\\\" data-sider-select-id=\\\"c0e71321-b6c6-46ce-8e48-ddeea3e40ea6\\\">Client Certification Expiry (Within 60 Days)</span><span class=\\\"h1\\\"></span>\",\"col\":12}},{\"id\":\"jgZT8I1MFe\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Client lists\",\"col\":4}},{\"id\":\"tAuotW8qkT\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b data-sider-select-id=\\\"4131abed-5dc0-466f-b880-c18eed51cbcd\\\">Queries Status</b></span>\",\"col\":12}},{\"id\":\"_XIV5esjyR\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Approved\",\"col\":3}},{\"id\":\"Ih7W2he8Yd\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Rejected\",\"col\":3}},{\"id\":\"uTMZozDfXw\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Hold\",\"col\":3}},{\"id\":\"bJSQnntp7O\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Haram\",\"col\":3}},{\"id\":\"KCZnOPnsxp\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Halal\",\"col\":3}},{\"id\":\"MhjTys1ehQ\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Pending\",\"col\":3}},{\"id\":\"jJgSujQgQB\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Under Review\",\"col\":3}},{\"id\":\"zLBygzd543\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Doubtful\",\"col\":3}},{\"id\":\"raK21j1VSu\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Queries Launched\",\"col\":3}},{\"id\":\"HrjdmBDAop\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Returned to Evaluation\",\"col\":3}},{\"id\":\"fuqcb6-uVx\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Returned\",\"col\":3}},{\"id\":\"vSfGH0eG3r\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Query Result</b></span>\",\"col\":12}},{\"id\":\"8D9DcMjtHa\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b data-sider-select-id=\\\"f000de32-78ec-489c-899f-f3eef1784b44\\\">Reports And Print</b></span>\",\"col\":6}}]",
+ "content": "[{\"id\":\"E0NmdrnUbm\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"1ETkg5H1Mt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"YdOjRoiLK5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create E-NUMBERS\",\"col\":3}},{\"id\":\"NGm4UfFrCl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"E-NUMBERS List\",\"col\":3}},{\"id\":\"NiT3BHiDFC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Template\",\"col\":3}},{\"id\":\"DsamRxJnx6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Queries List\",\"col\":3}},{\"id\":\"AHnIpEBNjD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Client Lists\",\"col\":3}},{\"id\":\"_1Y2JbUZDe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Client\",\"col\":3}},{\"id\":\"71b_1lEo9q\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New City\",\"col\":3}},{\"id\":\"3s0MjdX_HN\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"0XKSMjHFYI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Email Queue\",\"col\":3}},{\"id\":\"FXINHBY3Is\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Add New Type\",\"col\":3}},{\"id\":\"UloMD3v1Zr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"User List\",\"col\":3}},{\"id\":\"XPqhUMnY7o\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Required Documents list\",\"col\":3}},{\"id\":\"tAuotW8qkT\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"R5XxMXoqAP\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Raw Material Counts\",\"col\":3}},{\"id\":\"ULDFvBP-v7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Expired Documents\",\"col\":3}},{\"id\":\"VCzeqgcTw1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Approved Raw Materials\",\"col\":3}},{\"id\":\"8EAMfXNVgd\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"Pq-pXdztcR\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Print Page\",\"col\":3}},{\"id\":\"I7k0YeEvNy\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h3\\\" data-sider-select-id=\\\"c0e71321-b6c6-46ce-8e48-ddeea3e40ea6\\\">Client Certification Expiry (Within 60 Days)</span><span class=\\\"h1\\\"></span>\",\"col\":12}},{\"id\":\"jgZT8I1MFe\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Client lists\",\"col\":12}},{\"id\":\"vSfGH0eG3r\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Query Result</b></span>\",\"col\":12}}]",
  "creation": "2024-05-02 14:05:34.933971",
  "custom_blocks": [
   {
@@ -12,7 +12,7 @@
  "doctype": "Workspace",
  "hide_custom": 0,
  "icon": "color-review-points",
- "idx": 0,
+ "idx": 2,
  "indicator_color": "green",
  "is_hidden": 0,
  "label": "Admin Portal",
@@ -28,56 +28,11 @@
    "type": "Link"
   }
  ],
- "modified": "2024-05-20 17:00:41.827218",
+ "modified": "2024-12-28 16:09:06.357185",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Admin Portal",
- "number_cards": [
-  {
-   "label": "Approved",
-   "number_card_name": "Approved"
-  },
-  {
-   "label": "Rejected",
-   "number_card_name": "Rejected"
-  },
-  {
-   "label": "Hold",
-   "number_card_name": "Hold"
-  },
-  {
-   "label": "Haram",
-   "number_card_name": "Haram"
-  },
-  {
-   "label": "Halal",
-   "number_card_name": "Halal"
-  },
-  {
-   "label": "Pending",
-   "number_card_name": "Pending"
-  },
-  {
-   "label": "Under Review",
-   "number_card_name": "Under Review"
-  },
-  {
-   "label": "Doubtful",
-   "number_card_name": "Doubtful"
-  },
-  {
-   "label": "Queries Launched",
-   "number_card_name": "Submitted"
-  },
-  {
-   "label": "Returned to Evaluation",
-   "number_card_name": "Returned Ev"
-  },
-  {
-   "label": "Returned",
-   "number_card_name": "Returned to Client"
-  }
- ],
+ "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
@@ -85,7 +40,7 @@
   {
    "document_type": "Client",
    "label": "Client lists",
-   "quick_list_filter": "[[\"Client\",\"certified_expiry\",\"Timespan\",\"next month\",false]]"
+   "quick_list_filter": "[[\"Client\",\"status\",\"!=\",\"Valid\",false]]"
   }
  ],
  "roles": [
@@ -102,18 +57,93 @@
  "sequence_id": 2.0,
  "shortcuts": [
   {
-   "color": "Grey",
+   "color": "Green",
    "doc_view": "List",
-   "label": "Queries List",
-   "link_to": "Query",
-   "stats_filter": "[[\"Query\",\"workflow_state\",\"!=\",\"Draft\",false]]",
+   "label": "E-NUMBERS List",
+   "link_to": "E-NUMBERS",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Template",
+   "link_to": "Templates",
+   "stats_filter": "[]",
    "type": "DocType"
   },
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Create New Template",
-   "link_to": "Templates",
+   "label": "Print Page",
+   "link_to": "queries-reports--for",
+   "type": "Page"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Expired Documents",
+   "link_to": "Expired Documents",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Approved Raw Materials",
+   "link_to": "Approved Raw Materials",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Raw Material Counts",
+   "link_to": "Raw Material Counts",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Create New City",
+   "link_to": "Cities",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Queries List",
+   "link_to": "Query",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Add New Type",
+   "link_to": "Query Types",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Dashboard",
+   "link_to": "Queries Status",
+   "type": "Dashboard"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Required Documents list",
+   "link_to": "Document Types",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Client Lists",
+   "link_to": "Client",
    "stats_filter": "[]",
    "type": "DocType"
   },
@@ -127,6 +157,14 @@
   },
   {
    "color": "Green",
+   "doc_view": "List",
+   "label": "Email Queue",
+   "link_to": "Email Queue",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
    "doc_view": "New",
    "label": "Create New Client",
    "link_to": "Client",
@@ -134,18 +172,12 @@
    "type": "DocType"
   },
   {
-   "color": "Grey",
+   "color": "Green",
    "doc_view": "List",
-   "label": "E-NUMBERS List",
-   "link_to": "E-NUMBERS",
+   "label": "User List",
+   "link_to": "User",
    "stats_filter": "[]",
    "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Dashboard",
-   "type": "Dashboard"
   }
  ],
  "title": "Admin Portal"
