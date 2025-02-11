@@ -119,6 +119,7 @@
    "fetch_from": "client_name.client_code",
    "fieldname": "client_code",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Client Code"
   },
   {
@@ -135,11 +136,11 @@
  "is_calendar_and_gantt": 1,
  "links": [
   {
-   "link_doctype": "Client",
+   "link_doctype": "Query",
    "link_fieldname": "client_name"
   }
  ],
- "modified": "2024-12-24 06:32:47.887544",
+ "modified": "2025-02-11 20:06:24.435000",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",
