@@ -27,14 +27,13 @@
    "fieldname": "doc_type",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Doc Type ",
-   "options": "MOA\nHalal Standard Copy\nStage 1 Audit Report\nStage 2 Audit Report\n1st Surveillance Audit Report\n2nd Surveillance Audit Report\nRe-Certification Audit Report\nRe-Certification 1 Audit Report\nRe-Certification 2 Audit Report"
+   "label": "Doc Type "
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-12-28 16:40:26.572575",
+ "modified": "2025-02-19 04:02:22.381696",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Records Hub",
