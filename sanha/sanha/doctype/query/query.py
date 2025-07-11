@@ -48,6 +48,24 @@ class Query(Document):
 
         if found_halal_certificate and not any(doc.documents == "Halal Certificate" for doc in self.documents):
             frappe.throw("Halal Certificate requires Expiry Date.")
+            
+    def validate(self):
+        # Get previous state from DB (if exists)
+        previous_state = "Draft"
+        if frappe.db.exists("Query", self.name):
+            previous_state = frappe.db.get_value("Query", self.name, "workflow_state") or "Draft"
+
+        # Define workflow states considered as "submission"
+        submitted_states = ["Submitted", "Final Approval", "Closed"]
+
+        # Block transition from Draft → Submitted if no documents
+        if previous_state == "Draft" and self.workflow_state in submitted_states:
+            if not self.documents or len(self.documents) == 0:
+                frappe.throw("You must attach at least one document before submitting.")
+
+            for i, row in enumerate(self.documents):
+                if not row.attachment:
+                    frappe.throw(f"Row {i+1}: Attachment is required in the Documents table.")    
 
 #####################################################
 # import frappe

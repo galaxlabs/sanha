@@ -37,13 +37,14 @@
    "fieldname": "attachment",
    "fieldtype": "Attach",
    "in_list_view": 1,
-   "label": "Attachment"
+   "label": "Attachment",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-06-26 20:42:18.001980",
+ "modified": "2025-07-11 01:17:04.311922",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Documents",

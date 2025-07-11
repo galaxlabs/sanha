@@ -1,0 +1,864 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:company_legal_name",
+ "creation": "2025-07-06 20:40:46.793666",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "applicant_section",
+  "company_legal_name",
+  "trading_name__if_different",
+  "registered_office_address",
+  "section_break_wdhn",
+  "company_status",
+  "column_break_zlit",
+  "period_of_current_ownership",
+  "company_owned_by_section",
+  "muslim",
+  "column_break_zafw",
+  "others",
+  "column_break_xymb",
+  "christian",
+  "column_break_fdwd",
+  "ahmadi",
+  "column_break_gipq",
+  "parsi",
+  "column_break_xkng",
+  "hindu",
+  "section_break_snio",
+  "registration_number",
+  "column_break_vcux",
+  "ntn",
+  "column_break_zboj",
+  "gst",
+  "belongings_with_any_business_group_section",
+  "yes",
+  "column_break_xgwe",
+  "no",
+  "section_break_dxue",
+  "group_name",
+  "scope_for_halal_certification_section",
+  "text_jejj",
+  "certification_standrds_section",
+  "smiic2019",
+  "halal_pharma",
+  "smiic24",
+  "other",
+  "sites_section",
+  "no_of_production_sites",
+  "section_break_lips",
+  "table_hbcv",
+  "business_activities_section",
+  "brands_name",
+  "export_locations",
+  "section_break_rfpf",
+  "total_no_of_products",
+  "total_no_of_raw_materials",
+  "column_break_rect",
+  "no_of_product_variety",
+  "no_of_haccp_studies",
+  "section_break_ejym",
+  "no_of_production_sites_copy",
+  "section_break_eusr",
+  "table_wuqp",
+  "type_of_products_section",
+  "heading_tp",
+  "section_break_qxev",
+  "yes1",
+  "column_break_evjt",
+  "no2",
+  "section_break_wydt",
+  "heading_tp2",
+  "human_resource_section",
+  "total_no_of_employees",
+  "section_break_yymr",
+  "yes4",
+  "position",
+  "column_break_uzvj",
+  "no4",
+  "contact_persons_section",
+  "contact_persons",
+  "other_certificate_section",
+  "yes6",
+  "other_certificate",
+  "column_break_nalb",
+  "no6",
+  "details_of_onsultant_section",
+  "yes7",
+  "column_break_ptlj",
+  "no7",
+  "section_break_yopl",
+  "name_of_the_consultant",
+  "consultant_address",
+  "consultant_tel",
+  "column_break_fcfk",
+  "company",
+  "consultant_email",
+  "tollco_manufacturing_section",
+  "yes8",
+  "name_of_tollco_manufacturer",
+  "column_break_xnqc",
+  "no8",
+  "name_of_products_tollco",
+  "on_behalf_of_section",
+  "on_behalf",
+  "application_form_filled_by_section",
+  "name1",
+  "position2",
+  "digital_signature",
+  "location",
+  "date_of_application",
+  "user",
+  "for_sanha_pakistan_office_use_only_section",
+  "initial_certification_audit",
+  "survilance_audit",
+  "column_break_pnrg",
+  "stage_1",
+  "recertification",
+  "column_break_eerw",
+  "stage_2",
+  "certification_category_competence_section",
+  "halal_product__service_category",
+  "expected_audit_date",
+  "team_leader",
+  "team_members",
+  "application_reviewed_by_section",
+  "name_r",
+  "position_r",
+  "digital_signature_official_r",
+  "date_of_review",
+  "remarks",
+  "application_app",
+  "name_app",
+  "position_app",
+  "digital_signature_app",
+  "review_date",
+  "remarks_app",
+  "section_break_jvwx",
+  "name_con",
+  "position_con",
+  "signature_con",
+  "review_con_date",
+  "remarks_con"
+ ],
+ "fields": [
+  {
+   "fieldname": "applicant_section",
+   "fieldtype": "Section Break",
+   "label": "Applicant"
+  },
+  {
+   "fieldname": "company_legal_name",
+   "fieldtype": "Data",
+   "label": "Company Legal Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "trading_name__if_different",
+   "fieldtype": "Data",
+   "label": "Trading Name  (if different)"
+  },
+  {
+   "fieldname": "registered_office_address",
+   "fieldtype": "Data",
+   "label": "Registered Office Address)"
+  },
+  {
+   "description": "(Trust, Pvt., Ltd., SP, etc.)",
+   "fieldname": "company_status",
+   "fieldtype": "Data",
+   "label": "Company Status"
+  },
+  {
+   "description": "(Trust, Pvt., Ltd., SP, etc.)",
+   "fieldname": "period_of_current_ownership",
+   "fieldtype": "Data",
+   "label": "Period of Current Ownership"
+  },
+  {
+   "default": "0",
+   "fieldname": "muslim",
+   "fieldtype": "Check",
+   "label": "Muslim"
+  },
+  {
+   "default": "0",
+   "fieldname": "hindu",
+   "fieldtype": "Check",
+   "label": "Hindu"
+  },
+  {
+   "default": "0",
+   "fieldname": "christian",
+   "fieldtype": "Check",
+   "label": "Christian"
+  },
+  {
+   "default": "0",
+   "fieldname": "parsi",
+   "fieldtype": "Check",
+   "label": "Parsi"
+  },
+  {
+   "default": "0",
+   "fieldname": "ahmadi",
+   "fieldtype": "Check",
+   "label": "Ahmadi"
+  },
+  {
+   "default": "0",
+   "fieldname": "others",
+   "fieldtype": "Check",
+   "label": "Others"
+  },
+  {
+   "default": "0",
+   "fieldname": "yes",
+   "fieldtype": "Check",
+   "label": "Yes"
+  },
+  {
+   "default": "0",
+   "fieldname": "no",
+   "fieldtype": "Check",
+   "label": "No"
+  },
+  {
+   "description": "If \u201cYes\u201d mention the name of Group",
+   "fieldname": "group_name",
+   "fieldtype": "Data",
+   "label": "Group Name"
+  },
+  {
+   "fieldname": "registration_number",
+   "fieldtype": "Int",
+   "label": "Registration Number"
+  },
+  {
+   "fieldname": "ntn",
+   "fieldtype": "Int",
+   "label": "NTN"
+  },
+  {
+   "fieldname": "gst",
+   "fieldtype": "Int",
+   "label": "GST"
+  },
+  {
+   "fieldname": "company_owned_by_section",
+   "fieldtype": "Section Break",
+   "label": "Company Owned By"
+  },
+  {
+   "fieldname": "column_break_zafw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_xymb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_fdwd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_gipq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_xkng",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "belongings_with_any_business_group_section",
+   "fieldtype": "Section Break",
+   "label": "Belongings with Any Business Group"
+  },
+  {
+   "fieldname": "column_break_xgwe",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_snio",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_vcux",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_zboj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_dxue",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_wdhn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_zlit",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "scope_for_halal_certification_section",
+   "fieldtype": "Section Break",
+   "label": " Scope for Halal Certification"
+  },
+  {
+   "fieldname": "text_jejj",
+   "fieldtype": "Text Editor"
+  },
+  {
+   "description": "The standards or other requirements for which the applicant is seeking certification",
+   "fieldname": "certification_standrds_section",
+   "fieldtype": "Section Break",
+   "label": "Certification Standrds"
+  },
+  {
+   "default": "0",
+   "fieldname": "smiic2019",
+   "fieldtype": "Check",
+   "label": "PS: 3733:2022 OIC/SMIIC 1:2019"
+  },
+  {
+   "default": "0",
+   "fieldname": "halal_pharma",
+   "fieldtype": "Check",
+   "label": "PS: 5442:2021, Halal Pharma/Health Care"
+  },
+  {
+   "default": "0",
+   "fieldname": "smiic24",
+   "fieldtype": "Check",
+   "label": "PS: OIC/SMIIC 24"
+  },
+  {
+   "fieldname": "other",
+   "fieldtype": "Data",
+   "label": "Other"
+  },
+  {
+   "fieldname": "sites_section",
+   "fieldtype": "Section Break",
+   "label": "Sites"
+  },
+  {
+   "fieldname": "no_of_production_sites",
+   "fieldtype": "Select",
+   "label": "No. of Production Sites",
+   "options": "1\n2\n3\n4\n5"
+  },
+  {
+   "fieldname": "section_break_lips",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "table_hbcv",
+   "fieldtype": "Table",
+   "options": "Sites"
+  },
+  {
+   "fieldname": "business_activities_section",
+   "fieldtype": "Section Break",
+   "label": "Business Activities"
+  },
+  {
+   "fieldname": "brands_name",
+   "fieldtype": "Data",
+   "label": "Brand/s Name"
+  },
+  {
+   "fieldname": "section_break_rfpf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_no_of_products",
+   "fieldtype": "Data",
+   "label": "Total No. of Products"
+  },
+  {
+   "fieldname": "column_break_rect",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "no_of_product_variety",
+   "fieldtype": "Data",
+   "label": "No. of Product Variety"
+  },
+  {
+   "fieldname": "no_of_production_sites_copy",
+   "fieldtype": "Select",
+   "label": "No. of warehouses",
+   "options": "1\n2\n3\n4\n5"
+  },
+  {
+   "fieldname": "export_locations",
+   "fieldtype": "Data",
+   "label": "Export locations"
+  },
+  {
+   "fieldname": "total_no_of_raw_materials",
+   "fieldtype": "Data",
+   "label": "Total No. of Raw Materials"
+  },
+  {
+   "fieldname": "no_of_haccp_studies",
+   "fieldtype": "Data",
+   "label": "No. of HACCP Studies"
+  },
+  {
+   "fieldname": "section_break_ejym",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_eusr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "table_wuqp",
+   "fieldtype": "Table",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "type_of_products_section",
+   "fieldtype": "Section Break",
+   "label": "Type of Products"
+  },
+  {
+   "default": "0",
+   "fieldname": "yes1",
+   "fieldtype": "Check",
+   "label": "Yes"
+  },
+  {
+   "default": "0",
+   "fieldname": "no2",
+   "fieldtype": "Check",
+   "label": "NO"
+  },
+  {
+   "fieldname": "section_break_qxev",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_evjt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Is your company a Producer/Distributor/Supplier of Wine or Pork?",
+   "fieldname": "heading_tp",
+   "fieldtype": "Heading",
+   "label": "Type of Products"
+  },
+  {
+   "fieldname": "section_break_wydt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "Do you have Separate Production/Storage facility for Wine or Pork?",
+   "fieldname": "heading_tp2",
+   "fieldtype": "Heading",
+   "label": "Type of Products"
+  },
+  {
+   "fieldname": "human_resource_section",
+   "fieldtype": "Section Break",
+   "label": "Human Resource"
+  },
+  {
+   "description": "Is there any non-Muslim employee/personnel (permanent or contractual) in organization carrying out activities, having an impact on Halal product safety? ",
+   "fieldname": "total_no_of_employees",
+   "fieldtype": "Data",
+   "label": "Total No of Employees"
+  },
+  {
+   "fieldname": "section_break_yymr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "yes4",
+   "fieldtype": "Check",
+   "label": "Yes"
+  },
+  {
+   "fieldname": "column_break_uzvj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "no4",
+   "fieldtype": "Check",
+   "label": "NO"
+  },
+  {
+   "description": "Yes, If yes, please elaborate his/her position /role.",
+   "fieldname": "position",
+   "fieldtype": "Data",
+   "label": "Position"
+  },
+  {
+   "fieldname": "contact_persons_section",
+   "fieldtype": "Section Break",
+   "label": "Contact Persons"
+  },
+  {
+   "fieldname": "contact_persons",
+   "fieldtype": "Table",
+   "label": "Contact Persons",
+   "options": "Contact Persons"
+  },
+  {
+   "description": "Is the company certified for other management systems?",
+   "fieldname": "other_certificate_section",
+   "fieldtype": "Section Break",
+   "label": "Other Certificate"
+  },
+  {
+   "default": "0",
+   "fieldname": "yes6",
+   "fieldtype": "Check",
+   "label": "Yes"
+  },
+  {
+   "description": "If yes, please provide details.",
+   "fieldname": "other_certificate",
+   "fieldtype": "Data",
+   "label": "Other Certificate"
+  },
+  {
+   "fieldname": "column_break_nalb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "no6",
+   "fieldtype": "Check",
+   "label": "NO"
+  },
+  {
+   "description": "Details of consultant hired for Halal Certification System",
+   "fieldname": "details_of_onsultant_section",
+   "fieldtype": "Section Break",
+   "label": "Details of Consultant"
+  },
+  {
+   "default": "0",
+   "fieldname": "yes7",
+   "fieldtype": "Check",
+   "label": "Yes"
+  },
+  {
+   "fieldname": "column_break_ptlj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "no7",
+   "fieldtype": "Check",
+   "label": "NO"
+  },
+  {
+   "description": "If yes, please provide details.",
+   "fieldname": "section_break_yopl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "name_of_the_consultant",
+   "fieldtype": "Data",
+   "label": "Name of the Consultant"
+  },
+  {
+   "fieldname": "consultant_address",
+   "fieldtype": "Data",
+   "label": "Consultant Address"
+  },
+  {
+   "fieldname": "consultant_tel",
+   "fieldtype": "Data",
+   "label": "Consultant Tel",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "column_break_fcfk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Company"
+  },
+  {
+   "fieldname": "consultant_email",
+   "fieldtype": "Data",
+   "label": "Consultant Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "tollco_manufacturing_section",
+   "fieldtype": "Section Break",
+   "label": "Toll/Co Manufacturing"
+  },
+  {
+   "default": "0",
+   "description": "If yes, please provide details.",
+   "fieldname": "yes8",
+   "fieldtype": "Check",
+   "label": "Yes"
+  },
+  {
+   "fieldname": "column_break_xnqc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "name_of_tollco_manufacturer",
+   "fieldtype": "Data",
+   "label": "Name of Toll/Co Manufacturer"
+  },
+  {
+   "default": "0",
+   "fieldname": "no8",
+   "fieldtype": "Check",
+   "label": "No"
+  },
+  {
+   "fieldname": "name_of_products_tollco",
+   "fieldtype": "Data",
+   "label": "Name of Products (Toll/Co) "
+  },
+  {
+   "fieldname": "on_behalf_of_section",
+   "fieldtype": "Section Break",
+   "label": "On Behalf of "
+  },
+  {
+   "description": "I wish to proceed with SANHA PAKISTAN Halal certification. I verify that the above information provided to SANHA PAKISTAN is correct to the best of my knowledge and true to the best of my belief.  \nI understand and accept that this application does not constitute any grounds for claims of Halal certification by the applicant whether implied or by use of the Halal patent mark/ logo until and unless such authorisation is given in writing by SANHA Pakistan. Any infringement of this shall be deemed unlawful and will jeopardise the application process.",
+   "fieldname": "on_behalf",
+   "fieldtype": "Read Only",
+   "label": "On Behalf on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "application_form_filled_by_section",
+   "fieldtype": "Section Break",
+   "label": "Application Form filled by"
+  },
+  {
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "position2",
+   "fieldtype": "Data",
+   "label": "Position"
+  },
+  {
+   "description": "If completed electronically, please indicate signature herewith an \u201cX\u201d",
+   "fieldname": "digital_signature",
+   "fieldtype": "Signature",
+   "label": "Digital Signature"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "Location"
+  },
+  {
+   "fieldname": "date_of_application",
+   "fieldtype": "Date",
+   "label": "Date of Application"
+  },
+  {
+   "fieldname": "for_sanha_pakistan_office_use_only_section",
+   "fieldtype": "Section Break",
+   "label": "For SANHA Pakistan Office use only"
+  },
+  {
+   "fieldname": "certification_category_competence_section",
+   "fieldtype": "Section Break",
+   "label": "Certification Category Competence"
+  },
+  {
+   "fieldname": "halal_product__service_category",
+   "fieldtype": "Data",
+   "label": "Halal Product / Service category"
+  },
+  {
+   "fieldname": "expected_audit_date",
+   "fieldtype": "Date",
+   "label": "Expected Audit Date"
+  },
+  {
+   "fieldname": "team_leader",
+   "fieldtype": "Data",
+   "label": "Team Leader"
+  },
+  {
+   "fieldname": "team_members",
+   "fieldtype": "Data",
+   "label": "Team Members"
+  },
+  {
+   "fieldname": "initial_certification_audit",
+   "fieldtype": "Int",
+   "label": "Initial Certification Audit"
+  },
+  {
+   "fieldname": "survilance_audit",
+   "fieldtype": "Int",
+   "label": "Survilance Audit "
+  },
+  {
+   "fieldname": "column_break_pnrg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "stage_1",
+   "fieldtype": "Int",
+   "label": "Stage 1"
+  },
+  {
+   "fieldname": "recertification",
+   "fieldtype": "Int",
+   "label": "ReCertification"
+  },
+  {
+   "fieldname": "column_break_eerw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "stage_2",
+   "fieldtype": "Int",
+   "label": "Stage 2"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "user",
+   "link_filters": "[[\"User\",\"role\",\"=\",\"Admin\"],[\"User\",\"role\",\"=\",\"Certificate Manager\"],[\"User\",\"role\",\"=\",\"Evaluation\"],[\"User\",\"role\",\"=\",\"SB Uesr\"]]",
+   "options": "User"
+  },
+  {
+   "fieldname": "application_reviewed_by_section",
+   "fieldtype": "Section Break",
+   "label": "Application Reviewed by"
+  },
+  {
+   "fieldname": "name_r",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "position_r",
+   "fieldtype": "Data",
+   "label": "Position"
+  },
+  {
+   "fieldname": "digital_signature_official_r",
+   "fieldtype": "Signature",
+   "label": "Digital Signature"
+  },
+  {
+   "fieldname": "date_of_review",
+   "fieldtype": "Date",
+   "label": "Date of Review"
+  },
+  {
+   "description": ": (if any)",
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "application_app",
+   "fieldtype": "Section Break",
+   "label": "Application Approved by Shari\u2019ah Board Member"
+  },
+  {
+   "fieldname": "name_app",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "position_app",
+   "fieldtype": "Data",
+   "label": "Position"
+  },
+  {
+   "fieldname": "digital_signature_app",
+   "fieldtype": "Signature",
+   "label": "Digital Signature"
+  },
+  {
+   "fieldname": "review_date",
+   "fieldtype": "Date",
+   "label": "Date of Review"
+  },
+  {
+   "description": ": (if any)",
+   "fieldname": "remarks_app",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_jvwx",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "name_con",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "position_con",
+   "fieldtype": "Data",
+   "label": "Position"
+  },
+  {
+   "fieldname": "signature_con",
+   "fieldtype": "Signature",
+   "label": "Digital Signature"
+  },
+  {
+   "fieldname": "review_con_date",
+   "fieldtype": "Date",
+   "label": "Date of Review"
+  },
+  {
+   "description": ": (if any)",
+   "fieldname": "remarks_con",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-11 05:28:07.992591",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Application Form",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

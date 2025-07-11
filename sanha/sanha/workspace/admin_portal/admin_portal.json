@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"E0NmdrnUbm\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"1ETkg5H1Mt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"YdOjRoiLK5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create E-NUMBERS\",\"col\":3}},{\"id\":\"NGm4UfFrCl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"E-NUMBERS List\",\"col\":3}},{\"id\":\"NiT3BHiDFC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Template\",\"col\":3}},{\"id\":\"DsamRxJnx6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Queries List\",\"col\":3}},{\"id\":\"AHnIpEBNjD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Client Lists\",\"col\":3}},{\"id\":\"_1Y2JbUZDe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Client\",\"col\":3}},{\"id\":\"71b_1lEo9q\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New City\",\"col\":3}},{\"id\":\"3s0MjdX_HN\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"0XKSMjHFYI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Email Queue\",\"col\":3}},{\"id\":\"FXINHBY3Is\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Add New Type\",\"col\":3}},{\"id\":\"UloMD3v1Zr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"User List\",\"col\":3}},{\"id\":\"XPqhUMnY7o\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Required Documents list\",\"col\":3}},{\"id\":\"tAuotW8qkT\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"R5XxMXoqAP\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Raw Material Counts\",\"col\":3}},{\"id\":\"ULDFvBP-v7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Expired Documents\",\"col\":3}},{\"id\":\"VCzeqgcTw1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Approved Raw Materials\",\"col\":3}},{\"id\":\"8EAMfXNVgd\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"Pq-pXdztcR\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Print Page\",\"col\":3}},{\"id\":\"I7k0YeEvNy\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h3\\\" data-sider-select-id=\\\"c0e71321-b6c6-46ce-8e48-ddeea3e40ea6\\\">Client Certification Expiry (Within 60 Days)</span><span class=\\\"h1\\\"></span>\",\"col\":12}},{\"id\":\"jgZT8I1MFe\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Client lists\",\"col\":12}},{\"id\":\"vSfGH0eG3r\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Query Result</b></span>\",\"col\":12}}]",
+ "content": "[{\"id\":\"E0NmdrnUbm\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Company Information\",\"col\":12}},{\"id\":\"1ETkg5H1Mt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"YdOjRoiLK5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create E-NUMBERS\",\"col\":3}},{\"id\":\"NGm4UfFrCl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"E-NUMBERS List\",\"col\":3}},{\"id\":\"NiT3BHiDFC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Template\",\"col\":3}},{\"id\":\"DsamRxJnx6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Queries List\",\"col\":3}},{\"id\":\"AHnIpEBNjD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Client Lists\",\"col\":3}},{\"id\":\"_1Y2JbUZDe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Client\",\"col\":3}},{\"id\":\"71b_1lEo9q\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New City\",\"col\":3}},{\"id\":\"3s0MjdX_HN\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"0XKSMjHFYI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Email Queue\",\"col\":3}},{\"id\":\"FXINHBY3Is\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Add New Type\",\"col\":3}},{\"id\":\"UloMD3v1Zr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"User List\",\"col\":3}},{\"id\":\"XPqhUMnY7o\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Required Documents list\",\"col\":3}},{\"id\":\"tAuotW8qkT\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"R5XxMXoqAP\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Raw Material Counts\",\"col\":3}},{\"id\":\"ULDFvBP-v7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Expired Documents\",\"col\":3}},{\"id\":\"VCzeqgcTw1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Approved Raw Materials\",\"col\":3}},{\"id\":\"8EAMfXNVgd\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"Pq-pXdztcR\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Print Page\",\"col\":3}},{\"id\":\"yTVyokG_6c\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Application Forms\",\"col\":3}},{\"id\":\"I7k0YeEvNy\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h3\\\" data-sider-select-id=\\\"c0e71321-b6c6-46ce-8e48-ddeea3e40ea6\\\">Client Certification Expiry (Within 60 Days)</span><span class=\\\"h1\\\"></span>\",\"col\":12}},{\"id\":\"jgZT8I1MFe\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Client lists\",\"col\":12}},{\"id\":\"vSfGH0eG3r\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Query Result</b></span>\",\"col\":12}}]",
  "creation": "2024-05-02 14:05:34.933971",
  "custom_blocks": [
   {
@@ -28,7 +28,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-12-28 16:09:06.357185",
+ "modified": "2025-07-10 12:03:22.081324",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Admin Portal",
@@ -105,6 +105,14 @@
    "doc_view": "New",
    "label": "Create New City",
    "link_to": "Cities",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Application Forms",
+   "link_to": "Application Form",
    "stats_filter": "[]",
    "type": "DocType"
   },

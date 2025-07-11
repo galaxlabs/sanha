@@ -1,0 +1,90 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-06 22:28:07.108647",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "site_number",
+  "facility_size",
+  "physical_address",
+  "number_of_shifts",
+  "column_break_cnfi",
+  "no_of_processing_lines",
+  "tel",
+  "email",
+  "employees_in_each_shift"
+ ],
+ "fields": [
+  {
+   "fieldname": "site_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Site Number"
+  },
+  {
+   "description": "square feet/ yard",
+   "fieldname": "facility_size",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Size"
+  },
+  {
+   "fieldname": "column_break_cnfi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "no_of_processing_lines",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Proces Lines Nos"
+  },
+  {
+   "fieldname": "tel",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Tel",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "physical_address",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Address"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "number_of_shifts",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Shifts",
+   "options": "Email"
+  },
+  {
+   "fieldname": "employees_in_each_shift",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employees in Shift",
+   "options": "Email"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-07-06 23:00:40.354584",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Sites",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
