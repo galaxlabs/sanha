@@ -1,0 +1,257 @@
+<!-- /www/query/index.html -->
+
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Query Report</title>
+  <style>
+    #clientFilter { display: none; }
+
+    .container { margin-top: 30px; }
+    .header-section {
+        padding: 20px; margin-bottom: 20px;
+        border-bottom: 1px solid rgb(204, 204, 204); display: table; width: 100%;
+    }
+    .logo-container { display: table-cell; text-align: right; width: 55%; }
+    .slogan-container { display: table-cell; text-align: right; vertical-align: middle; width: 45%; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Logo & Slogan -->
+  <div class="header-section">
+    <div class="logo-container">
+      <img src="/files/sanha-logo.png" style="width: 150px;">
+    </div>
+    <div class="slogan-container">
+      <span>Eat Halal, Be Healthy.</span>
+    </div>
+  </div>
+
+    <!-- Print Buttons -->
+  <div class="mt-4">
+    <button class="btn btn-primary" id="printBtn">🖨️ Print All</button>
+    <button class="btn btn-secondary ml-2" id="printBtnSelected">Print Selected</button>
+  </div>
+
+</div>
+
+  <!-- Filters -->
+  <div class="row mb-3">
+    <!-- For Admin version only -->
+    <div class="col-md-3">
+      <label for="clientFilter">Client</label>
+      <select id="clientFilter" class="form-control"></select>
+    </div>
+
+    <div class="col-md-3">
+      <label for="queryTypeFilter">Query Type</label>
+      <select id="queryTypeFilter" class="form-control"></select>
+    </div>
+
+    <div class="col-md-3">
+      <label for="fromDate">From Date</label>
+      <input type="date" id="fromDate" class="form-control">
+    </div>
+
+    <div class="col-md-3">
+      <label for="toDate">To Date</label>
+      <input type="date" id="toDate" class="form-control">
+    </div>
+  </div>
+
+  <!-- Heading -->
+  <div class="mb-3">
+    <div id="client-details-heading" style="font-weight: bold; text-align: center;"></div>
+    <div id="date-range" style="font-weight: bold; text-align: center;"></div>
+  </div>
+
+  <!-- Table -->
+  <table class="table" id="dataTable">
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="selectAll"></th>
+        <th>#</th>
+        <th>Raw Material</th>
+        <th>Supplier</th>
+        <th>Manufacturer</th>
+        <th>Query Type</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Pagination -->
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <div>
+      <label>Per Page: </label>
+      <select id="itemsPerPage" class="form-control d-inline-block" style="width: auto;">
+        <option value="50">50</option>
+        <option value="100" selected>100</option>
+        <option value="200">200</option>
+      </select>
+    </div>
+    <div id="pageIndicator">Page 1</div>
+    <div>
+      <button id="prevPage" class="btn btn-outline-primary">Previous</button>
+      <button id="nextPage" class="btn btn-outline-primary">Next</button>
+    </div>
+  </div>
+
+
+
+</body>
+</html>
+
+
+<!-- <div class="header-section" style="padding: 20px; margin-top: 30px; margin-bottom: 20px; border-bottom: 1px solid rgb(204, 204, 204); display: table; width: 100%;">
+    <div class="logo-container" style="display: table-cell; text-align: right; width: 55%; margin-top: 20px;">
+        <img src="/files/sanha-logo.png" class="img" style="width: 150px; height: auto;"></div>
+        <div class="slogan-container" style="display: table-cell; text-align: right; vertical-align: middle; width: 45%;">
+    <span>Eat Halal, Be Healthy.</span></div></div>
+    <div>
+            <button class="btn btn-primary" id="printBtn">🖨️ Print</button>
+        </div>
+<div class="container mt-5">
+
+<div class="container mt-4" style="text-align: center;">
+    <h2 class="mb-3">Query Reports</h2>
+    
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label>Client</label>
+            <select id="clientFilter" class="form-control">
+                <option value="">All Clients</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label>Query Type</label>
+            <select id="queryTypeFilter" class="form-control">
+                <option value="">All Types</option>
+            </select>
+        </div>
+    </div>
+    <div id="client-details-heading" class="mb-2" style="font-weight: bold; font-size: 16px;"></div>
+
+    <div class="mb-3" style="border: 0cm;" id="date-range"></div>
+
+    <table class="table table-bordered" id="dataTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Raw Material</th>
+                <th>Supplier</th>
+                <th>Manufacturer</th>
+                <th>Query Type</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+            <label for="itemsPerPage">Rows per page:</label>
+            <select id="itemsPerPage" class="form-control d-inline-block" style="width: auto;">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="200">200</option>
+                <option value="500">500</option>
+            </select>
+        </div>
+    
+        <div>
+            <button class="btn btn-secondary" id="prevPage">Previous</button>
+            <span id="pageIndicator" class="mx-2">Page 1</span>
+            <button class="btn btn-secondary" id="nextPage">Next</button>
+        </div>
+    
+    
+    </div>
+    
+
+</div> -->
+
+<!-- working version  -->
+<!-- <div class="header-section" style="padding: 20px; margin-top: 30px; margin-bottom: 20px; border-bottom: 1px solid rgb(204, 204, 204); display: table; width: 100%;">
+    <div class="logo-container" style="display: table-cell; text-align: right; width: 55%; margin-top: 20px;">
+        <img src="/files/sanha-logo.png" class="img" style="width: 150px; height: auto;"></div>
+        <div class="slogan-container" style="display: table-cell; text-align: right; vertical-align: middle; width: 45%;">
+    <span>Eat Halal, Be Healthy.</span></div></div>
+    <div>
+
+<div class="container mt-5">
+    <h2 class="mb-3 text-center">Query Reports</h2>
+
+    <div class="mb-3 d-flex justify-content-between">
+        <div class="d-flex gap-3">
+            <select id="clientFilter" class="form-control">
+                <option value="">All Clients</option>
+            </select>
+            <select id="queryTypeFilter" class="form-control">
+                <option value="">All Query Types</option>
+            </select>
+        </div>
+
+        <div class="d-flex gap-2 no-print">
+            <button class="btn btn-primary" id="printBtn">🖨️ Print</button>
+            <button class="btn btn-success" id="printBtnSelected">Print Selected</button>
+        </div>
+    </div>
+
+    <div id="client-details-heading" class="mb-3 text-center" style="font-size: larger; font-weight: 400;"></div>
+    <div class="mb-3 text-center" id="date-range" style="font-size: larger; font-weight: 400;"></div>
+
+    <table class="table table-bordered" id="dataTable">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAll"></th>
+                <th>#</th>
+                <th>Raw Material</th>
+                <th>Supplier</th>
+                <th>Manufacturer</th>
+                <th>Query Type</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="d-flex justify-content-between mt-3">
+        <div>
+            <label>Rows per page:</label>
+            <select id="itemsPerPage" class="form-control d-inline-block" style="width: auto;">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="200">200</option>
+                <option value="500">500</option>
+            </select>
+        </div>
+        <div>
+            <button class="btn btn-secondary" id="prevPage">Previous</button>
+            <span id="pageIndicator" class="mx-2">Page 1</span>
+            <button class="btn btn-secondary" id="nextPage">Next</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .no-print, #clientFilter, #queryTypeFilter, #itemsPerPage, #prevPage, #nextPage, .btn, select {
+            display: none !important;
+        }
+    }
+</style> -->
+{% endblock %}
+
