@@ -74,7 +74,7 @@ frappe.ready(function () {
                 filters: filters,
                 limit_start: (currentPage - 1) * itemsPerPage,
                 limit_page_length: itemsPerPage,
-                order_by: 'creation asc'
+                order_by: 'raw_material, creation asc'
             },
             callback: function (r) {
                 const data = r.message || [];
