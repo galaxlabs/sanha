@@ -20,6 +20,23 @@
     table { width: 100%; border-collapse: collapse; }
     th, td { border: 1px solid #ccc; padding: 8px; }
     th { background-color: #f0f0f0; }
+
+    .col-filter {
+      padding: 10px;
+      width: 100%;
+      background: linear-gradient(135deg, rgb(218, 232, 247) 0%, rgb(214, 229, 247) 100%);
+      border: none;
+      color: #9EBCD9;
+      font-size: 20px;
+      border-radius: 50px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+
+
+    }
+    .footer-section {
+        margin-top: 30px; text-align: center; padding: 20px;
+        border-top: 1px solid rgb(204, 204, 204);
+    }
   </style>
 </head>
 <body>
@@ -77,7 +94,7 @@
   <!-- Table -->
   <table class="table" id="dataTable">
     <thead>
-      <tr>
+       <tr>
         <th><input type="checkbox" id="selectAll"></th>
         <th>#</th>
         <th>Raw Material</th>
@@ -86,9 +103,31 @@
         <th>Query Type</th>
         <th>Status</th>
       </tr>
+    
+    <tr class="filter-row no-print">
+            <th></th>
+            <th></th>
+            <th><input type="text" class="col-filter" data-column="2" placeholder="Filter Raw Material"></th>
+            <th><input type="text" class="col-filter" data-column="3" placeholder="Filter Supplier"></th>
+            <th><input type="text" class="col-filter" data-column="4" placeholder="Filter Manufacturer"></th>
+            <th><input type="text" class="col-filter" data-column="5" placeholder="Filter Query Type"></th>
+            <th><input type="text" class="col-filter" data-column="6" placeholder="Filter Status"></th>
     </thead>
+          </tr> 
     <tbody></tbody>
   </table>
+
+  
+  <div class="footer-section" style="margin-top: 30px; text-align: center; padding: 20px; border-top: 1px solid rgb(204, 204, 204);">
+  <hr>
+  <p style="margin: 0;">Sanha Halal Associates Pakistan PVT. LTD.</p>
+  <p style="margin: 0;">Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama D.H.A. phase 5</p>
+  <p style="margin: 0;">Email: evaluation@sanha.org.pk - Ph: +92 21 35295263</p>
+  <hr>
+  <span>&copy; 2023 SANHA. All rights reserved.</span>
+  </div>
+
+
 
   <!-- Pagination -->
   <div class="d-flex justify-content-between align-items-center mt-3">

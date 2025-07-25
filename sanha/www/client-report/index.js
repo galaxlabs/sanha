@@ -66,6 +66,23 @@ frappe.ready(function () {
         if (toDate) filters.push(['creation', '<=', toDate + ' 23:59:59']);
         if (queryType) filters.push(['query_types', 'like', `%${queryType}%`]);
 
+
+            $('#dataTable').on('keyup', '.col-filter', function () {
+                const columnIndex = $(this).data('column');
+                const filterText = $(this).val().toLowerCase();
+
+                $('#dataTable tbody tr').each(function () {
+                    const cellText = $(this).find('td').eq(columnIndex).text().toLowerCase();
+                    if (cellText.includes(filterText)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });    
+
+
+        
         frappe.call({
             method: 'frappe.client.get_list',
             args: {
@@ -93,8 +110,9 @@ frappe.ready(function () {
                         tableBody.append(tr);
                     });
 
-                    const startDate = frappe.datetime.str_to_user(data[0].creation);
-                    const endDate = frappe.datetime.str_to_user(data[data.length - 1].creation);
+                    const sortedDates = data.map(d => d.creation).sort();
+                    const startDate = frappe.datetime.str_to_user(sortedDates[0]);
+                    const endDate = frappe.datetime.str_to_user(sortedDates[sortedDates.length - 1]);
                     $('#date-range').html(`<b>Date Range:</b> <b>${startDate}</b> to <b>${endDate}</b>`);
                 } else {
                     tableBody.html(`<tr><td colspan="7" class="text-center">No data found.</td></tr>`);
@@ -140,8 +158,17 @@ frappe.ready(function () {
             </div>
         `);
 
-        win.document.write(`<h3>Query Report</h3>`);
-        win.document.write(`<p><b>Client:</b> ${clientName} | <b>Code:</b> ${clientCode}</p>`);
+        
+                // Client details -- Date range
+    const clientDetails = $('#client-details-heading').html() || '<b>Client:</b> <b>All</b> | <b>Code:</b> <b>N/A</b>';
+    const dateRange = $('#date-range').html() || '<b>Date Range:</b> <b>N/A</b>';
+    win.document.write(`
+    <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
+        <p style="margin: 5px 0;">${clientDetails}</p>
+        <p style="margin: 5px 0;">${dateRange}</p>
+    </div>
+    `);
+
         win.document.write('<table><thead><tr><th>#</th><th>Raw Material</th><th>Supplier</th><th>Manufacturer</th><th>Query Type</th><th>Status</th></tr></thead><tbody>');
 
         rows.each(function () {
@@ -154,6 +181,18 @@ frappe.ready(function () {
         });
 
         win.document.write('</tbody></table></body></html>');
+            // Add footer
+    win.document.write(`
+    <div class="footer-section" style="margin-top: 30px; text-align: center; padding: 20px; border-top: 1px solid rgb(204, 204, 204);">
+        <hr>
+        <p style="margin: 0;">Sanha Halal Associates Pakistan PVT. LTD.</p>
+        <p style="margin: 0;">Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama D.H.A. phase 5</p>
+        <p style="margin: 0;">Email: evaluation@sanha.org.pk - Ph: +92 21 35295263</p>
+        <hr>
+        <span>&copy; 2023 SANHA. All rights reserved.</span>
+    </div>
+    `);
+
         win.document.close();
         win.onload = function () {
             win.print();
