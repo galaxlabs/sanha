@@ -247,3 +247,9 @@ app_include_js = "/assets/sanha/js/workspace.js"
 #     }
 # }
 # Include API endpoints
+
+scheduler_events = {
+	"daily": [
+		"sanha.sanha.doctype.client.client.update_all_client_statuses"
+	]
+}
