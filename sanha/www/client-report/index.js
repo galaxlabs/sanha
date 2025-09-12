@@ -203,18 +203,62 @@ frappe.ready(function () {
     // Event Bindings
     $('#fromDate, #toDate').on('change', () => { currentPage = 1; fetchData(); });
     $('#queryTypeFilter').on('change', () => { currentPage = 1; fetchData(); });
-    $('#itemsPerPage').on('change', function () {
-        itemsPerPage = parseInt(this.value);
-        currentPage = 1;
-        fetchData();
-    });
+    // $('#itemsPerPage').on('change', function () {
+    //     itemsPerPage = parseInt(this.value);
+    //     currentPage = 1;
+    //     fetchData();
+    // });
     $('#prevPage').on('click', () => { if (currentPage > 1) { currentPage--; fetchData(); } });
     $('#nextPage').on('click', () => { currentPage++; fetchData(); });
 
+    // $('#printBtn').on('click', () => {
+    //     const rows = $('#dataTable tbody tr');
+    //     openPrint(rows);
+    // });
     $('#printBtn').on('click', () => {
-        const rows = $('#dataTable tbody tr');
-        openPrint(rows);
+    frappe.call({
+        method: 'frappe.client.get_list',
+        args: {
+            doctype: 'Query',
+            fields: [
+                'name', 'client_name', 'client_code', 
+                'raw_material', 'supplier', 'manufacturer', 
+                'query_types', 'workflow_state', 'creation'
+            ],
+            filters: [
+                ['owner', '=', frappe.session.user],
+                ['workflow_state', 'not in', ['Draft']]
+            ],
+            order_by: 'raw_material, creation asc',
+            limit_page_length: 0 // ⚡ fetch ALL records
+        },
+        callback: function (r) {
+            const data = r.message || [];
+            if (data.length === 0) {
+                frappe.msgprint('No records found to print.');
+                return;
+            }
+
+            // Build rows exactly like fetchData() does
+            const tempTable = $('<tbody>');
+            data.forEach((row, i) => {
+                const tr = $('<tr>');
+                tr.append(`<td><input type="checkbox" class="row-checkbox" data-id="${row.name}"></td>`);
+                tr.append(`<td>${i + 1}</td>`); // ✅ Serial number preserved
+                tr.append(`<td>${row.raw_material || ''}</td>`);
+                tr.append(`<td>${row.supplier || ''}</td>`);
+                tr.append(`<td>${row.manufacturer || ''}</td>`);
+                tr.append(`<td>${row.query_types || ''}</td>`);
+                tr.append(`<td>${row.workflow_state || ''}</td>`);
+                tempTable.append(tr);
+            });
+
+            // ✅ Pass all rows to your existing print function
+            openPrint(tempTable.find('tr'));
+        }
     });
+});
+
 
     $('#printBtnSelected').on('click', () => {
         const selected = $('.row-checkbox:checked').closest('tr');
