@@ -1,71 +1,274 @@
 # Copyright (c) 2024, Sanha Halal Pakistan  and contributors
 # For license information, please see license.txt
-
 import frappe
 from frappe.model.document import Document
 from frappe.email.queue import flush
 from frappe.utils import getdate, nowdate, add_days
 
 class Query(Document):
-
     def validate(self):
-        if not self.get("documents"):
-            return
+        """Main validation logic for Query documents."""
+        self.validate_documents_table()
+        self.validate_workflow_rules()
 
-        if not self.documents:
-            frappe.throw('Please add documents before saving.')
+    # -------------------------------------------------------------
+    # 1️⃣ Validate child documents
+    # -------------------------------------------------------------
+    def validate_documents_table(self):
+        if not self.get("documents") or len(self.documents) == 0:
+            frappe.throw("Please add at least one document before saving.")
 
-        required_documents = ["TDS", "SDS", "Product Spec", "PDS", "Lab Sample Report", "Halal Questionnaire", "Declaration", "Halal Certificate", "MSDS", "COA"]
+        required_documents = [
+            "TDS", "SDS", "Product Spec", "PDS",
+            "Lab Sample Report", "Halal Questionnaire",
+            "Declaration", "Halal Certificate", "MSDS", "COA"
+        ]
+
+        today = getdate(nowdate())
+        sixty_days_later = add_days(today, 60)
+        expiring_documents = []
+
         found_msd = False
         found_halal_certificate = False
-        
-        for row in self.documents:
-            if row.documents in required_documents and not row.issue_date and not row.attachment:
-                frappe.throw(f"Issue Date and Attachment are required for {row.documents}.")
 
-            if row.documents in required_documents and not row.issue_date:
-                frappe.throw(f"Issue Date is required for {row.documents}.")
-
+        for i, row in enumerate(self.documents, start=1):
+            # --- Universal attachment check ---
             if not row.attachment:
-                frappe.throw(f"Attachment is required for {row.documents}.")
+                frappe.throw(f"Row {i}: Attachment is required for {row.documents}.")
 
+            # --- Common issue_date check ---
+            if row.documents in required_documents and not row.issue_date:
+                frappe.throw(f"Row {i}: Issue Date is required for {row.documents}.")
+
+            # --- MSDS rule ---
             if row.documents == "MSDS":
                 found_msd = True
                 if not row.issue_date:
-                    frappe.throw("Issue Date and Attachment are required for MSDS.")
+                    frappe.throw(f"Row {i}: MSDS requires Issue Date.")
 
+            # --- Halal Certificate rules ---
             if row.documents == "Halal Certificate":
                 found_halal_certificate = True
                 if not row.issue_date or not row.expiry_date:
-                    frappe.throw("Halal Certificate requires both Issue Date and Expiry Date.")
+                    frappe.throw(f"Row {i}: Halal Certificate requires both Issue Date and Expiry Date.")
+                elif getdate(row.expiry_date) <= getdate(row.issue_date):
+                    frappe.throw(f"Row {i}: Expiry Date must be after Issue Date for Halal Certificate.")
+                elif getdate(row.expiry_date) < today:
+                    frappe.throw(f"Row {i}: Halal Certificate expired on {row.expiry_date}.")
+                elif today <= getdate(row.expiry_date) <= sixty_days_later:
+                    remaining = (getdate(row.expiry_date) - today).days
+                    expiring_documents.append({
+                        "name": row.documents,
+                        "expiry_date": row.expiry_date,
+                        "remaining_days": remaining
+                    })
 
-                if not row.attachment:
-                    frappe.throw("Attachment is required for Halal Certificate.")
+            # --- Declaration rule ---
+            if row.documents == "Declaration" and not row.issue_date:
+                frappe.throw(f"Row {i}: Declaration requires Issue Date.")
 
-
+        # --- Summary-level checks ---
         if not found_msd:
-            frappe.throw("MSDS is mandatory.")
-
+            frappe.throw("MSDS document is mandatory.")
         if found_halal_certificate and not any(doc.documents == "Halal Certificate" for doc in self.documents):
             frappe.throw("Halal Certificate requires Expiry Date.")
-            
-    def validate(self):
-        # Get previous state from DB (if exists)
-        previous_state = "Draft"
-        if frappe.db.exists("Query", self.name):
-            previous_state = frappe.db.get_value("Query", self.name, "workflow_state") or "Draft"
 
-        # Define workflow states considered as "submission"
+        # Store for later notification use
+        self.expiring_documents = expiring_documents
+
+    # -------------------------------------------------------------
+    # 2️⃣ Workflow submission check
+    # -------------------------------------------------------------
+    def validate_workflow_rules(self):
+        """Extra validation when transitioning from Draft → Submitted."""
+        previous_state = frappe.db.get_value("Query", self.name, "workflow_state") if frappe.db.exists("Query", self.name) else "Draft"
+        current_state = self.workflow_state or "Draft"
         submitted_states = ["Submitted", "Final Approval", "Closed"]
 
-        # Block transition from Draft → Submitted if no documents
-        if previous_state == "Draft" and self.workflow_state in submitted_states:
+        if previous_state == "Draft" and current_state in submitted_states:
             if not self.documents or len(self.documents) == 0:
                 frappe.throw("You must attach at least one document before submitting.")
 
-            for i, row in enumerate(self.documents):
+            for i, row in enumerate(self.documents, start=1):
                 if not row.attachment:
-                    frappe.throw(f"Row {i+1}: Attachment is required in the Documents table.")    
+                    frappe.throw(f"Row {i}: Attachment is required before submitting.")
+
+            # Optional email reminder for expiring docs
+            if getattr(self, "expiring_documents", []):
+                self.send_query_notification(self.expiring_documents)
+
+    # -------------------------------------------------------------
+    # 3️⃣ Email notification (optional feature)
+    # -------------------------------------------------------------
+    def send_query_notification(self, expiring_documents):
+        """Notify client and evaluation team if expiring documents exist."""
+        if not expiring_documents:
+            return
+
+        expiring_list = "\n".join([
+            f"- {doc['name']} (expires in {doc['remaining_days']} days, on {doc['expiry_date']})"
+            for doc in expiring_documents
+        ])
+        message = f"""
+        <p>The following documents are nearing expiry:</p>
+        <pre>{expiring_list}</pre>
+        """
+
+        recipients = ["karachi@sanha.org.pk", "evaluation@sanha.org.pk"]
+        frappe.sendmail(
+            recipients=recipients,
+            subject=f"[SANHA] Expiring Document Alert for Query {self.name}",
+            message=message
+        )
+        flush()
+
+# import frappe
+# from frappe.model.document import Document
+# from frappe.email.queue import flush
+# from frappe.utils import getdate, nowdate, add_days
+
+# class Query(Document):
+
+#     def validate(self):
+#         """Main validation logic for Query."""
+#         self.validate_documents_exist()
+#         self.validate_required_documents()
+#         self.validate_workflow_rules()
+
+#     # -------------------------------------------------------------
+#     # 1️⃣ Base validation
+#     # -------------------------------------------------------------
+#     def validate_documents_exist(self):
+#         """Ensure at least one document is attached."""
+#         if not self.get("documents") or len(self.documents) == 0:
+#             frappe.throw("Please add at least one document before saving.")
+
+#     # -------------------------------------------------------------
+#     # 2️⃣ Document table validation
+#     # -------------------------------------------------------------
+#     def validate_required_documents(self):
+#         """Ensure mandatory documents and field rules are satisfied."""
+#         required_documents = [
+#             "TDS", "SDS", "Product Spec", "PDS",
+#             "Lab Sample Report", "Halal Questionnaire",
+#             "Declaration", "Halal Certificate", "MSDS", "COA"
+#         ]
+
+#         found_msd = False
+#         found_halal_certificate = False
+
+#         for i, row in enumerate(self.documents, start=1):
+#             # --- Attachment always required ---
+#             if not row.attachment:
+#                 frappe.throw(f"Row {i}: Attachment is required for {row.documents}.")
+
+#             # --- Common issue_date requirement ---
+#             if row.documents in required_documents and not row.issue_date:
+#                 frappe.throw(f"Row {i}: Issue Date is required for {row.documents}.")
+
+#             # --- Special rules ---
+#             if row.documents == "MSDS":
+#                 found_msd = True
+#                 if not row.issue_date:
+#                     frappe.throw(f"Row {i}: MSDS requires Issue Date.")
+
+#             if row.documents == "Halal Certificate":
+#                 found_halal_certificate = True
+#                 if not row.issue_date or not row.expiry_date:
+#                     frappe.throw(f"Row {i}: Halal Certificate requires both Issue and Expiry Dates.")
+#                 if getdate(row.expiry_date) <= getdate(row.issue_date):
+#                     frappe.throw(f"Row {i}: Expiry Date must be after Issue Date for Halal Certificate.")
+
+#             if row.documents == "Declaration" and not row.issue_date:
+#                 frappe.throw(f"Row {i}: Declaration requires Issue Date.")
+
+#         # --- Global document presence rules ---
+#         if not found_msd:
+#             frappe.throw("MSDS document is mandatory in every Query.")
+
+#         if found_halal_certificate and not any(doc.documents == "Halal Certificate" for doc in self.documents):
+#             frappe.throw("Halal Certificate requires Expiry Date.")
+
+#     # -------------------------------------------------------------
+#     # 3️⃣ Workflow validation
+#     # -------------------------------------------------------------
+#     def validate_workflow_rules(self):
+#         """Validate workflow transitions and enforce document rules on submit."""
+#         previous_state = frappe.db.get_value("Query", self.name, "workflow_state") if frappe.db.exists("Query", self.name) else "Draft"
+#         current_state = self.workflow_state or "Draft"
+
+#         # Define states that represent submission or closure
+#         submitted_states = ["Submitted", "Final Approval", "Closed"]
+
+#         # Only check transitions from Draft → Submitted
+#         if previous_state == "Draft" and current_state in submitted_states:
+#             if not self.documents or len(self.documents) == 0:
+#                 frappe.throw("You must attach at least one document before submitting.")
+
+#             for i, row in enumerate(self.documents, start=1):
+#                 if not row.attachment:
+#                     frappe.throw(f"Row {i}: Attachment is required before submitting.")
+
+# class Query(Document):
+
+#     def validate(self):
+#         if not self.get("documents"):
+#             return
+
+#         if not self.documents:
+#             frappe.throw('Please add documents before saving.')
+
+#         required_documents = ["TDS", "SDS", "Product Spec", "PDS", "Lab Sample Report", "Halal Questionnaire", "Declaration", "Halal Certificate", "MSDS", "COA"]
+#         found_msd = False
+#         found_halal_certificate = False
+        
+#         for row in self.documents:
+#             if row.documents in required_documents and not row.issue_date and not row.attachment:
+#                 frappe.throw(f"Issue Date and Attachment are required for {row.documents}.")
+
+#             if row.documents in required_documents and not row.issue_date:
+#                 frappe.throw(f"Issue Date is required for {row.documents}.")
+
+#             if not row.attachment:
+#                 frappe.throw(f"Attachment is required for {row.documents}.")
+
+#             if row.documents == "MSDS":
+#                 found_msd = True
+#                 if not row.issue_date:
+#                     frappe.throw("Issue Date and Attachment are required for MSDS.")
+
+#             if row.documents == "Halal Certificate":
+#                 found_halal_certificate = True
+#                 if not row.issue_date or not row.expiry_date:
+#                     frappe.throw("Halal Certificate requires both Issue Date and Expiry Date.")
+
+#                 if not row.attachment:
+#                     frappe.throw("Attachment is required for Halal Certificate.")
+
+
+#         if not found_msd:
+#             frappe.throw("MSDS is mandatory.")
+
+#         if found_halal_certificate and not any(doc.documents == "Halal Certificate" for doc in self.documents):
+#             frappe.throw("Halal Certificate requires Expiry Date.")
+            
+#     def validate(self):
+#         # Get previous state from DB (if exists)
+#         previous_state = "Draft"
+#         if frappe.db.exists("Query", self.name):
+#             previous_state = frappe.db.get_value("Query", self.name, "workflow_state") or "Draft"
+
+#         # Define workflow states considered as "submission"
+#         submitted_states = ["Submitted", "Final Approval", "Closed"]
+
+#         # Block transition from Draft → Submitted if no documents
+#         if previous_state == "Draft" and self.workflow_state in submitted_states:
+#             if not self.documents or len(self.documents) == 0:
+#                 frappe.throw("You must attach at least one document before submitting.")
+
+#             for i, row in enumerate(self.documents):
+#                 if not row.attachment:
+#                     frappe.throw(f"Row {i+1}: Attachment is required in the Documents table.")    
 
 #####################################################
 # import frappe
