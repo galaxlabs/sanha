@@ -66,7 +66,33 @@ class Query(Document):
             for i, row in enumerate(self.documents):
                 if not row.attachment:
                     frappe.throw(f"Row {i+1}: Attachment is required in the Documents table.")    
+    
+    
+@frappe.whitelist()
+def find_similar_query(raw_material: str | None = None,
+                    manufacturer: str | None = None,
+                    exclude_name: str | None = None):
+    """Return up to 3 most-recent Queries with same raw_material+manufacturer (excluding current)."""
+    raw_material = (raw_material or "").strip()
+    manufacturer = (manufacturer or "").strip()
+    if not raw_material or not manufacturer:
+        return {"matches": []}
 
+    filters = {
+        "raw_material": raw_material,
+        "manufacturer": manufacturer,
+    }
+    if exclude_name:
+        filters["name"] = ["!=", exclude_name]
+
+    matches = frappe.get_all(
+        "Query",
+        filters=filters,
+        fields=["name", "workflow_state", "client_name", "owner", "modified"],
+        order_by="modified desc",
+        limit=3,
+    )
+    return {"matches": matches}
 
 # class Query(Document):
 #     def validate(self):

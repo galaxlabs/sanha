@@ -141,11 +141,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "status",
-   "fieldtype": "Data",
-   "label": "Status"
-  },
-  {
    "fieldname": "section_break_azvk",
    "fieldtype": "Section Break"
   },
@@ -247,6 +242,11 @@
    "fieldtype": "Table",
    "label": "Records Hub",
    "options": "Records Hub"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "label": "Status"
   }
  ],
  "hide_toolbar": 1,
@@ -257,7 +257,7 @@
    "link_fieldname": "client_name"
   }
  ],
- "modified": "2024-12-28 16:06:21.471451",
+ "modified": "2025-10-21 17:29:14.632230",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Client",
