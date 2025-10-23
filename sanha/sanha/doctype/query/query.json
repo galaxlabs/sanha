@@ -9,8 +9,6 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "messege_section_section",
-  "similar_info",
   "section_break_rmvm",
   "query_types",
   "query_items_section",
@@ -135,21 +133,6 @@
    "search_index": 1
   },
   {
-   "bold": 1,
-   "fieldname": "similar_info",
-   "fieldtype": "HTML",
-   "label": "Messege",
-   "permlevel": 1,
-   "print_hide": 1,
-   "read_only": 1,
-   "report_hide": 1
-  },
-  {
-   "fieldname": "messege_section_section",
-   "fieldtype": "Section Break",
-   "label": "Messege Section"
-  },
-  {
    "fieldname": "section_break_rmvm",
    "fieldtype": "Section Break"
   }
@@ -157,7 +140,7 @@
  "index_web_pages_for_search": 1,
  "is_calendar_and_gantt": 1,
  "links": [],
- "modified": "2025-10-23 14:27:18.982047",
+ "modified": "2025-10-23 15:12:18.022896",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",
