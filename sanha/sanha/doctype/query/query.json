@@ -10,6 +10,7 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break_rmvm",
+  "similar_info",
   "query_types",
   "query_items_section",
   "raw_material",
@@ -135,12 +136,19 @@
   {
    "fieldname": "section_break_rmvm",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "similar_info",
+   "fieldtype": "HTML",
+   "label": "Messede Board",
+   "permlevel": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_calendar_and_gantt": 1,
  "links": [],
- "modified": "2025-10-23 15:12:18.022896",
+ "modified": "2025-10-23 22:56:54.211336",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",
