@@ -13,8 +13,8 @@ app_license = "mit"
 # app_include_css = "/assets/sanha/css/sanha.css"
 # app_include_js = "/assets/sanha/js/sanha.js"
 
-app_include_js = "/assets/sanha/js/workspace.js"
-
+app_include_js = "/assets/sanha/js/workspace.js",
+app_include_js = "/assets/sanha/js/sanha/file_uploader/FileUploader.vue"
     # JavaScript file for client_dashboard workspace
     # Add similar entries for other workspaces if needed
 # include js, css files in header of web template
