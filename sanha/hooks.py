@@ -5,7 +5,20 @@ app_publisher = "Sanha Halal Pakistan "
 app_description = "Sanha"
 app_email = "sanha@nomail.com"
 app_license = "mit"
-# required_apps = []
+
+
+#required_apps = []
+
+add_to_apps_screen = [
+	{
+		"name": "Evaluation App",
+		"logo": "/assets/sanha/images/sanha-logo.png",
+		"title": "Sanha Evaluation App",
+		"route": "app/sanha",
+		"has_permission": "sanha.has_app_permission",
+	},
+]
+
 # Includes in <head>
 # ------------------
 
