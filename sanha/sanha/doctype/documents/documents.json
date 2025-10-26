@@ -23,7 +23,8 @@
    "fieldname": "issue_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Issue Date"
+   "label": "Issue Date",
+   "mandatory_depends_on": "eval: [\r\n    \"MSDS\",\r\n    \"Halal Declaration\",\r\n    \"TDS\",\r\n    \"SDS\",\r\n    \"Product Spec\",\r\n    \"PDS\",\r\n    \"Lab Sample Report\",\r\n    \"Halal Questionnaire\",\r\n    \"Declaration\",\r\n    \"Halal Certificate\"\r\n].includes(doc.documents)\r\n"
   },
   {
    "fieldname": "expiry_date",
@@ -31,7 +32,8 @@
    "in_filter": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Expiry Date"
+   "label": "Expiry Date",
+   "mandatory_depends_on": "eval: [\r\n    \"Halal Certificate\"\r\n].includes(doc.documents)\r\n"
   },
   {
    "fieldname": "attachment",
@@ -44,7 +46,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-10-09 18:16:17.298723",
+ "modified": "2025-10-26 16:45:31.514986",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Documents",
