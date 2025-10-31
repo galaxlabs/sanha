@@ -219,7 +219,7 @@ frappe.ready(function () {
     }
 
     function fetchData() {
-        const filters = [['workflow_state', 'not in', ['Draft']]];
+        const filters = [['workflow_state', 'not in', []]];
         const client = $('#clientFilter').val();
         const queryType = $('#queryTypeFilter').val();
         const fromDate = $('#fromDate').val();
