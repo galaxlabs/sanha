@@ -55,7 +55,7 @@ frappe.ready(function () {
     function fetchData() {
         const filters = [
             ['owner', '=', frappe.session.user],
-            ['workflow_state', 'not in', ['Draft']]
+            ['workflow_state', 'not in', []]
         ];
 
         const fromDate = $('#fromDate').val();
