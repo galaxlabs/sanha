@@ -136,4 +136,3 @@ def find_similar_query(raw_material: str | None = None,
     return {"matches": matches}
 
 
-

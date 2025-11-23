@@ -1,0 +1,77 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{raw_material}",
+ "creation": "2025-11-23 08:44:26.846866",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "raw_material",
+  "overall_status",
+  "last_reviewed_on",
+  "general_notes",
+  "section_break_bmpd",
+  "approved_manufacturers"
+ ],
+ "fields": [
+  {
+   "fieldname": "raw_material",
+   "fieldtype": "Link",
+   "label": "Raw Material",
+   "options": "Raw Material Master",
+   "search_index": 1
+  },
+  {
+   "fieldname": "overall_status",
+   "fieldtype": "Select",
+   "label": "Overall Status",
+   "options": "Halal\nHaram\nMixed\nConditional\nUnknown",
+   "search_index": 1
+  },
+  {
+   "fieldname": "last_reviewed_on",
+   "fieldtype": "Date",
+   "label": "Last Reviewed On"
+  },
+  {
+   "fieldname": "general_notes",
+   "fieldtype": "Text",
+   "label": "General Notes"
+  },
+  {
+   "fieldname": "section_break_bmpd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "approved_manufacturers",
+   "fieldtype": "Table",
+   "label": "Approved Manufacturers",
+   "options": "Approved Master Manufacturer"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-23 09:16:38.371807",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Approved Master Data",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

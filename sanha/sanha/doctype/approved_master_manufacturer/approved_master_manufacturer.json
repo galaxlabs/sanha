@@ -1,0 +1,87 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-23 08:49:30.731834",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "manufacturer_section",
+  "manufacturer",
+  "country",
+  "status",
+  "latest_query",
+  "latest_workflow_state",
+  "last_evaluated_on",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "manufacturer_section",
+   "fieldtype": "Section Break",
+   "label": "Manufacturer"
+  },
+  {
+   "fieldname": "manufacturer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Manufacturer",
+   "options": "Manufacturer Master"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Country"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Halal\nHaram\nDoubtful\nApproved\nRejected",
+   "sort_options": 1
+  },
+  {
+   "fieldname": "latest_query",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Latest Query",
+   "options": "Query",
+   "sort_options": 1
+  },
+  {
+   "fetch_from": "latest_query.workflow_state",
+   "fieldname": "latest_workflow_state",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Latest Workflow State",
+   "sort_options": 1
+  },
+  {
+   "fieldname": "last_evaluated_on",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Last Evaluated On",
+   "sort_options": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-11-23 09:11:24.033284",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Approved Master Manufacturer",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

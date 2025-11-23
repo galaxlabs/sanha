@@ -1,0 +1,79 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{core_raw_material}-####",
+ "creation": "2025-11-23 10:06:34.562772",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "search_term",
+  "column_break_yinx",
+  "core_raw_material",
+  "fetch_queries",
+  "section_break_mhfy",
+  "candidates",
+  "apply_mappings"
+ ],
+ "fields": [
+  {
+   "fieldname": "search_term",
+   "fieldtype": "Data",
+   "label": "Search Term"
+  },
+  {
+   "fieldname": "column_break_yinx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "core_raw_material",
+   "fieldtype": "Link",
+   "label": "Core Raw Material",
+   "options": "Raw Material Master"
+  },
+  {
+   "fieldname": "fetch_queries",
+   "fieldtype": "Button",
+   "label": "Fetch Queries"
+  },
+  {
+   "fieldname": "section_break_mhfy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "candidates",
+   "fieldtype": "Table",
+   "label": "Candidates",
+   "options": "Raw Material Cleanup Row"
+  },
+  {
+   "fieldname": "apply_mappings",
+   "fieldtype": "Button",
+   "label": "Apply Mappings"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-23 10:26:29.205508",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Raw Material Cleanup",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

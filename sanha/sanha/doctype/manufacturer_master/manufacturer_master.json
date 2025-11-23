@@ -1,0 +1,100 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-23 08:34:14.119441",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "manufacturer_name",
+  "country",
+  "created_from_query",
+  "column_break_uuov",
+  "normalized_key",
+  "city",
+  "website",
+  "section_break_kogh",
+  "manufacturer_alias"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "manufacturer_name",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Manufacturer Name"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "normalized_key",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Normalized Key"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Country"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "created_from_query",
+   "fieldtype": "Data",
+   "label": "Created From Query"
+  },
+  {
+   "fieldname": "website",
+   "fieldtype": "Data",
+   "label": "Website"
+  },
+  {
+   "fieldname": "column_break_uuov",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_kogh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "manufacturer_alias",
+   "fieldtype": "Table",
+   "label": "Manufacturer Alias",
+   "options": "Manufacturer Alias"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-23 09:40:57.879295",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Manufacturer Master",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

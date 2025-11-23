@@ -1,0 +1,64 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-23 10:16:57.164197",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "query",
+  "raw_material",
+  "manufacturer",
+  "client_name",
+  "query_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "query",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Query",
+   "link_filters": "[[\"Query\",\"workflow_state\",\"!=\",\"Draft\"]]",
+   "options": "Query"
+  },
+  {
+   "fetch_from": "query.raw_material",
+   "fieldname": "raw_material",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Raw Material"
+  },
+  {
+   "fetch_from": "query.manufacturer",
+   "fieldname": "manufacturer",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Manufacturer"
+  },
+  {
+   "fetch_from": "query.client_name",
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Client Name"
+  },
+  {
+   "fieldname": "query_status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Query Status"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-11-23 10:23:59.227048",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Raw Material Cleanup Row",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

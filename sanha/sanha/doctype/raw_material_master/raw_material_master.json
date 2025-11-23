@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{raw_material_name}",
+ "creation": "2025-11-23 08:15:59.244857",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "raw_material_name",
+  "cas_number",
+  "category",
+  "normalized_key",
+  "created_from_query",
+  "first_source_query",
+  "column_break_ilsh",
+  "scientific_name",
+  "inci_name",
+  "description__notes",
+  "section_break_kyft",
+  "raw_material_alias"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "raw_material_name",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Raw Material Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "scientific_name",
+   "fieldtype": "Data",
+   "label": "Scientific Name"
+  },
+  {
+   "fieldname": "cas_number",
+   "fieldtype": "Data",
+   "label": "CAS Number"
+  },
+  {
+   "fieldname": "inci_name",
+   "fieldtype": "Data",
+   "label": "INCI Name"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Link",
+   "label": "Category",
+   "options": "Query Types"
+  },
+  {
+   "fieldname": "description__notes",
+   "fieldtype": "Small Text",
+   "label": "Description / Notes"
+  },
+  {
+   "fieldname": "normalized_key",
+   "fieldtype": "Data",
+   "label": "Normalized Key"
+  },
+  {
+   "default": "0",
+   "fieldname": "created_from_query",
+   "fieldtype": "Check",
+   "label": "Created From Query"
+  },
+  {
+   "fieldname": "first_source_query",
+   "fieldtype": "Link",
+   "label": "First Source Query",
+   "options": "Query"
+  },
+  {
+   "fieldname": "column_break_ilsh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_kyft",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "raw_material_alias",
+   "fieldtype": "Table",
+   "label": "Aliases",
+   "options": "Raw Material Alias"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-23 10:35:05.597007",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Raw Material Master",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "raw_material_name"
+}

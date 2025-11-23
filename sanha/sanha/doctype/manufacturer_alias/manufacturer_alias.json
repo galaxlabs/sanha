@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-23 08:40:21.886930",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "alias",
+  "language",
+  "source_query",
+  "column_break_ktdu",
+  "normalized_key",
+  "source_type",
+  "is_preferred"
+ ],
+ "fields": [
+  {
+   "fieldname": "alias",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Alias"
+  },
+  {
+   "fieldname": "normalized_key",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Normalized Key"
+  },
+  {
+   "fieldname": "language",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Language"
+  },
+  {
+   "fieldname": "source_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Source Type",
+   "options": "QueryQuery\nManual\nImport\nAI Suggestion",
+   "sort_options": 1
+  },
+  {
+   "fieldname": "source_query",
+   "fieldtype": "Link",
+   "label": "Source Query",
+   "options": "Query"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_preferred",
+   "fieldtype": "Check",
+   "label": "Is Preferred"
+  },
+  {
+   "fieldname": "column_break_ktdu",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-11-23 08:43:23.485310",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Manufacturer Alias",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
