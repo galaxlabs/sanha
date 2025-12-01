@@ -1,0 +1,101 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-30 13:48:40.969366",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "query",
+  "query_creation",
+  "query_workflow_state",
+  "supplier",
+  "manufacturer",
+  "client",
+  "is_master",
+  "can_delete",
+  "mark_for_delete"
+ ],
+ "fields": [
+  {
+   "fieldname": "query",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Query",
+   "options": "Query"
+  },
+  {
+   "fetch_from": "query.supplier",
+   "fieldname": "supplier",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Supplier"
+  },
+  {
+   "fetch_from": "query.manufacturer",
+   "fieldname": "manufacturer",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Manufacturer"
+  },
+  {
+   "fetch_from": "query.client_name",
+   "fieldname": "client",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Client"
+  },
+  {
+   "columns": 2,
+   "default": "0",
+   "fieldname": "is_master",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Master"
+  },
+  {
+   "columns": 3,
+   "default": "0",
+   "fieldname": "can_delete",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Can Delete"
+  },
+  {
+   "columns": 4,
+   "default": "0",
+   "fieldname": "mark_for_delete",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Mark For Delete"
+  },
+  {
+   "columns": 10,
+   "fieldname": "query_creation",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Creation",
+   "read_only": 1
+  },
+  {
+   "columns": 3,
+   "fieldname": "query_workflow_state",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Status",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-11-30 19:59:46.363155",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Query Duplicate Register Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

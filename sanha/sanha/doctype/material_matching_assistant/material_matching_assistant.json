@@ -1,0 +1,112 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{matched_material}",
+ "creation": "2025-11-30 21:43:32.553669",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "search_term",
+  "source_type",
+  "column_break_uqni",
+  "matched_material",
+  "matched_manufacturer",
+  "fetch_queries",
+  "create_aliases",
+  "section_break_jsiz",
+  "queries",
+  "material_aliases",
+  "manufacturer_aliases"
+ ],
+ "fields": [
+  {
+   "fieldname": "search_term",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Search Term"
+  },
+  {
+   "fieldname": "matched_material",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Matched Material",
+   "options": "Raw Material Master",
+   "search_index": 1
+  },
+  {
+   "fieldname": "matched_manufacturer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Matched Manufacturer",
+   "options": "Manufacturer Master",
+   "search_index": 1
+  },
+  {
+   "fieldname": "source_type",
+   "fieldtype": "Select",
+   "label": "Source Type",
+   "options": "Manual\nImport\nAI Suggestion"
+  },
+  {
+   "fieldname": "section_break_jsiz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "queries",
+   "fieldtype": "Table",
+   "label": "Queries",
+   "options": "Matched Queries"
+  },
+  {
+   "fieldname": "column_break_uqni",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "material_aliases",
+   "fieldtype": "Table",
+   "label": "Material Aliases",
+   "options": "Raw Material Alias"
+  },
+  {
+   "fieldname": "manufacturer_aliases",
+   "fieldtype": "Table",
+   "label": "Manufacturer Aliases",
+   "options": "Manufacturer Alias"
+  },
+  {
+   "fieldname": "fetch_queries",
+   "fieldtype": "Button",
+   "label": "Fetch Queries"
+  },
+  {
+   "fieldname": "create_aliases",
+   "fieldtype": "Button",
+   "label": "Create Aliases"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-01 21:14:04.041016",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Material Matching Assistant",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

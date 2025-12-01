@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{core_raw_material}-####",
+ "autoname": "format:{search_term}-{#####}",
  "creation": "2025-11-23 10:06:34.562772",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -11,8 +11,8 @@
   "core_raw_material",
   "fetch_queries",
   "section_break_mhfy",
-  "candidates",
-  "apply_mappings"
+  "apply_mappings",
+  "candidates"
  ],
  "fields": [
   {
@@ -53,7 +53,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-23 10:26:29.205508",
+ "modified": "2025-12-01 19:59:49.228773",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Raw Material Cleanup",

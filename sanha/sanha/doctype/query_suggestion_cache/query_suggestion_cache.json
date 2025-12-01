@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{matched_raw_material}-{matched_manufacturer}",
+ "creation": "2025-11-30 23:54:21.784530",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "search_term",
+  "query_sample_count",
+  "column_break_khby",
+  "matched_raw_material",
+  "matched_manufacturer",
+  "section_break_jsdd",
+  "common_issues_summary",
+  "source_queries"
+ ],
+ "fields": [
+  {
+   "fieldname": "search_term",
+   "fieldtype": "Data",
+   "label": "Search Term"
+  },
+  {
+   "fieldname": "column_break_khby",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "matched_raw_material",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Matched Raw Material",
+   "options": "Raw Material Master",
+   "search_index": 1
+  },
+  {
+   "fieldname": "matched_manufacturer",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Matched Manufacturer",
+   "options": "Manufacturer Master",
+   "search_index": 1
+  },
+  {
+   "fieldname": "query_sample_count",
+   "fieldtype": "Int",
+   "label": "Sample Count"
+  },
+  {
+   "fieldname": "section_break_jsdd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "common_issues_summary",
+   "fieldtype": "Text",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "source_queries",
+   "fieldtype": "Table",
+   "label": "Source Queries",
+   "options": "Query Link Table"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-01 00:10:32.198477",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Query Suggestion Cache",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

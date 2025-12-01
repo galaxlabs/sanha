@@ -1,0 +1,86 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{query}-{new_value}",
+ "creation": "2025-11-30 23:36:01.228533",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "query",
+  "field_updated",
+  "applied_on",
+  "column_break_zrhf",
+  "old_value",
+  "new_value",
+  "applied_by"
+ ],
+ "fields": [
+  {
+   "fieldname": "query",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Query",
+   "options": "Query"
+  },
+  {
+   "fieldname": "field_updated",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Field Updated",
+   "options": "Manufacturer\nRaw Material"
+  },
+  {
+   "fieldname": "column_break_zrhf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "old_value",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Old Value"
+  },
+  {
+   "fieldname": "applied_by",
+   "fieldtype": "Data",
+   "label": "Applied By"
+  },
+  {
+   "fieldname": "applied_on",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Applied On"
+  },
+  {
+   "fieldname": "new_value",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "New Linked Value",
+   "options": "Raw Material Master"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-01 00:51:13.019111",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Approved Alias Application Log",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

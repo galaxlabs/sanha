@@ -135,4 +135,20 @@ def find_similar_query(raw_material: str | None = None,
     )
     return {"matches": matches}
 
+@frappe.whitelist()
+def find_duplicates(raw_material=None, supplier=None, manufacturer=None, for_current_user=False):
+    user = frappe.session.user
+    filters = {
+        "raw_material": raw_material,
+        "supplier": supplier,
+        "manufacturer": manufacturer,
+        "docstatus": ("<", 2)
+    }
+    if for_current_user and user != "Administrator":
+        filters["owner"] = user
+
+    # Get all matches except the earliest one
+    records = frappe.get_all("Query", filters=filters, fields=["name", "owner", "modified", "client_name"])
+    records_sorted = sorted(records, key=lambda x: x["modified"])
+    return records_sorted[1:]  # skip the first (original) entry
 

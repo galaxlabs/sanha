@@ -263,6 +263,7 @@ app_include_js = "/assets/sanha/js/sanha/file_uploader/FileUploader.vue"
 
 scheduler_events = {
 	"daily": [
-		"sanha.sanha.doctype.client.client.update_all_client_statuses"
+		"sanha.sanha.doctype.client.client.update_all_client_statuses",
+		"sanha.dup_register.scan_and_sync"
 	]
 }
