@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{duplicate_key}{client_name}{raw_material}",
+ "autoname": "format:{raw_material}",
  "creation": "2025-11-30 14:43:44.661741",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -100,7 +100,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-30 20:02:51.453429",
+ "modified": "2025-12-02 12:21:13.664485",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query Duplicate Register",
