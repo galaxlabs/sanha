@@ -227,7 +227,7 @@ frappe.ready(function () {
             ],
             filters: [
                 ['owner', '=', frappe.session.user],
-                ['workflow_state', 'not in', ['Draft']]
+                ['workflow_state', 'not in', []]
             ],
             order_by: 'raw_material, creation asc',
             limit_page_length: 0 // ⚡ fetch ALL records
