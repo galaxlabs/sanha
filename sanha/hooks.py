@@ -251,6 +251,12 @@ app_include_js = "/assets/sanha/js/sanha/file_uploader/FileUploader.vue"
 #         # "validate":  "sanha.sanha.doctype.query.query.notify_expiring_documents"
 #     }
 # }
+doc_events = {
+    "Query": {
+        "validate": "sanha.dup_register.prevent_duplicate_on_validate"
+    }
+}
+
 
 # scheduler_events = {
 #     "cron": {

@@ -12,6 +12,11 @@
   "section_break_rmvm",
   "similar_info",
   "query_types",
+  "column_break_slzn",
+  "is_duplicate",
+  "is_master",
+  "can_delete",
+  "duplicate_group_key",
   "query_items_section",
   "raw_material",
   "column_break_klxm",
@@ -143,12 +148,46 @@
    "label": "Messede Board",
    "permlevel": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_slzn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_duplicate",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Is Duplicate"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_master",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Is Master"
+  },
+  {
+   "default": "0",
+   "fieldname": "can_delete",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Can Delete"
+  },
+  {
+   "fieldname": "duplicate_group_key",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Duplicate Group Key"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_calendar_and_gantt": 1,
  "links": [],
- "modified": "2025-10-23 22:56:54.211336",
+ "modified": "2025-12-09 16:43:37.643769",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",
