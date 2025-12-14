@@ -136,89 +136,90 @@
 //     }
 // });
 
-frappe.ui.form.on('Query', {
-    validate: function(frm) {
-        // Check if the documents table is hidden
-        if (!frm.fields_dict.documents.$wrapper.is(':visible')) {
-            // Documents table is hidden, allow saving
-            return;
-        }
-        // Documents table is visible, perform validation
-        // Your validation logic here
-        if (!frm.doc.documents || !frm.doc.documents.length) {
-            frappe.msgprint('Please add documents before saving.');
-            frappe.validated = false; // Prevent saving the document
-        }
-    },
-    onload: function(frm) {
-        // Hide the child table on load if it's a new document
-        if (frm.doc.__islocal) {
-            frm.toggle_display('documents', false);
-        }
-    },
-    after_save: function(frm) {
-        // Show the child table after saving the document
-        frm.toggle_display('documents', true);
-    }
-});
-frappe.ui.form.on('Query', {
-    onload: function(frm) {
-        // Hide the child table on load if it's a new document
-        if (frm.doc.__islocal) {
-            frm.toggle_display('documents', false);
-        }
-    },
-    after_save: function(frm) {
-        // Show the child table after saving the document
-        frm.toggle_display('documents', true);
-    }
-});
+// frappe.ui.form.on('Query', {
+//     validate: function(frm) {
+//         // Check if the documents table is hidden
+//         if (!frm.fields_dict.documents.$wrapper.is(':visible')) {
+//             // Documents table is hidden, allow saving
+//             return;
+//         }
+//         // Documents table is visible, perform validation
+//         // Your validation logic here
+//         if (!frm.doc.documents || !frm.doc.documents.length) {
+//             frappe.msgprint('Please add documents before saving.');
+//             frappe.validated = false; // Prevent saving the document
+//         }
+//     },
+//     onload: function(frm) {
+//         // Hide the child table on load if it's a new document
+//         if (frm.doc.__islocal) {
+//             frm.toggle_display('documents', false);
+//         }
+//     },
+//     after_save: function(frm) {
+//         // Show the child table after saving the document
+//         frm.toggle_display('documents', true);
+//     }
+// });
+// frappe.ui.form.on('Query', {
+//     onload: function(frm) {
+//         // Hide the child table on load if it's a new document
+//         if (frm.doc.__islocal) {
+//             frm.toggle_display('documents', false);
+//         }
+//     },
+//     after_save: function(frm) {
+//         // Show the child table after saving the document
+//         frm.toggle_display('documents', true);
+//     }
+// });
 
-frappe.ui.form.on('Query', {
-    onload: function(frm) {
-        // Fetch user document based on session user's email
-        frappe.call({
-            method: "frappe.client.get",
-            args: {
-                doctype: "User",
-                name: frappe.session.user
-            },
-            callback: function(r) {
-                if (r.message) {
-                    // Set client_name field with user's full name if it's empty
-                    if (!frm.doc.client_name) {
-                        frm.set_value('client_name', r.message.full_name);
-                    }
+// frappe.ui.form.on('Query', {
+//     onload: function(frm) {
+//         // Fetch user document based on session user's email
+//         frappe.call({
+//             method: "frappe.client.get",
+//             args: {
+//                 doctype: "User",
+//                 name: frappe.session.user
+//             },
+//             callback: function(r) {
+//                 if (r.message) {
+//                     // Set client_name field with user's full name if it's empty
+//                     if (!frm.doc.client_name) {
+//                         frm.set_value('client_name', r.message.full_name);
+//                     }
                     
-                    // Set client_code field with user's location if it's empty
-                    if (!frm.doc.client_code) {
-                        frm.set_value('client_code', r.message.location);
-                    }
-                }
-            }
-        });
-    },
+//                     // Set client_code field with user's location if it's empty
+//                     if (!frm.doc.client_code) {
+//                         frm.set_value('client_code', r.message.location);
+//                     }
+//                 }
+//             }
+//         });
+//     },
 
-    on_submit: function(frm) {
-        // Check if the document is transitioning from draft state
-        if (frm.doc.__islocal) {
-            // Fetch the current user's full name
-            frappe.call({
-                method: "frappe.client.get",
-                args: {
-                    doctype: "User",
-                    name: frappe.session.user
-                },
-                callback: function(r) {
-                    if (r.message) {
-                        // Set owner_user_full_name field with user's full name
-                        frm.set_value('owner_user_full_name', r.message.full_name);
-                    }
-                }
-            });
-        }
-    }
-});
+//     on_submit: function(frm) {
+//         // Check if the document is transitioning from draft state
+//         if (frm.doc.__islocal) {
+//             // Fetch the current user's full name
+//             frappe.call({
+//                 method: "frappe.client.get",
+//                 args: {
+//                     doctype: "User",
+//                     name: frappe.session.user
+//                 },
+//                 callback: function(r) {
+//                     if (r.message) {
+//                         // Set owner_user_full_name field with user's full name
+//                         frm.set_value('owner_user_full_name', r.message.full_name);
+//                     }
+//                 }
+//             });
+//         }
+//     }
+// });
+// ########################################################
 // frappe.ui.form.on('Query', {
 // 	    onload: function(frm) {
 //         // Fetch user document based on session user's email

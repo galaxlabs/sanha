@@ -255,6 +255,7 @@ doc_events = {
     "Query": {
         "validate": "sanha.dup_register.prevent_duplicate_on_validate"
     }
+    
 }
 
 
