@@ -29,6 +29,7 @@
   "manufacturer_contact",
   "documents_section",
   "documents",
+  "file_preview",
   "section_break_zysd",
   "client_name",
   "column_break_ooht",
@@ -186,12 +187,17 @@
    "hidden": 1,
    "label": "Duplicate Group Key",
    "permlevel": 1
+  },
+  {
+   "fieldname": "file_preview",
+   "fieldtype": "HTML",
+   "label": "File Preview"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_calendar_and_gantt": 1,
  "links": [],
- "modified": "2025-12-10 11:12:02.921327",
+ "modified": "2025-12-23 14:10:19.953000",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",

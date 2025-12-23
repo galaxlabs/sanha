@@ -23,11 +23,13 @@ add_to_apps_screen = [
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/sanha/css/sanha.css"
+app_include_css = "/assets/sanha/css/sanha.css"
 # app_include_js = "/assets/sanha/js/sanha.js"
 
-app_include_js = "/assets/sanha/js/workspace.js",
-app_include_js = "/assets/sanha/js/sanha/file_uploader/FileUploader.vue"
+app_include_js = [
+    "/assets/sanha/js/workspace.js",
+]
+
     # JavaScript file for client_dashboard workspace
     # Add similar entries for other workspaces if needed
 # include js, css files in header of web template

@@ -1,0 +1,11 @@
+/* Our custom grid button (always visible) */
+.form-grid .grid-row .view-file-btn{
+  background: #307433 !important;
+  border-color: #307433 !important;
+  color: #111 !important;
+}
+
+.form-grid .grid-row .view-file-btn:hover{
+  filter: brightness(0.95);
+}
+
