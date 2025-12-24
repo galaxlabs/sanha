@@ -1,0 +1,137 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "question-sign",
+  "modified": "2024-08-01 09:32:51.943318",
+  "name": "Pending",
+  "style": "Primary",
+  "workflow_state_name": "Pending"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-08-01 09:34:08.543282",
+  "name": "Forwarded",
+  "style": "Info",
+  "workflow_state_name": "Forwarded"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-06-09 21:42:40.699816",
+  "name": "Haram",
+  "style": "Danger",
+  "workflow_state_name": "Haram"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-06-09 21:42:40.709755",
+  "name": "Doubtful",
+  "style": "Warning",
+  "workflow_state_name": "Doubtful"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-06-09 21:42:40.688928",
+  "name": "Halal",
+  "style": "Success",
+  "workflow_state_name": "Halal"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "remove",
+  "modified": "2024-06-09 21:05:52.078085",
+  "name": "Rejected",
+  "style": "Danger",
+  "workflow_state_name": "Rejected"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-08-01 09:33:50.946217",
+  "name": "Hold",
+  "style": "Info",
+  "workflow_state_name": "Hold"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-06-09 21:42:40.571864",
+  "name": "Delisted",
+  "style": "Warning",
+  "workflow_state_name": "Delisted"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-08-01 09:22:08.245637",
+  "name": "Returned To Evaluation",
+  "style": "Warning",
+  "workflow_state_name": "Returned To Evaluation"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-06-09 21:42:40.621512",
+  "name": "Returned",
+  "style": "Warning",
+  "workflow_state_name": "Returned"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "ok-sign",
+  "modified": "2024-06-09 21:05:52.075292",
+  "name": "Approved",
+  "style": "Success",
+  "workflow_state_name": "Approved"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-08-01 09:23:04.444497",
+  "name": "Under Review",
+  "style": "Primary",
+  "workflow_state_name": "Under Review"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-08-01 09:20:20.843109",
+  "name": "Submitted to SB",
+  "style": "Info",
+  "workflow_state_name": "Submitted to SB"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-06-09 21:42:40.611563",
+  "name": "Submitted",
+  "style": "Success",
+  "workflow_state_name": "Submitted"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2024-06-09 21:42:40.601740",
+  "name": "Draft",
+  "style": "Info",
+  "workflow_state_name": "Draft"
+ }
+]

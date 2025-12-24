@@ -197,7 +197,7 @@
  "index_web_pages_for_search": 1,
  "is_calendar_and_gantt": 1,
  "links": [],
- "modified": "2025-12-23 14:10:19.953000",
+ "modified": "2025-12-24 20:17:23.305146",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",
@@ -262,7 +262,8 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "SB Uesr",
+   "role": "SB User",
+   "select": 1,
    "share": 1,
    "write": 1
   },
@@ -273,7 +274,9 @@
    "read": 1,
    "report": 1,
    "role": "Certificate Manager",
-   "share": 1
+   "select": 1,
+   "share": 1,
+   "write": 1
   },
   {
    "create": 1,

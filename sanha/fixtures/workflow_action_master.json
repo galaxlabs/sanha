@@ -1,0 +1,93 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:47:42.421836",
+  "name": "List",
+  "workflow_action_name": "List"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:47:42.493656",
+  "name": "Hold",
+  "workflow_action_name": "Hold"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:47:42.503794",
+  "name": "Haram",
+  "workflow_action_name": "Haram"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:47:42.515594",
+  "name": "Doubtful",
+  "workflow_action_name": "Doubtful"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:47:42.527397",
+  "name": "Halal",
+  "workflow_action_name": "Halal"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:05:52.114627",
+  "name": "Approve",
+  "workflow_action_name": "Approve"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:05:52.116482",
+  "name": "Reject",
+  "workflow_action_name": "Reject"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:47:42.452670",
+  "name": "Return",
+  "workflow_action_name": "Return"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:47:42.467327",
+  "name": "Return to Eval",
+  "workflow_action_name": "Return to Eval"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:47:42.438650",
+  "name": "Submit",
+  "workflow_action_name": "Submit"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:47:42.480712",
+  "name": "Forward",
+  "workflow_action_name": "Forward"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:47:42.383687",
+  "name": "Delist",
+  "workflow_action_name": "Delist"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2024-06-09 21:05:52.117735",
+  "name": "Review",
+  "workflow_action_name": "Review"
+ }
+]

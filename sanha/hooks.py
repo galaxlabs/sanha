@@ -253,13 +253,27 @@ app_include_js = [
 #         # "validate":  "sanha.sanha.doctype.query.query.notify_expiring_documents"
 #     }
 # }
+fixtures = [
+    {"doctype": "Workflow"},
+    {"doctype": "Workflow State"},
+    {"doctype": "Workflow Action Master"},
+    {"doctype": "Custom DocPerm", "filters": [["parent", "in", ["File", "Documents", "Query"]]]},
+    {"doctype": "Property Setter"},
+    {"doctype": "Custom Field"},
+]
+
+
+
+        # add your role profiles here if any
+    
+
+
 doc_events = {
     "Query": {
         "validate": "sanha.dup_register.prevent_duplicate_on_validate"
     }
     
 }
-
 
 # scheduler_events = {
 #     "cron": {
