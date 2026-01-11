@@ -1,0 +1,32 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-11 08:36:47.548819",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "clients"
+ ],
+ "fields": [
+  {
+   "fieldname": "clients",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Clients",
+   "options": "Client"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-11 08:37:36.468840",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Whitelisted Client",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

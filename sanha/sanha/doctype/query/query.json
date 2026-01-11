@@ -16,6 +16,7 @@
   "is_duplicate",
   "is_master",
   "can_delete",
+  "notify_client",
   "duplicate_group_key",
   "query_items_section",
   "raw_material",
@@ -192,12 +193,21 @@
    "fieldname": "file_preview",
    "fieldtype": "HTML",
    "label": "File Preview"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_client",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Is Whitelisted",
+   "permlevel": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_calendar_and_gantt": 1,
  "links": [],
- "modified": "2025-12-24 20:17:23.305146",
+ "modified": "2026-01-11 09:02:26.877083",
  "modified_by": "Administrator",
  "module": "Sanha",
  "name": "Query",

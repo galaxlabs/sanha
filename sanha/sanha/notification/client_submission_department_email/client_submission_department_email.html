@@ -1,0 +1,30 @@
+<div style="font-family: sans-serif; border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; max-width: 600px;">
+    <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #007bff; margin: 0;">New Submission</h2>
+    </div>
+    
+    <p>Dear Team,</p>
+    <p>A new query has been submitted and is ready for evaluation.</p>
+    
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 8px 0; color: #777;">Client:</td>
+            <td style="padding: 8px 0; font-weight: bold;">{{ doc.client_name }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px 0; color: #777;">Material:</td>
+            <td style="padding: 8px 0; font-weight: bold;">{{ doc.raw_material }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px 0; color: #777;">Manufacturer:</td>
+            <td style="padding: 8px 0; font-weight: bold;">{{ doc.manufacturer }}</td>
+        </tr>
+    </table>
+
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="{{ frappe.utils.get_url_to_form('Query', doc.name) }}" 
+           style="background-color: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+           Open for Evaluation
+        </a>
+    </div>
+</div>
