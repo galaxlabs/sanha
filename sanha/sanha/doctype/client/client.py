@@ -1,5 +1,6 @@
 # # Copyright (c) 2024, Sanha Halal Pakistan  and contributors
 # # For license information, please see license.txt
+
 import email
 from pydoc import doc
 import frappe
@@ -7,12 +8,18 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.permissions import add_user_permission
 from frappe.utils import getdate, today
+from frappe.model.rename_doc import rename_doc
 
 
 class Client(Document):
     def validate(self):
-        # keep status in sync on every save
         self.compute_status_from_expiry()
+
+    def before_save(self):
+        """Capture old email before it gets overwritten."""
+        self._old_email = None
+        if not self.is_new():
+            self._old_email = frappe.db.get_value("Client", self.name, "email")
 
     def after_insert(self):
         user_doc = self.create_user()
@@ -21,73 +28,133 @@ class Client(Document):
             self.assign_user_permissions(user_doc)
 
     def on_update(self):
+        # 1) handle email change (rename User + update owners)
+        self.handle_email_change()
+
+        # 2) always sync latest names + enforce profiles
         self.sync_user()
+
+    def handle_email_change(self):
+        old_email = getattr(self, "_old_email", None)
+        new_email = (self.email or "").strip().lower()
+
+        if not old_email:
+            return
+
+        old_email = old_email.strip().lower()
+
+        # no change
+        if not new_email or old_email == new_email:
+            return
+
+        # If old user doesn't exist, nothing to rename; just continue
+        old_user_exists = frappe.db.exists("User", old_email)
+        if not old_user_exists:
+            return
+
+        # If new user already exists, don't rename; just shift ownership + permissions
+        new_user_exists = frappe.db.exists("User", new_email)
+
+        if not new_user_exists:
+            # Rename User (User.name is email)
+            rename_doc("User", old_email, new_email, force=True, merge=False, ignore_permissions=True)
+
+        # Update Query ownership for this client (only where client_name matches)
+        frappe.db.sql(
+            """
+            UPDATE `tabQuery`
+               SET owner = %s
+             WHERE owner = %s
+               AND client_name = %s
+            """,
+            (new_email, old_email, self.name),
+        )
+
+        # Update User Permission rows (user column)
+        frappe.db.sql(
+            """
+            UPDATE `tabUser Permission`
+               SET user = %s
+             WHERE user = %s
+            """,
+            (new_email, old_email),
+        )
+
+        frappe.db.commit()
+        frappe.msgprint(_("Email changed: user & linked ownership synced."))
 
     def create_user(self):
         if not self.email:
             frappe.throw(_("Email is required to create a user."))
 
+        email = self.email.strip().lower()
+
         # Reuse existing user or create a new one
-        if frappe.db.exists("User", self.email):
-            user_doc = frappe.get_doc("User", self.email)
-            frappe.msgprint(f"User already exists: {self.email}")
+        if frappe.db.exists("User", email):
+            user_doc = frappe.get_doc("User", email)
         else:
             full_name = " ".join(filter(None, [self.client_name, self.business_name]))
             user_doc = frappe.get_doc({
                 "doctype": "User",
-                "email": self.email,
+                "email": email,
                 "first_name": self.client_name,
                 "last_name": self.business_name,
                 "enabled": 1,
                 "allowed_in_mentions": 0,
                 "send_welcome_email": 0,
             })
-            try:
-                user_doc.insert(ignore_permissions=True)
-                # Assign profiles right after insert
-                user_doc.module_profile = "Client"
-                user_doc.role_profile_name = "Client"
-                user_doc.save(ignore_permissions=True)
-                frappe.msgprint(f"User created and role/module profile assigned for: {self.email}")
-            except Exception:
-                frappe.log_error(frappe.get_traceback(), "Client User Creation Failed")
-                return None
+            user_doc.insert(ignore_permissions=True)
+
+        # ALWAYS enforce profiles on create/reuse
+        user_doc.module_profile = "Client"
+        user_doc.role_profile_name = "Client"
+        user_doc.save(ignore_permissions=True)
+
+        add_user_permission("Client", self.name, new_email, is_default=True, ignore_permissions=True)
+        add_user_permission("User", new_email, new_email, ignore_permissions=True)
+
 
         return user_doc
+    
+        # Ensure permissions exist for the new user as well (safe to call again)
+
 
     def assign_user_roles(self, user_doc):
         client_role = "Client"
         if client_role not in [r.role for r in user_doc.get("roles")]:
             user_doc.append("roles", {"role": client_role})
             user_doc.save(ignore_permissions=True)
-            frappe.msgprint(f"Role '{client_role}' assigned to user.")
 
     def assign_user_permissions(self, user_doc):
-        email = user_doc.email
-        # Allow user to see their own Client record
+        email = user_doc.name  # user name is email
         add_user_permission("Client", self.name, email, is_default=True, ignore_permissions=True)
-        # Let them see their User doc
         add_user_permission("User", email, email, ignore_permissions=True)
-        frappe.msgprint("All user permissions assigned to client.")
 
     def sync_user(self):
-        if not self.email or not frappe.db.exists("User", self.email):
-            frappe.msgprint("No linked user to sync.")
+        """Sync name + enforce module/role profile even if user already existed."""
+        if not self.email:
             return
 
-        user_doc = frappe.get_doc("User", self.email)
+        email = self.email.strip().lower()
+
+        if not frappe.db.exists("User", email):
+            # if user missing, create it
+            user_doc = self.create_user()
+            if user_doc:
+                self.assign_user_roles(user_doc)
+                self.assign_user_permissions(user_doc)
+            return
+
+        user_doc = frappe.get_doc("User", email)
         user_doc.first_name = self.client_name
         user_doc.last_name = self.business_name
         user_doc.allowed_in_mentions = 0
         user_doc.module_profile = "Client"
         user_doc.role_profile_name = "Client"
         user_doc.save(ignore_permissions=True)
-        frappe.msgprint("User synced with latest Client data.")
 
     def compute_status_from_expiry(self):
-        """Compute and set status based on certified_expiry."""
         if not self.certified_expiry:
-            # Optional: clear if no expiry
             self.status = None
             return
 
@@ -104,7 +171,6 @@ class Client(Document):
 
         if self.status != new_status:
             self.status = new_status
-
 
 def update_all_client_statuses():
     """Daily job to update status of all Clients based on certified_expiry."""
@@ -127,8 +193,141 @@ def update_all_client_statuses():
             new_status = "Valid"
 
         if doc.status != new_status:
-            # Update without triggering full validate stack
             doc.db_set("status", new_status)
+
+
+
+
+
+# import email
+# from pydoc import doc
+# import frappe
+# from frappe import _
+# from frappe.model.document import Document
+# from frappe.permissions import add_user_permission
+# from frappe.utils import getdate, today
+
+
+# class Client(Document):
+#     def validate(self):
+#         # keep status in sync on every save
+#         self.compute_status_from_expiry()
+
+#     def after_insert(self):
+#         user_doc = self.create_user()
+#         if user_doc:
+#             self.assign_user_roles(user_doc)
+#             self.assign_user_permissions(user_doc)
+
+#     def on_update(self):
+#         self.sync_user()
+
+#     def create_user(self):
+#         if not self.email:
+#             frappe.throw(_("Email is required to create a user."))
+
+#         # Reuse existing user or create a new one
+#         if frappe.db.exists("User", self.email):
+#             user_doc = frappe.get_doc("User", self.email)
+#             frappe.msgprint(f"User already exists: {self.email}")
+#         else:
+#             full_name = " ".join(filter(None, [self.client_name, self.business_name]))
+#             user_doc = frappe.get_doc({
+#                 "doctype": "User",
+#                 "email": self.email,
+#                 "first_name": self.client_name,
+#                 "last_name": self.business_name,
+#                 "enabled": 1,
+#                 "allowed_in_mentions": 0,
+#                 "send_welcome_email": 0,
+#             })
+#             try:
+#                 user_doc.insert(ignore_permissions=True)
+#                 # Assign profiles right after insert
+#                 user_doc.module_profile = "Client"
+#                 user_doc.role_profile_name = "Client"
+#                 user_doc.save(ignore_permissions=True)
+#                 frappe.msgprint(f"User created and role/module profile assigned for: {self.email}")
+#             except Exception:
+#                 frappe.log_error(frappe.get_traceback(), "Client User Creation Failed")
+#                 return None
+
+#         return user_doc
+
+#     def assign_user_roles(self, user_doc):
+#         client_role = "Client"
+#         if client_role not in [r.role for r in user_doc.get("roles")]:
+#             user_doc.append("roles", {"role": client_role})
+#             user_doc.save(ignore_permissions=True)
+#             frappe.msgprint(f"Role '{client_role}' assigned to user.")
+
+#     def assign_user_permissions(self, user_doc):
+#         email = user_doc.email
+#         # Allow user to see their own Client record
+#         add_user_permission("Client", self.name, email, is_default=True, ignore_permissions=True)
+#         # Let them see their User doc
+#         add_user_permission("User", email, email, ignore_permissions=True)
+#         frappe.msgprint("All user permissions assigned to client.")
+
+#     def sync_user(self):
+#         if not self.email or not frappe.db.exists("User", self.email):
+#             frappe.msgprint("No linked user to sync.")
+#             return
+
+#         user_doc = frappe.get_doc("User", self.email)
+#         user_doc.first_name = self.client_name
+#         user_doc.last_name = self.business_name
+#         user_doc.allowed_in_mentions = 0
+#         user_doc.module_profile = "Client"
+#         user_doc.role_profile_name = "Client"
+#         user_doc.save(ignore_permissions=True)
+#         frappe.msgprint("User synced with latest Client data.")
+
+#     def compute_status_from_expiry(self):
+#         """Compute and set status based on certified_expiry."""
+#         if not self.certified_expiry:
+#             # Optional: clear if no expiry
+#             self.status = None
+#             return
+
+#         today_date = getdate(today())
+#         expiry_date = getdate(self.certified_expiry)
+#         days_remaining = (expiry_date - today_date).days
+
+#         if days_remaining < 0:
+#             new_status = "Expired"
+#         elif days_remaining <= 60:
+#             new_status = f"{days_remaining} Days Remaining"
+#         else:
+#             new_status = "Valid"
+
+#         if self.status != new_status:
+#             self.status = new_status
+
+
+# def update_all_client_statuses():
+#     """Daily job to update status of all Clients based on certified_expiry."""
+#     today_date = getdate(today())
+#     clients = frappe.get_all("Client", fields=["name", "certified_expiry", "status"])
+
+#     for c in clients:
+#         doc = frappe.get_doc("Client", c.name)
+
+#         if not doc.certified_expiry:
+#             continue
+
+#         days_remaining = (getdate(doc.certified_expiry) - today_date).days
+
+#         if days_remaining < 0:
+#             new_status = "Expired"
+#         elif days_remaining <= 60:
+#             new_status = f"{days_remaining} Days Remaining"
+#         else:
+#             new_status = "Valid"
+
+#         if doc.status != new_status:
+#             # Update without triggering full validate stack
+#             doc.db_set("status", new_status)
 
 # class Client(Document):
 # 	def validate(self):
