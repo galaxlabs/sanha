@@ -268,12 +268,7 @@ fixtures = [
     
 
 
-doc_events = {
-    "Query": {
-        "validate": "sanha.dup_register.prevent_duplicate_on_validate"
-    }
-    
-}
+
 
 # scheduler_events = {
 #     "cron": {
@@ -283,7 +278,12 @@ doc_events = {
 #     }
 # }
 # Include API endpoints
-
+doc_events = {
+    "Query": {
+        "validate": "sanha.dup_register.validate_query"
+    }
+    
+}
 scheduler_events = {
 	"daily": [
 		"sanha.sanha.doctype.client.client.update_all_client_statuses",

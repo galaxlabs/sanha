@@ -341,77 +341,152 @@ def validate_documents_on_state_change(doc):
 # ------------------------------
 
 
+# def prevent_duplicate_on_validate(doc, method=None):
+#     """
+#     Block creation of duplicate Query for same scope:
+
+#       Scope:
+#         - If client_name: same client_name (any user)
+#         - Else: same owner
+
+#       Existing duplicate if:
+#         - same raw_material_norm
+#         - same manufacturer_norm
+#         - same scope
+#         - docstatus < 2
+
+#     NOTE:
+#       - We allow early saves where raw_material or manufacturer is missing.
+#       - Once both are present, this will strictly block duplicates, regardless of workflow_state.
+#     """
+
+#     if doc.doctype != "Query":
+#         return
+
+#     rm_norm = _norm(getattr(doc, "raw_material", None))
+#     mf_norm = _norm(getattr(doc, "manufacturer", None))
+
+#     # Allow saving while incomplete (only enforce once both filled)
+#     if not rm_norm or not mf_norm:
+#         return
+
+#     cn_norm = _norm(getattr(doc, "client_name", None))
+#     owner = (getattr(doc, "owner", None) or frappe.session.user or "").strip()
+
+#     if cn_norm:
+#         # Same client_name (any user)
+#         existing = frappe.db.sql(
+#             """
+#             SELECT name, raw_material, manufacturer, client_name
+#             FROM `tabQuery`
+#             WHERE name != %s
+#               AND docstatus < 2
+#               AND LOWER(TRIM(IFNULL(raw_material,''))) = %s
+#               AND LOWER(TRIM(IFNULL(manufacturer,''))) = %s
+#               AND LOWER(TRIM(IFNULL(client_name,''))) = %s
+#             """,
+#             (doc.name or "", rm_norm, mf_norm, cn_norm),
+#             as_dict=True,
+#         )
+#     else:
+#         # No client_name → protect per owner
+#         existing = frappe.db.sql(
+#             """
+#             SELECT name, raw_material, manufacturer, client_name
+#             FROM `tabQuery`
+#             WHERE name != %s
+#               AND docstatus < 2
+#               AND LOWER(TRIM(IFNULL(raw_material,''))) = %s
+#               AND LOWER(TRIM(IFNULL(manufacturer,''))) = %s
+#               AND owner = %s
+#             """,
+#             (doc.name or "", rm_norm, mf_norm, owner),
+#             as_dict=True,
+#         )
+
+#     if not existing:
+#         return
+
+#     ref = existing[0]
+#     url = f"/app/query/{ref['name']}"
+#     rm_label = ref.get("raw_material") or doc.raw_material or ""
+#     msg = (
+#         f"You already have this Query for <b>{frappe.utils.escape_html(rm_label)}</b>.<br>"
+#         f"Existing record: <a href='{url}' target='_blank'>{ref['name']}</a>"
+#     )
+
+#     frappe.throw(msg, frappe.DuplicateEntryError)
 def prevent_duplicate_on_validate(doc, method=None):
     """
-    Block creation of duplicate Query for same scope:
+    New rules:
 
-      Scope:
-        - If client_name: same client_name (any user)
-        - Else: same owner
+    - We enforce duplicates as soon as raw_material is set.
+    - If current doc has manufacturer:
+        -> match duplicates on (raw_material + manufacturer + scope)
+    - If current doc has NO manufacturer:
+        -> match duplicates on (raw_material + scope) ONLY
+          (manufacturer of existing records can be anything / empty).
 
-      Existing duplicate if:
-        - same raw_material_norm
-        - same manufacturer_norm
-        - same scope
-        - docstatus < 2
-
-    NOTE:
-      - We allow early saves where raw_material or manufacturer is missing.
-      - Once both are present, this will strictly block duplicates, regardless of workflow_state.
+    Scope:
+      - If client_name present -> same client_name (any user)
+      - Else                  -> same owner
     """
 
     if doc.doctype != "Query":
         return
 
+    # 1) Must at least have raw_material; otherwise allow save
     rm_norm = _norm(getattr(doc, "raw_material", None))
-    mf_norm = _norm(getattr(doc, "manufacturer", None))
-
-    # Allow saving while incomplete (only enforce once both filled)
-    if not rm_norm or not mf_norm:
+    if not rm_norm:
         return
+
+    mf_norm = _norm(getattr(doc, "manufacturer", None))
 
     cn_norm = _norm(getattr(doc, "client_name", None))
     owner = (getattr(doc, "owner", None) or frappe.session.user or "").strip()
 
+    # 2) Build WHERE conditions dynamically
+    conditions = [
+        "name != %s",
+        "docstatus < 2",
+        "LOWER(TRIM(IFNULL(raw_material,''))) = %s",
+    ]
+    params = [doc.name or "", rm_norm]
+
     if cn_norm:
-        # Same client_name (any user)
-        existing = frappe.db.sql(
-            """
-            SELECT name, raw_material, manufacturer, client_name
-            FROM `tabQuery`
-            WHERE name != %s
-              AND docstatus < 2
-              AND LOWER(TRIM(IFNULL(raw_material,''))) = %s
-              AND LOWER(TRIM(IFNULL(manufacturer,''))) = %s
-              AND LOWER(TRIM(IFNULL(client_name,''))) = %s
-            """,
-            (doc.name or "", rm_norm, mf_norm, cn_norm),
-            as_dict=True,
-        )
+        # Same client
+        conditions.append("LOWER(TRIM(IFNULL(client_name,''))) = %s")
+        params.append(cn_norm)
     else:
-        # No client_name → protect per owner
-        existing = frappe.db.sql(
-            """
-            SELECT name, raw_material, manufacturer, client_name
-            FROM `tabQuery`
-            WHERE name != %s
-              AND docstatus < 2
-              AND LOWER(TRIM(IFNULL(raw_material,''))) = %s
-              AND LOWER(TRIM(IFNULL(manufacturer,''))) = %s
-              AND owner = %s
-            """,
-            (doc.name or "", rm_norm, mf_norm, owner),
-            as_dict=True,
-        )
+        # Same owner
+        conditions.append("owner = %s")
+        params.append(owner)
+
+    # 3) Manufacturer condition is OPTIONAL:
+    #    - If current doc has manufacturer => require same manufacturer
+    #    - If empty => ignore manufacturer in matching
+    if mf_norm:
+        conditions.append("LOWER(TRIM(IFNULL(manufacturer,''))) = %s")
+        params.append(mf_norm)
+
+    sql = f"""
+        SELECT name, raw_material, manufacturer, client_name
+        FROM `tabQuery`
+        WHERE {' AND '.join(conditions)}
+    """
+
+    existing = frappe.db.sql(sql, params, as_dict=True)
 
     if not existing:
         return
 
+    # 4) We found at least one duplicate in the same scope
     ref = existing[0]
     url = f"/app/query/{ref['name']}"
     rm_label = ref.get("raw_material") or doc.raw_material or ""
     msg = (
-        f"You already have this Query for <b>{frappe.utils.escape_html(rm_label)}</b>.<br>"
+        f"You already have this Query for "
+        f"<b>{frappe.utils.escape_html(rm_label)}</b>.<br>"
         f"Existing record: <a href='{url}' target='_blank'>{ref['name']}</a>"
     )
 
