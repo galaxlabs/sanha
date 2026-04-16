@@ -26,12 +26,19 @@
       width: 100%;
       background: linear-gradient(135deg, rgb(218, 232, 247) 0%, rgb(214, 229, 247) 100%);
       border: none;
-      color: #85f3af;
+      color: #000;
       font-size: 16px;
       border-radius: 50px;
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-
-
+      caret-color: #000;
+    }
+    .col-filter::placeholder {
+      color: #555;
+      opacity: 1;
+    }
+    .col-filter:focus {
+      color: #000;
+      outline: none;
     }
     .footer-section {
         margin-top: 30px; text-align: center; padding: 20px;
