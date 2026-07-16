@@ -2,6 +2,7 @@ import frappe
 import json
 import requests
 from frappe import _
+from frappe.utils.password import get_decrypted_password
 
 MODEL_MAP = {
     "GPT-4o": "gpt-4o",
@@ -88,8 +89,11 @@ Rules:
 
 def _call_llm(config, messages):
     provider = (config.get("provider") or "Open AI").strip().lower()
-    # Read API key directly from DB to avoid Password field masking
-    api_key = frappe.db.get_value("AI Agent Config", "AI Agent Config", "api_key") or ""
+    # Decrypt password field to get real API key
+    try:
+        api_key = get_decrypted_password("AI Agent Config", "AI Agent Config", "api_key")
+    except frappe.AuthenticationError:
+        api_key = ""
     display_model = (config.get("model") or "gpt-4o-mini").strip()
     model = MODEL_MAP.get(display_model, display_model)
 
