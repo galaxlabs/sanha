@@ -24,8 +24,10 @@ ALLOWED_DOCTYPES = ["Query", "Client", "E-NUMBERS"]
 def _get_user_filters():
     user = frappe.session.user
     roles = frappe.get_roles(user)
-    if "System Manager" in roles or "Administrator" in roles:
+    # Admin/Evaluation/SB User see all data
+    if any(r in roles for r in ["System Manager", "Administrator", "Evaluation", "SB User"]):
         return {}
+    # Client user — only their own queries
     client_name = frappe.db.get_value("Client", {"owner": user}, "client_name")
     if client_name:
         return {"client_name": client_name}
@@ -99,10 +101,10 @@ def _get_data_quality_context():
 
 def _build_system_prompt(config, user_roles, context):
     role_desc = "You are a Client user — you can ONLY see and discuss your own queries and data. Do not reveal other clients' information."
-    if "Evaluation" in user_roles:
-        role_desc = "You are an Evaluation officer at SANHA. You can see queries assigned for evaluation."
-    elif "SB User" in user_roles:
-        role_desc = "You are a Shariah Board user at SANHA. You can see queries submitted to the Shariah Board."
+    if "SB User" in user_roles:
+        role_desc = "You are a Shariah Board user at SANHA. You can see all queries."
+    elif "Evaluation" in user_roles:
+        role_desc = "You are an Evaluation officer at SANHA. You can see all queries."
     elif "System Manager" in user_roles or "Administrator" in user_roles:
         role_desc = "You are an Administrator with full access to all SANHA data."
 
