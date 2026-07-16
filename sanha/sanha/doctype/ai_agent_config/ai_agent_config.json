@@ -1,0 +1,129 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-16 20:34:56.793383",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "api_key",
+  "section_break_tuvx",
+  "agent_name",
+  "provider",
+  "column_break_xsnf",
+  "welcome_message",
+  "section_break_rnwk",
+  "model",
+  "max_tokens",
+  "column_break_rmux",
+  "temperature",
+  "show_sources",
+  "enable_file_upload",
+  "enable_query_lookup",
+  "section_break_offj",
+  "system_prompt"
+ ],
+ "fields": [
+  {
+   "fieldname": "agent_name",
+   "fieldtype": "Data",
+   "label": "Agent Name"
+  },
+  {
+   "fieldname": "column_break_xsnf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "welcome_message",
+   "fieldtype": "Small Text",
+   "label": "Welcome Message"
+  },
+  {
+   "fieldname": "section_break_rnwk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "max_tokens",
+   "fieldtype": "Int",
+   "label": "Max Tokens"
+  },
+  {
+   "fieldname": "column_break_rmux",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "temperature",
+   "fieldtype": "Float",
+   "label": "Temperature"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_sources",
+   "fieldtype": "Check",
+   "label": "Show Sources"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_file_upload",
+   "fieldtype": "Check",
+   "label": "Enable File Upload"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_query_lookup",
+   "fieldtype": "Check",
+   "label": "Enable Query Lookup"
+  },
+  {
+   "fieldname": "section_break_offj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "system_prompt",
+   "fieldtype": "Code",
+   "label": "System Prompt"
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key"
+  },
+  {
+   "fieldname": "section_break_tuvx",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "provider",
+   "fieldtype": "Select",
+   "label": "Provider ",
+   "options": "Open AI\nClaude"
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Select",
+   "label": "Model"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-07-16 20:55:59.139696",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "AI Agent Config",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
