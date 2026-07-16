@@ -88,7 +88,8 @@ Rules:
 
 def _call_llm(config, messages):
     provider = (config.get("provider") or "Open AI").strip().lower()
-    api_key = config.get("api_key") or ""
+    # Read API key directly from DB to avoid Password field masking
+    api_key = frappe.db.get_value("AI Agent Config", "AI Agent Config", "api_key") or ""
     display_model = (config.get("model") or "gpt-4o-mini").strip()
     model = MODEL_MAP.get(display_model, display_model)
 
