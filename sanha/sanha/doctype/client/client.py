@@ -612,29 +612,29 @@ class Client(Document):
 # 			doc.db_set("status", new_status)
 
 
-# def update_all_client_statuses():
-# 	"""Daily job to update status of all Clients based on certified_expiry"""
-# 	today_date = getdate(today())
-# 	clients = frappe.get_all("Client", fields=["name", "certified_expiry", "status"])
+def update_all_client_statuses():
+	"""Daily job to update status of all Clients based on certified_expiry"""
+	today_date = getdate(today())
+	clients = frappe.get_all("Client", fields=["name", "certified_expiry", "status"])
 
-# 	for client in clients:
-# 		doc = frappe.get_doc("Client", client.name)
+	for client in clients:
+		doc = frappe.get_doc("Client", client.name)
 
-# 		if not doc.certified_expiry:
-# 			continue  # Skip if no expiry date
+		if not doc.certified_expiry:
+			continue  # Skip if no expiry date
 
-# 		days_remaining = (getdate(doc.certified_expiry) - today_date).days
+		days_remaining = (getdate(doc.certified_expiry) - today_date).days
 
-# 		# Decide new status
-# 		if days_remaining < 0:
-# 			new_status = "Expired"
-# 		elif days_remaining <= 60:
-# 			new_status = f"{days_remaining} Days Remaining"
-# 		else:
-# 			new_status = "Valid"
+		# Decide new status
+		if days_remaining < 0:
+			new_status = "Expired"
+		elif days_remaining <= 60:
+			new_status = f"{days_remaining} Days Remaining"
+		else:
+			new_status = "Valid"
 
-# 		if doc.status != new_status:
-# 			doc.db_set("status", new_status)
+		if doc.status != new_status:
+			doc.db_set("status", new_status)
 
 
 # import frappe
