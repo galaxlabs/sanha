@@ -107,7 +107,7 @@ def _build_system_prompt(config, user_roles, context):
         role_desc = "You are an Administrator with full access to all SANHA data."
 
     extra = ""
-    custom_prompt = config.get("system_prompt", "").strip()
+    custom_prompt = (config.get("system_prompt") or "").strip()
     if custom_prompt:
         extra = f"\n\nAdditional user-provided instructions:\n{custom_prompt}"
 
@@ -129,7 +129,6 @@ Guidelines:
 
 def _call_llm(config, messages):
     provider = (config.get("provider") or "Open AI").strip().lower()
-    # Decrypt password field to get real API key
     try:
         api_key = get_decrypted_password("AI Agent Config", "AI Agent Config", "api_key")
     except frappe.AuthenticationError:
