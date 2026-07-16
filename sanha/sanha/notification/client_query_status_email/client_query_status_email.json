@@ -29,6 +29,6 @@
  "sender": "Sanha",
  "sender_email": "noreply@sanhapakistan.com",
  "set_property_after_alert": "",
- "subject": "{% if doc.workflow_state == \"Submitted\" %} \ud83d\udce5 Receipt: Query regarding {{ doc.raw_material }} {% else %} \ud83d\udce2 Status Update: {{ doc.raw_material }} is now {{ doc.workflow_state }} {% endif %}",
+   "subject": "{% if doc.workflow_state == \"Submitted\" %}\ud83d\udce5 {{ doc.raw_material }}{% else %}\ud83d\udce2 {{ doc.raw_material }}\u2192{{ doc.workflow_state }}{% endif %}",
  "value_changed": "workflow_state"
 }
