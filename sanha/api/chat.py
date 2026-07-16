@@ -3,6 +3,20 @@ import json
 import requests
 from frappe import _
 
+MODEL_MAP = {
+    "GPT-4o": "gpt-4o",
+    "GPT-4o Mini": "gpt-4o-mini",
+    "GPT-3.5 Turbo": "gpt-3.5-turbo",
+    "Claude 3 Haiku": "claude-3-haiku-20240307",
+    "Claude 3 Sonnet": "claude-3-sonnet-20240229",
+    # Also accept raw API names directly
+    "gpt-4o": "gpt-4o",
+    "gpt-4o-mini": "gpt-4o-mini",
+    "gpt-3.5-turbo": "gpt-3.5-turbo",
+    "claude-3-haiku-20240307": "claude-3-haiku-20240307",
+    "claude-3-sonnet-20240229": "claude-3-sonnet-20240229",
+}
+
 ALLOWED_DOCTYPES = ["Query", "Client", "E-NUMBERS"]
 
 def _get_user_filters():
@@ -75,10 +89,11 @@ Rules:
 def _call_llm(config, messages):
     provider = (config.get("provider") or "Open AI").strip().lower()
     api_key = config.get("api_key") or ""
-    model = config.get("model") or "gpt-4o-mini"
+    display_model = (config.get("model") or "gpt-4o-mini").strip()
+    model = MODEL_MAP.get(display_model, display_model)
 
     if not api_key:
-        return "AI Agent is not configured. Please set an API Key in Chat Agent Config."
+        return "AI Agent is not configured. Please set an API Key in Chat Agent Config (Settings → Chat Agent Config)."
 
     if "claude" in provider:
         return _call_claude(api_key, model, messages)
@@ -93,10 +108,15 @@ def _call_openai(api_key, model, messages):
             timeout=30,
         )
         data = resp.json()
+        if "error" in data:
+            return f"OpenAI error: {data['error'].get('message', str(data['error']))}"
         return data["choices"][0]["message"]["content"]
+    except KeyError as e:
+        frappe.log_error(f"OpenAI unexpected response: {resp.text[:500]}", "sanha_chat")
+        return f"Unexpected response from AI provider. Check your API key and model settings."
     except Exception as e:
         frappe.log_error(f"OpenAI call failed: {e}", "sanha_chat")
-        return f"Sorry, I couldn't reach the AI provider: {str(e)}"
+        return f"Could not reach AI provider: {str(e)}"
 
 def _call_claude(api_key, model, messages):
     try:
@@ -110,10 +130,15 @@ def _call_claude(api_key, model, messages):
             timeout=30,
         )
         data = resp.json()
+        if "error" in data:
+            return f"Claude error: {data['error'].get('message', str(data['error']))}"
         return data["content"][0]["text"]
+    except KeyError as e:
+        frappe.log_error(f"Claude unexpected response: {resp.text[:500]}", "sanha_chat")
+        return f"Unexpected response from AI provider. Check your API key and model settings."
     except Exception as e:
         frappe.log_error(f"Claude call failed: {e}", "sanha_chat")
-        return f"Sorry, I couldn't reach the AI provider: {str(e)}"
+        return f"Could not reach AI provider: {str(e)}"
 
 def _detect_intent(message):
     msg = message.lower()
