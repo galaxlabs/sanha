@@ -237,16 +237,83 @@ def delete_query_force(names):
 
 def apply_email_notification_whitelist(doc):
     """
-    Set doc.notify_client (0/1) based on Email Notification Settings.enabled_clients
+    Set doc.notify_client = 1 if doc.client_name is present in
+    Email Notification Settings.enabled_clients.clients.
+    Uses normalized comparison to avoid space/case mismatch.
     """
+    if doc.doctype != "Query":
+        return
+
+    client_name = (doc.client_name or "").strip()
+
+    if not client_name:
+        doc.notify_client = 0
+        return
+
     try:
         settings = frappe.get_doc("Email Notification Settings")
     except frappe.DoesNotExistError:
-        # No settings configured – just do nothing
+        doc.notify_client = 0
         return
 
-    allowed_list = [d.clients for d in settings.enabled_clients if d.clients]
-    doc.notify_client = 1 if doc.client_name in allowed_list else 0
+    allowed_clients = {
+        (row.clients or "").strip().lower()
+        for row in settings.enabled_clients
+        if row.clients
+    }
+
+    doc.notify_client = 1 if client_name.lower() in allowed_clients else 0
+
+    frappe.logger("sanha_email_notify").info({
+        "query": doc.name,
+        "client_name_checked": client_name,
+        "notify_client": doc.notify_client,
+    })
+
+
+def debug_query_validate_flow(query_name):
+    """
+    Return current Query validate-related state without saving.
+    Shows owner, client before/after enforce, notify before/after whitelist,
+    and active whitelist matches.
+    """
+    q = frappe.get_doc("Query", query_name)
+
+    before_client = q.client_name
+    before_notify = q.notify_client
+
+    try:
+        enforce_client_from_owner(q)
+        after_enforce_client = q.client_name
+    except Exception as e:
+        after_enforce_client = f"ERROR: {str(e)}"
+
+    try:
+        apply_email_notification_whitelist(q)
+        after_notify = q.notify_client
+    except Exception as e:
+        after_notify = f"ERROR: {str(e)}"
+
+    settings = frappe.get_doc("Email Notification Settings")
+    client_name = (q.client_name or "").strip().lower()
+    whitelist_matches = [
+        row.clients for row in settings.enabled_clients
+        if (row.clients or "").strip().lower() == client_name
+    ]
+
+    return {
+        "query": q.name,
+        "owner": q.owner,
+        "before_client": before_client,
+        "before_notify": before_notify,
+        "after_enforce_client": after_enforce_client,
+        "after_notify": after_notify,
+        "whitelist_matches": whitelist_matches,
+    }
+
+
+def debug_email_notification_for_query(query_name):
+    return debug_query_validate_flow(query_name)
 
 
 def get_client_by_owner_email(owner_email: str) -> str:

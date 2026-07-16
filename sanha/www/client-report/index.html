@@ -17,9 +17,13 @@
     }
     .logo-container { display: table-cell; text-align: right; width: 55%; }
     .slogan-container { display: table-cell; text-align: right; vertical-align: middle; width: 45%; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #ccc; padding: 8px; }
+    table { width: 100%; border-collapse: collapse; table-layout: auto; }
+    th, td { border: 1px solid #ccc; padding: 8px; word-wrap: break-word; word-break: break-word; white-space: normal; }
     th { background-color: #f0f0f0; }
+    #dataTable td:nth-child(3) { min-width: 150px; max-width: 260px; }
+    #dataTable td:nth-child(4), #dataTable td:nth-child(5) { min-width: 120px; max-width: 200px; }
+    #dataTable td:nth-child(6) { min-width: 100px; max-width: 160px; }
+    #dataTable td:nth-child(7) { min-width: 80px; max-width: 120px; }
 
     .col-filter {
       padding: 10px;

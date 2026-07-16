@@ -1,0 +1,34 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "condition": "doc.notify_client == 1 and doc.workflow_state in [\"Returned\", \"Halal\", \"Haram\", \"Approved\", \"Rejected\", \"Doubtful\"]",
+ "creation": "2026-05-20 01:45:09.680467",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Query",
+ "enabled": 1,
+ "event": "Value Change",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<div style=\"font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f4; padding: 30px; border-radius: 15px;\">\n    <div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);\">\n        \n        <div style=\"padding: 25px; text-align: center; \n            {% if doc.workflow_state in ['Halal', 'Approved'] %} background-color: #28a745; \n            {% elif doc.workflow_state in ['Haram', 'Rejected'] %} background-color: #dc3545; \n            {% else %} background-color: #007bff; {% endif %} color: #ffffff;\">\n            \n            {% if doc.workflow_state == \"Submitted\" %}\n                <div style=\"font-size: 40px; margin-bottom: 10px;\">\ud83d\udce9</div>\n                <h2 style=\"margin: 0; text-transform: uppercase; letter-spacing: 2px;\">Query Submitted</h2>\n            {% elif doc.workflow_state in ['Halal', 'Approved'] %}\n                <div style=\"font-size: 40px; margin-bottom: 10px;\">\u2705</div>\n                <h2 style=\"margin: 0; text-transform: uppercase; letter-spacing: 2px;\">Query Approved</h2>\n            {% elif doc.workflow_state in ['Haram', 'Rejected'] %}\n                <div style=\"font-size: 40px; margin-bottom: 10px;\">\u274c</div>\n                <h2 style=\"margin: 0; text-transform: uppercase; letter-spacing: 2px;\">Query Rejected</h2>\n            {% else %}\n                <div style=\"font-size: 40px; margin-bottom: 10px;\">\ud83d\udd04</div>\n                <h2 style=\"margin: 0; text-transform: uppercase; letter-spacing: 2px;\">Status Updated</h2>\n            {% endif %}\n        </div>\n\n        <div style=\"padding: 30px; color: #444444; line-height: 1.6;\">\n            <p style=\"font-size: 16px;\">Dear <strong>{{ doc.client_name }}</strong>,</p>\n            \n            <p>This is to inform you that your query <strong>{{ doc.name }}</strong> has been updated to the following stage:</p>\n\n            <div style=\"background-color: #f9f9f9; border: 1px solid #eeeeee; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n                <table style=\"width: 100%; border-collapse: collapse;\">\n                    <tr>\n                        <td style=\"padding: 5px 0; color: #888; font-size: 13px;\">Raw Material</td>\n                        <td style=\"padding: 5px 0; font-weight: bold; text-align: right;\">{{ doc.raw_material }}</td>\n                    </tr>\n                    <tr>\n                        <td style=\"padding: 5px 0; color: #888; font-size: 13px;\">Manufacturer</td>\n                        <td style=\"padding: 5px 0; font-weight: bold; text-align: right;\">{{ doc.manufacturer }}</td>\n                    </tr>\n                    <tr>\n                        <td style=\"padding: 5px 0; color: #888; font-size: 13px;\">Current Status</td>\n                        <td style=\"padding: 5px 0; font-weight: bold; text-align: right; color: #007bff;\">{{ doc.workflow_state.upper() }}</td>\n                    </tr>\n                </table>\n            </div>\n\n            <div style=\"margin-bottom: 25px;\">\n                {% if doc.workflow_state == \"Submitted\" %}\n                    <p>Your application is currently in the <strong>Verification Queue</strong>. Our technical team will review the attached documents shortly.</p>\n                {% elif doc.workflow_state in ['Halal', 'Approved'] %}\n                    <p style=\"color: #28a745; font-weight: bold;\">Good news! The item meets the required Halal standards. You may proceed with using this material in your production.</p>\n                {% elif doc.workflow_state in ['Haram', 'Rejected'] %}\n                    <p style=\"color: #dc3545; font-weight: bold;\">Unfortunately, this item does not meet the necessary criteria. Please check the system comments for detailed reasons.</p>\n                {% else %}\n                    <p>Your query is being processed. Please click the button below to view the latest logs and comments.</p>\n                {% endif %}\n            </div>\n\n            <div style=\"text-align: center; margin-top: 30px;\">\n                <a href=\"{{ frappe.utils.get_url_to_form('Query', doc.name) }}\" \n                   style=\"background-color: #007bff; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;\">\n                   View in Portal\n                </a>\n            </div>\n        </div>\n\n        <div style=\"background-color: #eeeeee; padding: 20px; text-align: center; font-size: 12px; color: #777777;\">\n            <p style=\"margin: 0;\"><strong>SANHA Pakistan</strong></p>\n            <p style=\"margin: 5px 0 0 0;\">Evaluation & Research Department</p>\n            <p style=\"margin: 15px 0 0 0; border-top: 1px solid #dddddd; padding-top: 15px;\">\n                This is a secure system notification. For your security, please do not share your login credentials.\n            </p>\n        </div>\n    </div>\n</div>\n",
+ "message_type": "Plain Text",
+ "modified": "2026-05-21 12:34:11.984921",
+ "modified_by": "Administrator",
+ "module": "Sanha",
+ "name": "Client Query Status Email",
+ "owner": "Administrator",
+ "print_format": "Query Reports",
+ "recipients": [
+  {
+   "receiver_by_document_field": "owner"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 1,
+ "sender": "Sanha",
+ "sender_email": "noreply@sanhapakistan.com",
+ "set_property_after_alert": "",
+ "subject": "{% if doc.workflow_state == \"Submitted\" %} \ud83d\udce5 Receipt: Query regarding {{ doc.raw_material }} {% else %} \ud83d\udce2 Status Update: {{ doc.raw_material }} is now {{ doc.workflow_state }} {% endif %}",
+ "value_changed": "workflow_state"
+}

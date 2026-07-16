@@ -151,7 +151,15 @@ frappe.ready(function () {
                         border: 1px solid #333;
                         padding: 6px;
                         text-align: left;
+                        word-wrap: break-word;
+                        word-break: break-word;
+                        white-space: normal;
                     }
+                    table { table-layout: auto; }
+                    td:nth-child(2) { min-width: 150px; max-width: 250px; }
+                    td:nth-child(3), td:nth-child(4) { min-width: 110px; max-width: 190px; }
+                    td:nth-child(5) { min-width: 90px; max-width: 150px; }
+                    td:nth-child(6) { min-width: 70px; max-width: 110px; }
                     h3 {
                         text-align: center;
                         margin-top: 20px;

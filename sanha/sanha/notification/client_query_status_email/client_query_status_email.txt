@@ -22,7 +22,9 @@
         </div>
 
         <div style="padding: 30px; color: #444444; line-height: 1.6;">
-            <p style="font-size: 16px;"><strong>{{ doc.client_name }}</strong>,</p>
+            <p style="font-size: 16px;">Dear <strong>{{ doc.client_name }}</strong>,</p>
+            
+            <p>This is to inform you that your query <strong>{{ doc.name }}</strong> has been updated to the following stage:</p>
 
             <div style="background-color: #f9f9f9; border: 1px solid #eeeeee; padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <table style="width: 100%; border-collapse: collapse;">
@@ -41,6 +43,17 @@
                 </table>
             </div>
 
+            <div style="margin-bottom: 25px;">
+                {% if doc.workflow_state == "Submitted" %}
+                    <p>Your application is currently in the <strong>Verification Queue</strong>. Our technical team will review the attached documents shortly.</p>
+                {% elif doc.workflow_state in ['Halal', 'Approved'] %}
+                    <p style="color: #28a745; font-weight: bold;">Good news! The item meets the required Halal standards. You may proceed with using this material in your production.</p>
+                {% elif doc.workflow_state in ['Haram', 'Rejected'] %}
+                    <p style="color: #dc3545; font-weight: bold;">Unfortunately, this item does not meet the necessary criteria. Please check the system comments for detailed reasons.</p>
+                {% else %}
+                    <p>Your query is being processed. Please click the button below to view the latest logs and comments.</p>
+                {% endif %}
+            </div>
 
             <div style="text-align: center; margin-top: 30px;">
                 <a href="{{ frappe.utils.get_url_to_form('Query', doc.name) }}" 
@@ -59,33 +72,3 @@
         </div>
     </div>
 </div>
-<!--<div style="font-family: sans-serif; border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; max-width: 600px;">-->
-<!--    <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 20px;">-->
-<!--        <h2 style="color: #007bff; margin: 0;">New Submission</h2>-->
-<!--    </div>-->
-    
-<!--    <p>Dear Team,</p>-->
-<!--    <p>A new query has been submitted and is ready for evaluation.</p>-->
-    
-<!--    <table style="width: 100%; border-collapse: collapse;">-->
-<!--        <tr>-->
-<!--            <td style="padding: 8px 0; color: #777;">Client:</td>-->
-<!--            <td style="padding: 8px 0; font-weight: bold;">{{ doc.client_name }}</td>-->
-<!--        </tr>-->
-<!--        <tr>-->
-<!--            <td style="padding: 8px 0; color: #777;">Material:</td>-->
-<!--            <td style="padding: 8px 0; font-weight: bold;">{{ doc.raw_material }}</td>-->
-<!--        </tr>-->
-<!--        <tr>-->
-<!--            <td style="padding: 8px 0; color: #777;">Manufacturer:</td>-->
-<!--            <td style="padding: 8px 0; font-weight: bold;">{{ doc.manufacturer }}</td>-->
-<!--        </tr>-->
-<!--    </table>-->
-
-<!--    <div style="margin-top: 30px; text-align: center;">-->
-<!--        <a href="{{ frappe.utils.get_url_to_form('Query', doc.name) }}" -->
-<!--           style="background-color: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">-->
-<!--           Open for Evaluation-->
-<!--        </a>-->
-<!--    </div>-->
-<!--</div>-->
