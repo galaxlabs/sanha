@@ -106,6 +106,11 @@ def _build_system_prompt(config, user_roles, context):
     elif "System Manager" in user_roles or "Administrator" in user_roles:
         role_desc = "You are an Administrator with full access to all SANHA data."
 
+    extra = ""
+    custom_prompt = config.get("system_prompt", "").strip()
+    if custom_prompt:
+        extra = f"\n\nAdditional user-provided instructions:\n{custom_prompt}"
+
     return f"""You are the SANHA Halal Query Assistant, an AI helper for the SANHA halal certification platform.
 
 {role_desc}
@@ -116,11 +121,11 @@ You have access to the following database context to answer the user's question:
 Guidelines:
 - Use the context above to answer questions about queries, suppliers, manufacturers, raw materials, and data quality.
 - If you find similar supplier/manufacturer names (e.g., "Alnor" and "Alnoor Sugar"), suggest standardization.
-- If the user asks about queries, list them with their current status.
+- If the user asks about queries, list them with their current status and ID.
 - Be concise, professional, and helpful. Use bullet points for lists.
 - If you don't have enough data, ask the user to be more specific.
 - Do NOT fabricate data — only use what's in the context above.
-- Address the user naturally (Assalam-o-Alaikum, etc.)."
+- Address the user naturally (Assalam-o-Alaikum, etc.).{extra}"""
 
 def _call_llm(config, messages):
     provider = (config.get("provider") or "Open AI").strip().lower()
