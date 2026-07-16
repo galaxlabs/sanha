@@ -97,11 +97,12 @@
    "label": "Provider ",
    "options": "Open AI\nClaude"
   },
-  {
-   "fieldname": "model",
-   "fieldtype": "Select",
-   "label": "Model"
-  }
+   {
+    "fieldname": "model",
+    "fieldtype": "Select",
+    "label": "Model",
+    "options": "GPT-4o\nGPT-4o Mini\nGPT-3.5 Turbo\nClaude 3 Haiku\nClaude 3 Sonnet"
+   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
