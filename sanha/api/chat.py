@@ -68,13 +68,15 @@ def _get_query_context(search_term=None, limit=10):
 
 def _get_data_quality_context():
     """Return grouped similar names + contact-based merge suggestions."""
+    MAX_ITEMS = 50
     filters = _get_user_filters()
     queries = frappe.get_all("Query", filters=filters,
-        fields=["supplier", "manufacturer", "raw_material", "manufacturer_contact", "supplier_contact"])
+        fields=["supplier", "manufacturer", "raw_material", "manufacturer_contact", "supplier_contact"],
+        limit_page_length=500)
 
-    all_suppliers = sorted(set(q.supplier for q in queries if q.supplier))
-    all_manufacturers = sorted(set(q.manufacturer for q in queries if q.manufacturer))
-    all_raw_materials = sorted(set(q.raw_material for q in queries if q.raw_material))
+    all_suppliers = sorted({q.supplier for q in queries if q.supplier})[:MAX_ITEMS]
+    all_manufacturers = sorted({q.manufacturer for q in queries if q.manufacturer})[:MAX_ITEMS]
+    all_raw_materials = sorted({q.raw_material for q in queries if q.raw_material})[:MAX_ITEMS]
     contact_map = {}
     for q in queries:
         if q.manufacturer_contact and q.manufacturer:
@@ -83,13 +85,13 @@ def _get_data_quality_context():
             contact_map.setdefault(q.supplier_contact.strip().lower(), set()).add(q.supplier)
 
     return {
-        "similar_suppliers": _fuzzy_groups(all_suppliers, 0.5),
-        "similar_manufacturers": _fuzzy_groups(all_manufacturers, 0.5),
-        "similar_raw_materials": _fuzzy_groups(all_raw_materials, 0.6),
+        "similar_suppliers": _fuzzy_groups(all_suppliers, 0.5)[:5],
+        "similar_manufacturers": _fuzzy_groups(all_manufacturers, 0.5)[:5],
+        "similar_raw_materials": _fuzzy_groups(all_raw_materials, 0.6)[:5],
         "same_contact_different_names": [
             {"contact": c, "names": sorted(n)}
             for c, n in contact_map.items() if len(n) > 1
-        ],
+        ][:5],
         "total_suppliers": len(all_suppliers),
         "total_manufacturers": len(all_manufacturers),
         "total_raw_materials": len(all_raw_materials),
@@ -226,5 +228,7 @@ def ask(message, history=None):
         return {"reply": reply, "intent": intent, "context_summary": len(str(context))}
 
     except Exception as e:
-        frappe.log_error(f"Chat error for {frappe.session.user}: {e}", "sanha_chat")
+        import traceback
+        error_tb = traceback.format_exc()
+        frappe.log_error(f"sanha_chat: {e}\n{error_tb}")
         return {"reply": "An error occurred. Please try again.", "intent": "error"}
