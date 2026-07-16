@@ -3,6 +3,7 @@ import json
 import requests
 from frappe import _
 from frappe.utils.password import get_decrypted_password
+from difflib import SequenceMatcher
 
 MODEL_MAP = {
     "GPT-4o": "gpt-4o",
@@ -30,6 +31,27 @@ def _get_user_filters():
         return {"client_name": client_name}
     return {"owner": user}
 
+def _similarity(a, b):
+    return SequenceMatcher(None, a.lower().strip(), b.lower().strip()).ratio()
+
+def _fuzzy_groups(items, threshold=0.55):
+    checked = set()
+    groups = []
+    for i, item in enumerate(items):
+        if i in checked:
+            continue
+        group = [item]
+        checked.add(i)
+        for j in range(i + 1, len(items)):
+            if j in checked:
+                continue
+            if _similarity(item, items[j]) >= threshold:
+                group.append(items[j])
+                checked.add(j)
+        if len(group) > 1:
+            groups.append(group)
+    return groups
+
 def _get_query_context(search_term=None, limit=10):
     filters = _get_user_filters()
     if search_term:
@@ -45,47 +67,58 @@ def _get_query_context(search_term=None, limit=10):
     )
 
 def _get_data_quality_context():
+    """Return grouped similar names + contact-based merge suggestions."""
     filters = _get_user_filters()
     queries = frappe.get_all("Query", filters=filters,
-        fields=["supplier", "manufacturer", "raw_material", "manufacturer_contact"])
-    suppliers, manufacturers, materials = {}, {}, {}
+        fields=["supplier", "manufacturer", "raw_material", "manufacturer_contact", "supplier_contact"])
+
+    all_suppliers = sorted(set(q.supplier for q in queries if q.supplier))
+    all_manufacturers = sorted(set(q.manufacturer for q in queries if q.manufacturer))
+    all_raw_materials = sorted(set(q.raw_material for q in queries if q.raw_material))
+    contact_map = {}
     for q in queries:
-        if q.supplier:
-            suppliers.setdefault(q.supplier.lower().strip(), set()).add(q.supplier)
-        if q.manufacturer:
-            manufacturers.setdefault(q.manufacturer.lower().strip(), set()).add(q.manufacturer)
-        if q.raw_material:
-            materials.setdefault(q.raw_material.lower().strip(), set()).add(q.raw_material)
+        if q.manufacturer_contact and q.manufacturer:
+            contact_map.setdefault(q.manufacturer_contact.strip().lower(), set()).add(q.manufacturer)
+        if q.supplier_contact and q.supplier:
+            contact_map.setdefault(q.supplier_contact.strip().lower(), set()).add(q.supplier)
+
     return {
-        "supplier_variants": {k: list(v) for k, v in suppliers.items() if len(v) > 1},
-        "manufacturer_variants": {k: list(v) for k, v in manufacturers.items() if len(v) > 1},
-        "raw_material_variants": {k: list(v) for k, v in materials.items() if len(v) > 1},
+        "similar_suppliers": _fuzzy_groups(all_suppliers, 0.5),
+        "similar_manufacturers": _fuzzy_groups(all_manufacturers, 0.5),
+        "similar_raw_materials": _fuzzy_groups(all_raw_materials, 0.6),
+        "same_contact_different_names": [
+            {"contact": c, "names": sorted(n)}
+            for c, n in contact_map.items() if len(n) > 1
+        ],
+        "total_suppliers": len(all_suppliers),
+        "total_manufacturers": len(all_manufacturers),
+        "total_raw_materials": len(all_raw_materials),
     }
 
 def _build_system_prompt(config, user_roles, context):
-    role_desc = "You are a Client user — you can ONLY see your own queries and data."
+    role_desc = "You are a Client user — you can ONLY see and discuss your own queries and data. Do not reveal other clients' information."
     if "Evaluation" in user_roles:
-        role_desc = "You are an Evaluation officer — you can see queries assigned for evaluation."
+        role_desc = "You are an Evaluation officer at SANHA. You can see queries assigned for evaluation."
     elif "SB User" in user_roles:
-        role_desc = "You are a Shariah Board user — you can see queries submitted to SB."
+        role_desc = "You are a Shariah Board user at SANHA. You can see queries submitted to the Shariah Board."
     elif "System Manager" in user_roles or "Administrator" in user_roles:
-        role_desc = "You are an Administrator — you have full access to all data."
+        role_desc = "You are an Administrator with full access to all SANHA data."
 
-    base = (config.get("system_prompt") or
-        "You are a helpful assistant for SANHA (Sanha Halal Associates Pakistan).")
-    return f"""{base}
+    return f"""You are the SANHA Halal Query Assistant, an AI helper for the SANHA halal certification platform.
 
 {role_desc}
 
-Current context from database:
+You have access to the following database context to answer the user's question:
 {json.dumps(context, indent=2, default=str)}
 
-Rules:
-- Only answer based on the context provided above.
-- Do NOT reveal other clients' data to a Client user.
-- If you don't have enough context, say so and ask for more details.
-- Be concise and professional.
-"""
+Guidelines:
+- Use the context above to answer questions about queries, suppliers, manufacturers, raw materials, and data quality.
+- If you find similar supplier/manufacturer names (e.g., "Alnor" and "Alnoor Sugar"), suggest standardization.
+- If the user asks about queries, list them with their current status.
+- Be concise, professional, and helpful. Use bullet points for lists.
+- If you don't have enough data, ask the user to be more specific.
+- Do NOT fabricate data — only use what's in the context above.
+- Address the user naturally (Assalam-o-Alaikum, etc.)."
 
 def _call_llm(config, messages):
     provider = (config.get("provider") or "Open AI").strip().lower()
