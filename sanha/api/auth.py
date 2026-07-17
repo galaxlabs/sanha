@@ -21,7 +21,6 @@ CLIENT_FIELDS = [
 ]
 
 SYSTEM_ROLES = {"All", "Guest"}
-
 STAFF_ROLES = {
     "Evaluation",
     "SB User",
@@ -30,7 +29,6 @@ STAFF_ROLES = {
     "System Manager",
     "Administrator",
 }
-
 PORTAL_ROLES = {
     "Client",
     "Evaluation",
@@ -40,7 +38,6 @@ PORTAL_ROLES = {
     "System Manager",
     "Administrator",
 }
-
 PORTAL_URL = "https://portal.sanha.org.pk/dashboard"
 
 
@@ -51,7 +48,6 @@ def _user_info(user):
         ["name", "email", "full_name", "first_name", "last_name", "enabled"],
         as_dict=True,
     ) or {}
-
     return {
         "name": info.get("name") or user,
         "email": info.get("email") or user,
@@ -65,7 +61,6 @@ def _user_info(user):
 def _get_client(name):
     if not name:
         return None
-
     return frappe.db.get_value("Client", name, CLIENT_FIELDS, as_dict=True)
 
 
@@ -78,7 +73,6 @@ def _find_client(user, email):
         limit=5,
         ignore_permissions=True,
     )
-
     for row in permission_rows:
         client = _get_client(row.get("for_value"))
         if client:
@@ -94,29 +88,14 @@ def _find_client(user, email):
     return _get_client(client_name)
 
 
-def _should_auto_redirect_to_portal(user, roles=None):
-    """Auto-redirect only pure Client users.
-
-    Staff users may still open the portal manually, but they are not forced there.
-    """
-    roles = set(roles or frappe.get_roles(user)) - SYSTEM_ROLES
-
-    if STAFF_ROLES.intersection(roles):
-        return False
-
-    return "Client" in roles
-
-
 def redirect_client_after_login(login_manager=None):
-    """Redirect only pure Client users to SANHA React portal after Frappe login."""
+    """Redirect only pure Client users to the React portal after Frappe login."""
     user = frappe.session.user
-
     if not user or user == "Guest":
         return
 
-    roles = [role for role in frappe.get_roles(user) if role not in SYSTEM_ROLES]
-
-    if _should_auto_redirect_to_portal(user, roles):
+    roles = set(frappe.get_roles(user)) - SYSTEM_ROLES
+    if "Client" in roles and not STAFF_ROLES.intersection(roles):
         frappe.local.response["home_page"] = PORTAL_URL
 
 
@@ -128,7 +107,6 @@ def get_current_user():
     portal users to read User, User Permission, or Client through DocType REST.
     """
     user = frappe.session.user
-
     if not user or user == "Guest":
         return {
             "is_authenticated": False,
@@ -144,20 +122,15 @@ def get_current_user():
 
     info = _user_info(user)
     roles = [role for role in frappe.get_roles(user) if role not in SYSTEM_ROLES]
-    role_set = set(roles)
-
     client = None
 
-    if not STAFF_ROLES.intersection(role_set):
+    is_admin = bool({"Admin", "System Manager", "Administrator"}.intersection(roles))
+    if not is_admin:
         client = _find_client(user, info.get("email"))
-
-        if client and "Client" not in role_set:
+        if client and not any(role in PORTAL_ROLES for role in roles):
             roles.append("Client")
-            role_set.add("Client")
 
-    roles = [role for role in roles if role in PORTAL_ROLES]
     client_name = client.get("name") if client else None
-
     return {
         "is_authenticated": True,
         "message": user,
