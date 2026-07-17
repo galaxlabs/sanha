@@ -1,0 +1,22 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "disabled": 0,
+ "doctype": "Report",
+ "filters": [],
+ "is_standard": "Yes",
+ "module": "Sanha",
+ "name": "Missing Supplier Manufacturer",
+ "prepared_report": 0,
+ "ref_doctype": "Query",
+ "report_name": "Missing Supplier Manufacturer",
+ "report_type": "Script Report",
+ "roles": [
+  {"role": "System Manager"},
+  {"role": "SB User"},
+  {"role": "Evaluation"},
+  {"role": "Certificate Manager"},
+  {"role": "Admin"},
+  {"role": "Client"}
+ ]
+}

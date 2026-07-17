@@ -5,13 +5,61 @@ import frappe
 from frappe.model.document import Document
 
 
+LOCKED_PARENT_FIELDS = (
+    "raw_material",
+    "query_types",
+    "supplier",
+    "supplier_contact",
+    "manufacturer",
+    "manufacturer_contact",
+    "client_name",
+    "workflow_state",
+)
+DOCUMENT_FIELDS = ("documents", "issue_date", "expiry_date", "attachment")
+
+
+def _same_value(left, right):
+    return str(left or "") == str(right or "")
+
+
 class Query(Document):
     def validate(self):
+        self.validate_client_edit_lock()
         self.validate_duplicate_document_attachments()
         self.validate_client_submission_documents()
 
     def on_update(self):
         self.relink_query_attachment_files()
+
+    def validate_client_edit_lock(self):
+        if self.is_new():
+            return
+
+        roles = set(frappe.get_roles(frappe.session.user))
+        staff_roles = {"Evaluation", "SB User", "Certificate Manager", "Admin", "System Manager", "Administrator"}
+        if "Client" not in roles or staff_roles.intersection(roles):
+            return
+
+        previous_state = frappe.db.get_value("Query", self.name, "workflow_state") or "Draft"
+        if previous_state == "Draft":
+            return
+
+        previous = frappe.get_doc("Query", self.name)
+        for field in LOCKED_PARENT_FIELDS:
+            if not _same_value(self.get(field), previous.get(field)):
+                frappe.throw("Submitted queries are locked for client users. Only new document rows can be added.", frappe.PermissionError)
+
+        existing_rows = {row.name: row for row in previous.get("documents") or []}
+        submitted_rows = {row.name: row for row in self.get("documents") or [] if row.name in existing_rows}
+
+        if set(existing_rows) - set(submitted_rows):
+            frappe.throw("Existing document rows cannot be removed after submission.", frappe.PermissionError)
+
+        for row_name, old_row in existing_rows.items():
+            new_row = submitted_rows[row_name]
+            for field in DOCUMENT_FIELDS:
+                if not _same_value(new_row.get(field), old_row.get(field)):
+                    frappe.throw("Existing document rows cannot be changed after submission. Add a new document row instead.", frappe.PermissionError)
 
     def validate_duplicate_document_attachments(self):
         seen = set()
@@ -125,27 +173,62 @@ class Query(Document):
 @frappe.whitelist()
 def find_similar_query(raw_material: str | None = None,
                     manufacturer: str | None = None,
+                    supplier: str | None = None,
                     exclude_name: str | None = None):
-    """Return up to 3 most-recent Queries with same raw_material+manufacturer (excluding current)."""
+    """Return helpful existing Queries for the same raw material/manufacturer/supplier."""
     raw_material = (raw_material or "").strip()
     manufacturer = (manufacturer or "").strip()
+    supplier = (supplier or "").strip()
     if not raw_material or not manufacturer:
         return {"matches": []}
 
-    filters = {
-        "raw_material": raw_material,
-        "manufacturer": manufacturer,
-    }
-    if exclude_name:
-        filters["name"] = ["!=", exclude_name]
+    roles = set(frappe.get_roles(frappe.session.user))
+    staff_roles = {"Evaluation", "SB User", "Certificate Manager", "Admin", "System Manager", "Administrator"}
 
-    matches = frappe.get_all(
-        "Query",
-        filters=filters,
-        fields=["name", "workflow_state", "client_name", "owner", "modified"],
-        order_by="modified desc",
-        limit=3,
-    )
+    conditions = [
+        "q.docstatus < 2",
+        "q.workflow_state NOT IN ('Draft', 'Delisted')",
+        "LOWER(TRIM(IFNULL(q.raw_material, ''))) = LOWER(TRIM(%(raw_material)s))",
+        "LOWER(TRIM(IFNULL(q.manufacturer, ''))) = LOWER(TRIM(%(manufacturer)s))",
+    ]
+    params = {"raw_material": raw_material, "manufacturer": manufacturer}
+
+    if supplier:
+        conditions.append("LOWER(TRIM(IFNULL(q.supplier, ''))) = LOWER(TRIM(%(supplier)s))")
+        params["supplier"] = supplier
+
+    if exclude_name:
+        conditions.append("q.name != %(exclude_name)s")
+        params["exclude_name"] = exclude_name
+
+    if not staff_roles.intersection(roles):
+        conditions.append("q.owner = %(user)s")
+        params["user"] = frappe.session.user
+
+    matches = frappe.db.sql(f"""
+        SELECT
+            q.name,
+            q.raw_material,
+            q.supplier,
+            q.manufacturer,
+            q.workflow_state,
+            q.client_name,
+            q.owner,
+            q.modified
+        FROM `tabQuery` q
+        WHERE {' AND '.join(conditions)}
+        ORDER BY q.modified DESC
+        LIMIT 5
+    """, params, as_dict=True)
+
+    for match in matches:
+        match["documents"] = frappe.get_all(
+            "Documents",
+            filters={"parent": match.name, "parenttype": "Query"},
+            fields=["documents", "issue_date", "expiry_date", "attachment", "idx"],
+            order_by="idx asc",
+            ignore_permissions=True,
+        )
     return {"matches": matches}
 
 @frappe.whitelist()
