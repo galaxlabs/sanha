@@ -290,3 +290,4 @@ scheduler_events = {
 		"sanha.dup_register.scan_and_sync"
 	]
 }
+on_login = "sanha.api.auth.redirect_client_after_login"
