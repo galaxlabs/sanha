@@ -11,6 +11,14 @@ def _norm(s: str) -> str:
     return (s or "").strip().lower()
 
 
+PLACEHOLDER_VALUES = {"", "to be added", "tba", "n/a", "na", "none", "null"}
+STAFF_ROLES = {"Evaluation", "SB User", "Certificate Manager", "Admin", "System Manager", "Administrator"}
+
+
+def _is_placeholder(value: str) -> bool:
+    return _norm(value) in PLACEHOLDER_VALUES
+
+
 def _has_workflow_state() -> bool:
     return frappe.db.has_column("Query", "workflow_state")
 
@@ -22,8 +30,8 @@ def _wf_value(row: dict, has_wf: bool) -> str:
     return ws or "Draft"
 
 
-def _make_group_key(scope: str, rm_norm: str, mf_norm: str) -> str:
-    raw = "||".join([scope, rm_norm, mf_norm])
+def _make_group_key(scope: str, rm_norm: str, supplier_norm: str, mf_norm: str) -> str:
+    raw = "||".join([scope, rm_norm, supplier_norm, mf_norm])
     return hashlib.sha1(raw.encode("utf-8")).hexdigest()
 
 
@@ -49,12 +57,12 @@ def scan_and_sync():
     """
     Duplicate rules:
 
-      Key fields: raw_material + manufacturer
+      Key fields: raw_material + supplier + manufacturer
       Scope:
         - If client_name is set: same client_name (any user)
         - Else: same owner
 
-      A duplicate group is: same (scope, raw_material_norm, manufacturer_norm)
+      A duplicate group is: same (scope, raw_material_norm, supplier_norm, manufacturer_norm)
       with count >= 2.
 
       For each group:
@@ -62,7 +70,7 @@ def scan_and_sync():
         - is_duplicate = 1 for all in group
         - is_master    = 1 for master, 0 for others
         - can_delete   = 1 only for non-master draft docs
-        - duplicate_group_key = hash(scope, rm, mf)
+        - duplicate_group_key = hash(scope, rm, supplier, mf)
 
       Everything is done DIRECTLY on tabQuery (no Duplicate Register).
     """
@@ -88,6 +96,7 @@ def scan_and_sync():
             name,
             creation,
             raw_material,
+            supplier,
             manufacturer,
             client_name,
             owner,
@@ -99,26 +108,27 @@ def scan_and_sync():
         as_dict=True,
     )
 
-    # 3) Bucket by (scope, raw_material_norm, manufacturer_norm)
+    # 3) Bucket by (scope, raw_material_norm, supplier_norm, manufacturer_norm)
     buckets = {}
     for r in rows:
         rm_norm = _norm(r.get("raw_material"))
+        supplier_norm = _norm(r.get("supplier"))
         mf_norm = _norm(r.get("manufacturer"))
 
-        # Ignore rows without both rm & mf
-        if not rm_norm and not mf_norm:
+        # Ignore incomplete/placeholder rows; these should not become blockers.
+        if _is_placeholder(r.get("raw_material")) or _is_placeholder(r.get("supplier")) or _is_placeholder(r.get("manufacturer")):
             continue
 
         scope = _scope_for_row(r)
-        key = (scope, rm_norm, mf_norm)
+        key = (scope, rm_norm, supplier_norm, mf_norm)
         buckets.setdefault(key, []).append(r)
 
     # 4) Process buckets as duplicate groups
-    for (scope, rm_norm, mf_norm), members in buckets.items():
+    for (scope, rm_norm, supplier_norm, mf_norm), members in buckets.items():
         if len(members) < 2:
             continue
 
-        group_key = _make_group_key(scope, rm_norm, mf_norm)
+        group_key = _make_group_key(scope, rm_norm, supplier_norm, mf_norm)
         members_sorted = sorted(members, key=lambda x: x["creation"])
 
         def wf(m):
@@ -169,7 +179,7 @@ def scan_and_sync():
 
 @frappe.whitelist()
 def scan_and_sync_ui():
-    frappe.only_for(("System Manager", "Admin", "SB Uesr", "Administrator"))
+    frappe.only_for(("System Manager", "Admin", "SB User", "Administrator"))
     scan_and_sync()
     return {"ok": True, "message": "Duplicate flags updated on Query."}
 
@@ -183,7 +193,7 @@ def delete_query_force(names):
     - Others: delete with force=1.
     - After deletion, re-run scan_and_sync() so flags are correct.
     """
-    frappe.only_for(("System Manager", "Admin", "SB Uesr", "Administrator"))
+    frappe.only_for(("System Manager", "Admin", "SB User", "Administrator"))
 
     if isinstance(names, str):
         try:
@@ -485,14 +495,12 @@ def validate_documents_on_state_change(doc):
 #     frappe.throw(msg, frappe.DuplicateEntryError)
 def prevent_duplicate_on_validate(doc, method=None):
     """
-    New rules:
+    Block only exact client duplicates.
 
-    - We enforce duplicates as soon as raw_material is set.
-    - If current doc has manufacturer:
-        -> match duplicates on (raw_material + manufacturer + scope)
-    - If current doc has NO manufacturer:
-        -> match duplicates on (raw_material + scope) ONLY
-          (manufacturer of existing records can be anything / empty).
+    - Internal staff/admin users can work on duplicate records without being blocked.
+    - Client users are blocked only when raw_material + supplier + manufacturer
+      all match inside the same client/owner scope.
+    - Placeholder values like "to be added" are not enough to block a save.
 
     Scope:
       - If client_name present -> same client_name (any user)
@@ -502,23 +510,28 @@ def prevent_duplicate_on_validate(doc, method=None):
     if doc.doctype != "Query":
         return
 
-    # 1) Must at least have raw_material; otherwise allow save
-    rm_norm = _norm(getattr(doc, "raw_material", None))
-    if not rm_norm:
+    roles = set(frappe.get_roles(frappe.session.user))
+    if STAFF_ROLES.intersection(roles):
         return
 
+    # Must have meaningful raw material, supplier, and manufacturer.
+    rm_norm = _norm(getattr(doc, "raw_material", None))
+    supplier_norm = _norm(getattr(doc, "supplier", None))
     mf_norm = _norm(getattr(doc, "manufacturer", None))
+    if _is_placeholder(rm_norm) or _is_placeholder(supplier_norm) or _is_placeholder(mf_norm):
+        return
 
     cn_norm = _norm(getattr(doc, "client_name", None))
     owner = (getattr(doc, "owner", None) or frappe.session.user or "").strip()
 
-    # 2) Build WHERE conditions dynamically
     conditions = [
         "name != %s",
         "docstatus < 2",
         "LOWER(TRIM(IFNULL(raw_material,''))) = %s",
+        "LOWER(TRIM(IFNULL(supplier,''))) = %s",
+        "LOWER(TRIM(IFNULL(manufacturer,''))) = %s",
     ]
-    params = [doc.name or "", rm_norm]
+    params = [doc.name or "", rm_norm, supplier_norm, mf_norm]
 
     if cn_norm:
         # Same client
@@ -529,15 +542,8 @@ def prevent_duplicate_on_validate(doc, method=None):
         conditions.append("owner = %s")
         params.append(owner)
 
-    # 3) Manufacturer condition is OPTIONAL:
-    #    - If current doc has manufacturer => require same manufacturer
-    #    - If empty => ignore manufacturer in matching
-    if mf_norm:
-        conditions.append("LOWER(TRIM(IFNULL(manufacturer,''))) = %s")
-        params.append(mf_norm)
-
     sql = f"""
-        SELECT name, raw_material, manufacturer, client_name
+        SELECT name, raw_material, supplier, manufacturer, client_name
         FROM `tabQuery`
         WHERE {' AND '.join(conditions)}
     """
@@ -547,13 +553,12 @@ def prevent_duplicate_on_validate(doc, method=None):
     if not existing:
         return
 
-    # 4) We found at least one duplicate in the same scope
     ref = existing[0]
     url = f"/app/query/{ref['name']}"
     rm_label = ref.get("raw_material") or doc.raw_material or ""
     msg = (
         f"You already have this Query for "
-        f"<b>{frappe.utils.escape_html(rm_label)}</b>.<br>"
+        f"<b>{frappe.utils.escape_html(rm_label)}</b> with the same supplier and manufacturer.<br>"
         f"Existing record: <a href='{url}' target='_blank'>{ref['name']}</a>"
     )
 
