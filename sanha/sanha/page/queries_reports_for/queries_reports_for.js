@@ -608,33 +608,52 @@ function updateOwnerTable(selectedClient) {
 }
 
 function updateDateRange(filters) {
-    frappe.call({
-        method: 'frappe.client.get_list',
-        args: {
-            doctype: 'Query',
-            fields: ['creation', 'modified'],
-            filters: filters,
-            order_by: 'creation asc'
-        },
-        callback: function(response) {
-            var data = response.message;
-            if (data.length > 0) {
-                var oldestDate = moment(data[0].creation).format('DD-MM-YYYY hh:mm A');
-                var latestModified = null;
-                data.forEach(function(row) {
-                    if (!latestModified || row.modified > latestModified) {
-                        latestModified = row.modified;
+    var start = 0;
+    var limit = 500;
+    var allData = [];
+    var oldestDate = null;
+    var latestModified = null;
+
+    function fetchDateRange() {
+        frappe.call({
+            method: 'frappe.client.get_list',
+            args: {
+                doctype: 'Query',
+                fields: ['creation', 'modified'],
+                filters: filters,
+                order_by: 'creation asc',
+                limit_start: start,
+                limit_page_length: limit
+            },
+            callback: function(response) {
+                var data = response.message || [];
+                if (data.length > 0) {
+                    data.forEach(function(row) {
+                        if (!oldestDate || row.creation < oldestDate) {
+                            oldestDate = row.creation;
+                        }
+                        if (!latestModified || row.modified > latestModified) {
+                            latestModified = row.modified;
+                        }
+                    });
+                    start += limit;
+                    fetchDateRange();
+                } else {
+                    if (oldestDate && latestModified) {
+                        var oldestDateStr = moment(oldestDate).format('DD-MM-YYYY hh:mm A');
+                        var latestDateStr = moment(latestModified).format('DD-MM-YYYY hh:mm A');
+                        date_range_section.empty();
+                        $('<p>').html('Date Range: <strong>From: ' + oldestDateStr + '</strong> To: <strong>' + latestDateStr + '</strong>').appendTo(date_range_section);
+                    } else {
+                        date_range_section.empty();
+                        $('<p>').text('Date Range: No Data Available').appendTo(date_range_section);
                     }
-                });
-                var latestDate = moment(latestModified).format('DD-MM-YYYY hh:mm A');
-                date_range_section.empty();
-                $('<p>').html('Last Activity Date Range: <strong>From: ' + oldestDate + '</strong> To: <strong>' + latestDate + '</strong>').appendTo(date_range_section);
-            } else {
-                date_range_section.empty();
-                $('<p>').text('Last Activity Date Range: No Data Available').appendTo(date_range_section);
+                }
             }
-        }
-    });
+        });
+    }
+
+    fetchDateRange();
 }
 
 clientNameDropdown.on('change', function() {
