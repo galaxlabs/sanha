@@ -595,15 +595,21 @@ function updateDateRange(filters) {
         method: 'frappe.client.get_list',
         args: {
             doctype: 'Query',
-            fields: ['modified'],
+            fields: ['creation', 'modified'],
             filters: filters,
-            order_by: 'modified asc'
+            order_by: 'creation asc'
         },
         callback: function(response) {
             var data = response.message;
             if (data.length > 0) {
-                var oldestDate = moment(data[0].modified).format('DD-MM-YYYY hh:mm A');
-                var latestDate = moment(data[data.length - 1].modified).format('DD-MM-YYYY hh:mm A');
+                var oldestDate = moment(data[0].creation).format('DD-MM-YYYY hh:mm A');
+                var latestModified = null;
+                data.forEach(function(row) {
+                    if (!latestModified || row.modified > latestModified) {
+                        latestModified = row.modified;
+                    }
+                });
+                var latestDate = moment(latestModified).format('DD-MM-YYYY hh:mm A');
                 date_range_section.empty();
                 $('<p>').html('Last Activity Date Range: <strong>From: ' + oldestDate + '</strong> To: <strong>' + latestDate + '</strong>').appendTo(date_range_section);
             } else {
