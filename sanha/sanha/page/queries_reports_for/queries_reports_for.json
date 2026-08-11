@@ -7,9 +7,9 @@
  "modified": "2024-06-27 18:59:25.634776",
  "modified_by": "Administrator",
  "module": "Sanha",
- "name": "queries-reports--for",
+ "name": "queries-reports-for",
  "owner": "Administrator",
- "page_name": "queries-reports--for",
+ "page_name": "queries-reports-for",
  "roles": [
   {
    "role": "Certificate Manager"
