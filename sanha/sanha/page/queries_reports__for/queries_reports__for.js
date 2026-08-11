@@ -595,20 +595,20 @@ function updateDateRange(filters) {
         method: 'frappe.client.get_list',
         args: {
             doctype: 'Query',
-            fields: ['creation'],
+            fields: ['modified'],
             filters: filters,
-            order_by: 'creation asc'
+            order_by: 'modified asc'
         },
         callback: function(response) {
             var data = response.message;
             if (data.length > 0) {
-                var oldestDate = moment(data[0].creation).format('DD-MM-YYYY hh:mm A');
-                var latestDate = moment(data[data.length - 1].creation).format('DD-MM-YYYY hh:mm A');
+                var oldestDate = moment(data[0].modified).format('DD-MM-YYYY hh:mm A');
+                var latestDate = moment(data[data.length - 1].modified).format('DD-MM-YYYY hh:mm A');
                 date_range_section.empty();
-                $('<p>').html('Date Range: <strong>From: ' + oldestDate + '</strong> To: <strong>' + latestDate + '</strong>').appendTo(date_range_section);
+                $('<p>').html('Last Activity Date Range: <strong>From: ' + oldestDate + '</strong> To: <strong>' + latestDate + '</strong>').appendTo(date_range_section);
             } else {
                 date_range_section.empty();
-                $('<p>').text('Date Range: No Data Available').appendTo(date_range_section);
+                $('<p>').text('Last Activity Date Range: No Data Available').appendTo(date_range_section);
             }
         }
     });
