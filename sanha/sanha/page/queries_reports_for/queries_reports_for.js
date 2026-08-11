@@ -9,6 +9,8 @@ frappe.pages['queries-reports-for'].on_page_load = function(wrapper) {
     // Print button
     var printButton = $('<button>').text('Print').addClass('btn btn-primary').appendTo(action_section);
     printButton.on('click', function() {
+        // Update print date/time before printing
+        $('.print-datetime').html('<strong>Print Date/Time:</strong> ' + moment().format('DD-MM-YYYY hh:mm A'));
         // Hide page title before printing
         page.$title_area.hide();
         // Hide filter row before printing
@@ -74,6 +76,21 @@ slogan_container.css({
     'width': '45%'
 });
 $('<span>').text('Eat Halal, Be Healthy.').appendTo(slogan_container);
+
+var reference_section = $('<div>').addClass('reference-section').appendTo(page.body);
+reference_section.css({
+    'margin-bottom': '20px',
+    'text-align': 'center',
+    'font-size': '14px',
+    'font-weight': 'bold'
+});
+$('<span>').text('SANHA/PR-09/FM-01').appendTo(reference_section);
+$('<span>').addClass('print-datetime').css({
+    'display': 'block',
+    'margin-top': '5px',
+    'font-size': '12px',
+    'font-weight': 'normal'
+}).html('<strong>Print Date/Time:</strong> ' + moment().format('DD-MM-YYYY hh:mm A')).appendTo(reference_section);
 
 // var filterSection = $('<div>').addClass('filter-section').appendTo(page.body);
 // filterSection.css({
@@ -595,7 +612,7 @@ function updateDateRange(filters) {
         method: 'frappe.client.get_list',
         args: {
             doctype: 'Query',
-            fields: ['creation'],
+            fields: ['creation', 'modified'],
             filters: filters,
             order_by: 'creation asc'
         },
@@ -603,12 +620,18 @@ function updateDateRange(filters) {
             var data = response.message;
             if (data.length > 0) {
                 var oldestDate = moment(data[0].creation).format('DD-MM-YYYY hh:mm A');
-                var latestDate = moment(data[data.length - 1].creation).format('DD-MM-YYYY hh:mm A');
+                var latestModified = null;
+                data.forEach(function(row) {
+                    if (!latestModified || row.modified > latestModified) {
+                        latestModified = row.modified;
+                    }
+                });
+                var latestDate = moment(latestModified).format('DD-MM-YYYY hh:mm A');
                 date_range_section.empty();
-                $('<p>').html('Date Range: <strong>From: ' + oldestDate + '</strong> To: <strong>' + latestDate + '</strong>').appendTo(date_range_section);
+                $('<p>').html('Last Activity Date Range: <strong>From: ' + oldestDate + '</strong> To: <strong>' + latestDate + '</strong>').appendTo(date_range_section);
             } else {
                 date_range_section.empty();
-                $('<p>').text('Date Range: No Data Available').appendTo(date_range_section);
+                $('<p>').text('Last Activity Date Range: No Data Available').appendTo(date_range_section);
             }
         }
     });
@@ -654,6 +677,11 @@ footer_section.css({
 
 $('<hr>').appendTo(footer_section);
 
+$('<p>').html('<strong>Disclaimer:</strong> This Halal Evaluation Report is issued based on the information and documentation provided at the time of evaluation. It is valid only for the specified batch/lot and for the specific materials/products mentioned. Any misuse, alteration, or use of this report beyond its intended purpose is strictly prohibited. SANHA Halal Pakistan reserves the right to revoke this evaluation in case of any non-compliance or deviation from the Halal standards.').appendTo(footer_section);
+
+$('<hr>').appendTo(footer_section);
+
+// Add company address
 $('<p>').html('<strong>Sanha Halal Associates Pakistan PVT. LTD.</strong> Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama D.H.A. phase 5<br>Email: evaluation@sanha.org.pk - Ph: +92 21 35295263').appendTo(footer_section);
 
 $('<hr>').appendTo(footer_section);
