@@ -257,7 +257,7 @@ fixtures = [
     {"doctype": "Workflow"},
     {"doctype": "Workflow State"},
     {"doctype": "Workflow Action Master"},
-    {"doctype": "Custom DocPerm", "filters": [["parent", "in", ["File", "Documents", "Query"]]]},
+    {"doctype": "Custom DocPerm", "filters": [["parent", "in", ["File", "Documents"]]]},
     {"doctype": "Property Setter"},
     {"doctype": "Custom Field"},
 ]

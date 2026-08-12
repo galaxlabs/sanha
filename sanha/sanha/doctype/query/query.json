@@ -225,7 +225,8 @@
    "role": "System Manager",
    "select": 1,
    "share": 1,
-   "write": 1
+   "write": 1,
+   "import": 1
   },
   {
    "create": 1,
@@ -238,7 +239,8 @@
    "role": "Admin",
    "select": 1,
    "share": 1,
-   "write": 1
+   "write": 1,
+   "import": 1
   },
   {
    "create": 1,
@@ -305,8 +307,60 @@
   {
    "create": 1,
    "export": 1,
+   "import": 1,
    "read": 1,
-   "role": "Client"
+   "role": "Client",
+   "permlevel": 0,
+   "if_owner": 0
+  },
+  {
+   "export": 1,
+   "read": 1,
+   "write": 1,
+   "role": "Admin",
+   "permlevel": 1
+  },
+  {
+   "export": 1,
+   "read": 1,
+   "write": 1,
+   "role": "System Manager",
+   "permlevel": 1
+  },
+  {
+   "export": 1,
+   "read": 1,
+   "write": 1,
+   "role": "SM",
+   "permlevel": 1
+  },
+  {
+   "export": 1,
+   "read": 1,
+   "write": 1,
+   "role": "SB User",
+   "permlevel": 1
+  },
+  {
+   "export": 1,
+   "read": 1,
+   "write": 1,
+   "role": "Client",
+   "permlevel": 1
+  },
+  {
+   "export": 1,
+   "read": 1,
+   "write": 1,
+   "role": "Evaluation",
+   "permlevel": 1
+  },
+  {
+   "export": 1,
+   "read": 1,
+   "write": 1,
+   "role": "Certificate Manager",
+   "permlevel": 1
   }
  ],
  "search_fields": "raw_material,manufacturer,supplier,client_code",
