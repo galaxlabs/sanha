@@ -5,6 +5,18 @@ frappe.ready(function () {
     let clientCode = '';
     const tableBody = $('#dataTable tbody');
 
+    function formatPrintDateTime(d) {
+        d = d || new Date();
+        const pad = n => (n < 10 ? '0' + n : n);
+        const day = pad(d.getDate());
+        const month = pad(d.getMonth() + 1);
+        const year = d.getFullYear();
+        let hours = d.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        return `${day}-${month}-${year} ${pad(hours)}:${pad(d.getMinutes())} ${ampm}`;
+    }
+
     function updateDropdown(dropdown, values, defaultLabel) {
         dropdown.empty().append(`<option value="">${defaultLabel}</option>`);
         values.forEach(val => dropdown.append(`<option value="${val}">${val}</option>`));
@@ -100,6 +112,7 @@ frappe.ready(function () {
                 if (data.length > 0) {
                     data.forEach((row, i) => {
                         const tr = $('<tr>');
+                        tr.attr('data-creation', row.creation || '');
                         tr.append(`<td><input type="checkbox" class="row-checkbox" data-id="${row.name}"></td>`);
                         tr.append(`<td>${(currentPage - 1) * itemsPerPage + i + 1}</td>`);
                         tr.append(`<td>${row.raw_material || ''}</td>`);
@@ -124,14 +137,16 @@ frappe.ready(function () {
         });
     }
 
-    function openPrint(rows, title = "Print Report") {
+    function openPrint(rows, title = "Print Report", clientDetails, dateRange) {
         const win = window.open('', '_blank');
         win.document.write(`<html><head><title>${title}</title>
         <style>
-            body { font-family: Arial, sans-serif; }
+            @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
+            body { font-family: 'Ubuntu', Arial, sans-serif; }
             .header-section {
                 padding: 20px; margin-top: 30px; margin-bottom: 20px;
-                border-bottom: 1px solid rgb(204, 204, 204); display: table; width: 100%;
+                border-bottom: 2px solid #14532d; display: table; width: 100%;
+                background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
             }
             .logo-container {
                 display: table-cell; text-align: right; width: 55%; margin-top: 20px;
@@ -139,18 +154,32 @@ frappe.ready(function () {
             .slogan-container {
                 display: table-cell; text-align: right; vertical-align: middle; width: 45%;
             }
+            .slogan { font-style: italic; color: #14532d; font-size: 18px; font-weight: 600; }
+            .reference-section {
+                margin-bottom: 20px; text-align: center; font-size: 14px; font-weight: bold;
+            }
+            .print-datetime {
+                display: block; margin-top: 5px; font-size: 12px; font-weight: normal;
+            }
             table {
                 width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: auto;
             }
             th, td {
-                border: 1px solid #333; padding: 6px; text-align: left;
+                border: 1px solid #e2e8f0; padding: 7px; text-align: left;
                 word-wrap: break-word; word-break: break-word; white-space: normal;
             }
+            th { background: #14532d; color: #fff; font-size: 13px; }
+            tbody tr:nth-child(even) { background: #f8fafc; }
             td:nth-child(2) { min-width: 150px; max-width: 250px; }
             td:nth-child(3), td:nth-child(4) { min-width: 110px; max-width: 190px; }
             td:nth-child(5) { min-width: 90px; max-width: 150px; }
             td:nth-child(6) { min-width: 70px; max-width: 110px; }
             h3 { text-align: center; margin-top: 20px; }
+            .footer-section { margin-top: 30px; padding: 20px; border-top: 2px solid #14532d; text-align: center; }
+            .footer-section .disclaimer { text-align: left; font-size: 12px; line-height: 1.6; color: #334155; margin: 0 0 16px; }
+            .org-address { margin: 16px 0; }
+            .org-address .org-name { font-weight: 700; font-size: 14px; color: #14532d; margin: 0 0 4px; }
+            .org-address p { margin: 3px 0; font-size: 12px; color: #475569; }
         </style>
         </head><body>`);
 
@@ -159,18 +188,26 @@ frappe.ready(function () {
                 <div class="logo-container">
                     <img src="/files/sanha-logo.png" style="width: 150px; height: auto;">
                 </div>
-                <div class="slogan-container"><span>Eat Halal, Be Healthy.</span></div>
+                <div class="slogan-container"><span class="slogan">Eat Halal, Be Healthy.</span></div>
             </div>
         `);
 
-        
+        // Reference + print date/time (SANHA/PR-09/FM-01)
+        const printDateTime = formatPrintDateTime(new Date());
+        win.document.write(`
+            <div class="reference-section">
+                <span>SANHA/PR-09/FM-01</span>
+                <span class="print-datetime"><strong>Print Date/Time:</strong> ${printDateTime}</span>
+            </div>
+        `);
+
                 // Client details -- Date range
-    const clientDetails = $('#client-details-heading').html() || '<b>Client:</b> <b>All</b> | <b>Code:</b> <b>N/A</b>';
-    const dateRange = $('#date-range').html() || '<b>Date Range:</b> <b>N/A</b>';
+    const clientDetailsHtml = clientDetails || $('#client-details-heading').html() || '<b>Client:</b> <b>All</b> | <b>Code:</b> <b>N/A</b>';
+    const dateRangeHtml = dateRange || $('#date-range').html() || '<b>Date Range:</b> <b>N/A</b>';
     win.document.write(`
     <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
-        <p style="margin: 5px 0;">${clientDetails}</p>
-        <p style="margin: 5px 0;">${dateRange}</p>
+        <p style="margin: 5px 0;">${clientDetailsHtml}</p>
+        <p style="margin: 5px 0;">${dateRangeHtml}</p>
     </div>
     `);
 
@@ -185,18 +222,22 @@ frappe.ready(function () {
             win.document.write('</tr>');
         });
 
-        win.document.write('</tbody></table></body></html>');
+        win.document.write('</tbody></table>');
             // Add footer
     win.document.write(`
-    <div class="footer-section" style="margin-top: 30px; text-align: center; padding: 20px; border-top: 1px solid rgb(204, 204, 204);">
-        <hr>
-        <p style="margin: 0;">Sanha Halal Associates Pakistan PVT. LTD.</p>
-        <p style="margin: 0;">Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama D.H.A. phase 5</p>
-        <p style="margin: 0;">Email: evaluation@sanha.org.pk - Ph: +92 21 35295263</p>
-        <hr>
-        <span>&copy; 2023 SANHA. All rights reserved.</span>
+    <div class="footer-section">
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 14px 0;">
+        <p class="disclaimer"><strong>Disclaimer:</strong> This Halal Evaluation Report is issued based on the information and documentation provided at the time of evaluation. It is valid only for the specified batch/lot and for the specific materials/products mentioned. Any misuse, alteration, or use of this report beyond its intended purpose is strictly prohibited. SANHA Halal Pakistan reserves the right to revoke this evaluation in case of any non-compliance or deviation from the Halal standards.</p>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 14px 0;">
+        <div class="org-address">
+            <p class="org-name">Sanha Halal Associates Pakistan (Pvt.) Ltd.</p>
+            <p>Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama Commercial Lane 5, D.H.A. Phase 5, Karachi, Pakistan</p>
+            <p>Tel: +92 21 35295263 &nbsp;|&nbsp; Email: evaluation@sanha.org.pk</p>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 14px 0;">
+        <span style="font-size: 12px; color: #94a3b8;">&copy; 2023 SANHA. All rights reserved.</span>
     </div>
-    `);
+    </body></html>`);
 
         win.document.close();
         win.onload = function () {
@@ -248,6 +289,7 @@ frappe.ready(function () {
             const tempTable = $('<tbody>');
             data.forEach((row, i) => {
                 const tr = $('<tr>');
+                tr.attr('data-creation', row.creation || '');
                 tr.append(`<td><input type="checkbox" class="row-checkbox" data-id="${row.name}"></td>`);
                 tr.append(`<td>${i + 1}</td>`); // ✅ Serial number preserved
                 tr.append(`<td>${row.raw_material || ''}</td>`);
@@ -259,7 +301,11 @@ frappe.ready(function () {
             });
 
             // ✅ Pass all rows to your existing print function
-            openPrint(tempTable.find('tr'));
+            const sortedDates = data.map(d => d.creation).filter(Boolean).sort();
+            const dateRange = sortedDates.length
+                ? `<b>Date Range:</b> <b>${frappe.datetime.str_to_user(sortedDates[0])}</b> to <b>${frappe.datetime.str_to_user(sortedDates[sortedDates.length - 1])}</b>`
+                : '<b>Date Range:</b> <b>N/A</b>';
+            openPrint(tempTable.find('tr'), "Query Report", $('#client-details-heading').html(), dateRange);
         }
     });
 });
@@ -267,11 +313,16 @@ frappe.ready(function () {
 
     $('#printBtnSelected').on('click', () => {
         const selected = $('.row-checkbox:checked').closest('tr');
-        if (selected.length === 0) {
-            frappe.msgprint('Please select at least one record to print.');
+        const rows = selected.length > 0 ? selected : $('#dataTable tbody tr');
+        if (rows.length === 0) {
+            frappe.msgprint('No records found to print.');
             return;
         }
-        openPrint(selected);
+        const sortedDates = rows.map(function () { return $(this).data('creation'); }).get().filter(Boolean).sort();
+        const dateRange = sortedDates.length
+            ? `<b>Date Range:</b> <b>${frappe.datetime.str_to_user(sortedDates[0])}</b> to <b>${frappe.datetime.str_to_user(sortedDates[sortedDates.length - 1])}</b>`
+            : '<b>Date Range:</b> <b>N/A</b>';
+        openPrint(rows, "Selected Queries", $('#client-details-heading').html(), dateRange);
     });
 
     $('#selectAll').on('change', function () {
@@ -279,6 +330,7 @@ frappe.ready(function () {
     });
 
     // Init
+    $('#pagePrintDateTime').text(formatPrintDateTime(new Date()));
     fetchClientDetailsFromQuery();
 });
                 

@@ -33,6 +33,12 @@ frappe.pages['queries-reports-for'].on_page_load = function(wrapper) {
         $('.action-section').show();
 
     });
+
+    // Print Selected button
+    var printSelectedButton = $('<button>').text('Print Selected').addClass('btn btn-secondary ml-2').appendTo(action_section);
+    printSelectedButton.on('click', function() {
+        openPrintSelectedWindow();
+    });
     // Align action buttons to the right
     action_section.css({
         'display': 'flex',
@@ -430,11 +436,13 @@ var tfoot = $('<tfoot>').appendTo(table);
 var tableHeaders = ['S No', 'Raw Material', 'Supplier', 'Manufacturer', 'Query Types', 'Status'];
 
 var headerRow = $('<tr>').appendTo(thead);
+var selectAllCheckbox = $('<input>').attr('type', 'checkbox').attr('id', 'selectAll').appendTo($('<th>').appendTo(headerRow));
 tableHeaders.forEach(function(label) {
     $('<th>').text(label).appendTo(headerRow);
 });
 
 var filterRow = $('<tr>').addClass('filter-row').appendTo(thead);
+$('<td>').appendTo(filterRow);
 tableHeaders.forEach(function(label) {
     $('<td>').append($('<input>').addClass('form-control').attr('placeholder', 'Filter ' + label)).appendTo(filterRow);
 });
@@ -565,9 +573,12 @@ function fetchData(client, queryType, page, limit) {
             tbody.empty();
             data.forEach(function(row, index) {
                 var tableRow = $('<tr>').appendTo(tbody);
+                tableRow.attr('data-creation', row.creation || '');
+                $('<td>').append($('<input>').attr('type', 'checkbox').addClass('row-checkbox').attr('data-id', row.name || '')).appendTo(tableRow);
                 $('<td>').text((page - 1) * limit + index + 1).appendTo(tableRow); // Serial number
-                tableHeaders.slice(1).forEach(function(key) {
+                tableHeaders.forEach(function(key) {
                     var field = key.toLowerCase().replace(' ', '_');
+                    if (field === 's_no') return;
                     if (field === 'status') field = 'workflow_state';
                     if (field === 'creation') {
                         var formattedDate = moment(row.creation).format('DD-MM-YYYY hh:mm A');
@@ -686,6 +697,165 @@ nextButton.on('click', function() {
 
 fetchData(clientNameDropdown.val(), queryTypeDropdown.val(), currentPage, itemsPerPage);
 
+// Select all checkbox handler
+$('#selectAll').on('change', function() {
+    $('.row-checkbox').prop('checked', this.checked);
+});
+
+// Print Selected: open a fresh HTML window with selected rows (or all for the selected client if none checked)
+function openPrintSelectedWindow() {
+    var selected = $('.row-checkbox:checked').closest('tr');
+    var client = clientNameDropdown.val();
+    var queryType = queryTypeDropdown.val();
+
+    var printRows = function(data) {
+        if (!data || !data.length) {
+            frappe.msgprint('No records found to print.');
+            return;
+        }
+        var tempTable = $('<tbody>');
+        var sortedDates = [];
+        data.forEach(function(row, i) {
+            var tr = $('<tr>');
+            tr.attr('data-creation', row.creation || '');
+            $('<td>').text(i + 1).appendTo(tr);
+            $('<td>').text(row.raw_material || '').appendTo(tr);
+            $('<td>').text(row.supplier || '').appendTo(tr);
+            $('<td>').text(row.manufacturer || '').appendTo(tr);
+            $('<td>').text(row.query_types || '').appendTo(tr);
+            $('<td>').text(row.workflow_state || '').appendTo(tr);
+            tempTable.append(tr);
+            if (row.creation) sortedDates.push(row.creation);
+        });
+        var win = buildPrintWindow(tempTable.find('tr'), client, data[0].client_code || '', sortedDates);
+        win.print();
+    };
+
+    if (selected.length > 0) {
+        // PART A: print exactly the checked rows (date range from those rows)
+        var sortedDates = selected.map(function() { return $(this).data('creation'); }).get().filter(Boolean).sort();
+        var win = buildPrintWindow(selected, client, '', sortedDates);
+        win.print();
+    } else {
+        // PART B: nothing checked -> print all data for the selected client
+        var filters = {
+            workflow_state: ['in', ['Submitted','Approved', 'Halal', 'Haram', 'Rejected', 'Hold', 'Doubtful']],
+            workflow_state: ['not in', ['Draft']]
+        };
+        if (client && client !== 'Select Client') filters.client_name = client;
+        if (queryType && queryType !== 'Select Query Type') filters.query_types = ['like', '%' + queryType + '%'];
+        var additionalFilters = {};
+        filterRow.find('input').each(function(index) {
+            var value = $(this).val();
+            if (value) {
+                var fieldMap = {
+                    'Raw Material': 'raw_material',
+                    'Supplier': 'supplier',
+                    'Manufacturer': 'manufacturer',
+                    'Query Types': 'query_types',
+                    'Status': 'workflow_state'
+                };
+                var field = fieldMap[tableHeaders[index - 1]];
+                if (field) additionalFilters[field] = ['like', '%' + value + '%'];
+            }
+        });
+        Object.assign(filters, additionalFilters);
+
+        frappe.call({
+            method: 'frappe.client.get_list',
+            args: {
+                doctype: 'Query',
+                fields: ['name', 'client_name', 'client_code', 'raw_material', 'supplier', 'manufacturer', 'query_types', 'workflow_state', 'creation'],
+                filters: filters,
+                order_by: 'raw_material asc',
+                limit_page_length: 0
+            },
+            callback: function(response) {
+                printRows(response.message || []);
+            }
+        });
+    }
+}
+
+// Build a fresh print window with logo, SANHA/PR-09/FM-01, print date/time, client+date range, table, disclaimer
+function buildPrintWindow(rows, client, clientCode, sortedDates) {
+    var win = window.open('', '_blank');
+    var printDateTime = moment().format('DD-MM-YYYY hh:mm A');
+    var clientDetails = client && client !== 'Select Client'
+        ? '<b>Client:</b> <b>' + client + '</b> | <b>Code:</b> <b>' + (clientCode || 'N/A') + '</b>'
+        : '<b>Client:</b> <b>All</b> | <b>Code:</b> <b>N/A</b>';
+    var dateRange = '<b>Date Range:</b> <b>N/A</b>';
+    if (sortedDates && sortedDates.length) {
+        sortedDates.sort();
+        dateRange = '<b>Date Range:</b> <b>' + moment(sortedDates[0]).format('DD-MM-YYYY hh:mm A') + '</b> to <b>' + moment(sortedDates[sortedDates.length - 1]).format('DD-MM-YYYY hh:mm A') + '</b>';
+    }
+
+    win.document.write('<html><head><title>Queries Reports</title><style>');
+    win.document.write("@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');");
+    win.document.write("body { font-family: 'Ubuntu', Arial, sans-serif; }");
+    win.document.write('.header-section { padding: 20px; margin-top: 30px; margin-bottom: 20px; border-bottom: 2px solid #14532d; display: table; width: 100%; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); }');
+    win.document.write('.logo-container { display: table-cell; text-align: right; width: 55%; margin-top: 20px; }');
+    win.document.write('.slogan-container { display: table-cell; text-align: right; vertical-align: middle; width: 45%; }');
+    win.document.write('.slogan { font-style: italic; color: #14532d; font-size: 18px; font-weight: 600; }');
+    win.document.write('.reference-section { margin-bottom: 20px; text-align: center; font-size: 14px; font-weight: bold; }');
+    win.document.write('.print-datetime { display: block; margin-top: 5px; font-size: 12px; font-weight: normal; }');
+    win.document.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: auto; }');
+    win.document.write('th, td { border: 1px solid #e2e8f0; padding: 7px; text-align: left; word-wrap: break-word; word-break: break-word; white-space: normal; }');
+    win.document.write('th { background: #14532d; color: #fff; font-size: 13px; }');
+    win.document.write('tbody tr:nth-child(even) { background: #f8fafc; }');
+    win.document.write('td:nth-child(2) { min-width: 150px; max-width: 250px; }');
+    win.document.write('td:nth-child(3), td:nth-child(4) { min-width: 110px; max-width: 190px; }');
+    win.document.write('td:nth-child(5) { min-width: 90px; max-width: 150px; }');
+    win.document.write('td:nth-child(6) { min-width: 70px; max-width: 110px; }');
+    win.document.write('.footer-section { margin-top: 30px; text-align: center; padding: 20px; border-top: 2px solid #14532d; }');
+    win.document.write('.footer-section .disclaimer { text-align: left; font-size: 12px; line-height: 1.6; color: #334155; margin: 0 0 16px; }');
+    win.document.write('.org-address { margin: 16px 0; }');
+    win.document.write('.org-address .org-name { font-weight: 700; font-size: 14px; color: #14532d; margin: 0 0 4px; }');
+    win.document.write('.org-address p { margin: 3px 0; font-size: 12px; color: #475569; }');
+    win.document.write('</style></head><body>');
+
+    win.document.write('<div class="header-section">');
+    win.document.write('<div class="logo-container"><img src="/files/sanha-logo.png" style="width: 150px; height: auto;"></div>');
+    win.document.write('<div class="slogan-container"><span class="slogan">Eat Halal, Be Healthy.</span></div>');
+    win.document.write('</div>');
+
+    win.document.write('<div class="reference-section">');
+    win.document.write('<span>SANHA/PR-09/FM-01</span>');
+    win.document.write('<span class="print-datetime"><strong>Print Date/Time:</strong> ' + printDateTime + '</span>');
+    win.document.write('</div>');
+
+    win.document.write('<div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">');
+    win.document.write('<p style="margin: 5px 0;">' + clientDetails + '</p>');
+    win.document.write('<p style="margin: 5px 0;">' + dateRange + '</p>');
+    win.document.write('</div>');
+
+    win.document.write('<table><thead><tr><th>#</th><th>Raw Material</th><th>Supplier</th><th>Manufacturer</th><th>Query Type</th><th>Status</th></tr></thead><tbody>');
+    rows.each(function() {
+        var cells = $(this).find('td').slice(1); // skip checkbox column
+        win.document.write('<tr>');
+        cells.each(function() {
+            win.document.write('<td>' + $(this).text() + '</td>');
+        });
+        win.document.write('</tr>');
+    });
+    win.document.write('</tbody></table>');
+
+    win.document.write('<div class="footer-section"><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 14px 0;">');
+    win.document.write('<p class="disclaimer"><strong>Disclaimer:</strong> This Halal Evaluation Report is issued based on the information and documentation provided at the time of evaluation. It is valid only for the specified batch/lot and for the specific materials/products mentioned. Any misuse, alteration, or use of this report beyond its intended purpose is strictly prohibited. SANHA Halal Pakistan reserves the right to revoke this evaluation in case of any non-compliance or deviation from the Halal standards.</p>');
+    win.document.write('<hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 14px 0;">');
+    win.document.write('<div class="org-address">');
+    win.document.write('<p class="org-name">Sanha Halal Associates Pakistan (Pvt.) Ltd.</p>');
+    win.document.write('<p>Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama Commercial Lane 5, D.H.A. Phase 5, Karachi, Pakistan</p>');
+    win.document.write('<p>Tel: +92 21 35295263 &nbsp;|&nbsp; Email: evaluation@sanha.org.pk</p>');
+    win.document.write('</div>');
+    win.document.write('<hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 14px 0;"><span style="font-size: 12px; color: #94a3b8;">&copy; 2023 SANHA. All rights reserved.</span>');
+    win.document.write('</div>');
+
+    win.document.write('</body></html>');
+    win.document.close();
+    return win;
+}
+
 var footer_section = $('<div>').addClass('footer-section').appendTo(page.body);
 footer_section.css({
     'margin-top': '25px',
@@ -701,7 +871,7 @@ $('<p>').html('<strong>Disclaimer:</strong> This Halal Evaluation Report is issu
 $('<hr>').appendTo(footer_section);
 
 // Add company address
-$('<p>').html('<strong>Sanha Halal Associates Pakistan PVT. LTD.</strong> Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama D.H.A. phase 5<br>Email: evaluation@sanha.org.pk - Ph: +92 21 35295263').appendTo(footer_section);
+$('<p>').html('<strong>Sanha Halal Associates Pakistan (Pvt.) Ltd.</strong><br>Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama Commercial Lane 5, D.H.A. Phase 5, Karachi, Pakistan<br>Tel: +92 21 35295263 | Email: evaluation@sanha.org.pk').appendTo(footer_section);
 
 $('<hr>').appendTo(footer_section);
 };

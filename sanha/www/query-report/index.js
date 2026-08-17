@@ -4,6 +4,18 @@ frappe.ready(function () {
 
     const tableBody = $('#dataTable tbody');
 
+    function formatPrintDateTime(d) {
+        d = d || new Date();
+        const pad = n => (n < 10 ? '0' + n : n);
+        const day = pad(d.getDate());
+        const month = pad(d.getMonth() + 1);
+        const year = d.getFullYear();
+        let hours = d.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        return `${day}-${month}-${year} ${pad(hours)}:${pad(d.getMinutes())} ${ampm}`;
+    }
+
     function updateDropdown(dropdown, values, defaultLabel) {
         dropdown.empty().append(`<option value="">${defaultLabel}</option>`);
         values.forEach(val => dropdown.append(`<option value="${val}">${val}</option>`));
@@ -78,6 +90,7 @@ frappe.ready(function () {
                 if (data.length > 0) {
                     data.forEach((row, i) => {
                         const tr = $('<tr>');
+                        tr.attr('data-creation', row.creation || '');
                         tr.append(`<td><input type="checkbox" class="row-checkbox" data-id="${row.name}"></td>`);
                         tr.append(`<td>${(currentPage - 1) * itemsPerPage + i + 1}</td>`);
                         tr.append(`<td>${row.raw_material || ''}</td>`);
@@ -112,8 +125,8 @@ frappe.ready(function () {
         });
     }
 
-    // ✅ Local print function – used by both "Print All" and "Print Selected"
-    function openPrint(rows, title = "Print Report") {
+    // ✅ Local print function – used by "Print All", "Print Selected" and client fallback
+    function openPrint(rows, title = "Print Report", clientDetails, dateRange) {
         const win = window.open('', '_blank');
 
         win.document.write(`
@@ -121,7 +134,8 @@ frappe.ready(function () {
             <head>
                 <title>${title}</title>
                 <style>
-                    body { font-family: Arial, sans-serif; }
+                    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
+                    body { font-family: 'Ubuntu', Arial, sans-serif; }
                     .header-section {
                         padding: 20px;
                         margin-top: 30px;
@@ -141,6 +155,18 @@ frappe.ready(function () {
                         text-align: right;
                         vertical-align: middle;
                         width: 45%;
+                    }
+                    .reference-section {
+                        margin-bottom: 20px;
+                        text-align: center;
+                        font-size: 14px;
+                        font-weight: bold;
+                    }
+                    .print-datetime {
+                        display: block;
+                        margin-top: 5px;
+                        font-size: 12px;
+                        font-weight: normal;
                     }
                     table {
                         width: 100%;
@@ -187,13 +213,22 @@ frappe.ready(function () {
             </div>
         `);
 
-        // Client details -- Date range (read from current page DOM)
-        const clientDetails = $('#client-details-heading').html() || '<b>Client:</b> <b>All</b> | <b>Code:</b> <b>N/A</b>';
-        const dateRange = $('#date-range').html() || '<b>Date Range:</b> <b>N/A</b>';
+        // Reference + print date/time (SANHA/PR-09/FM-01)
+        const printDateTime = formatPrintDateTime(new Date());
+        win.document.write(`
+            <div class="reference-section">
+                <span>SANHA/PR-09/FM-01</span>
+                <span class="print-datetime"><strong>Print Date/Time:</strong> ${printDateTime}</span>
+            </div>
+        `);
+
+        // Client details -- Date range
+        const clientDetailsHtml = clientDetails || $('#client-details-heading').html() || '<b>Client:</b> <b>All</b> | <b>Code:</b> <b>N/A</b>';
+        const dateRangeHtml = dateRange || $('#date-range').html() || '<b>Date Range:</b> <b>N/A</b>';
         win.document.write(`
             <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
-                <p style="margin: 5px 0;">${clientDetails}</p>
-                <p style="margin: 5px 0;">${dateRange}</p>
+                <p style="margin: 5px 0;">${clientDetailsHtml}</p>
+                <p style="margin: 5px 0;">${dateRangeHtml}</p>
             </div>
         `);
 
@@ -229,11 +264,13 @@ frappe.ready(function () {
             </table>
             <div class="footer-section">
                 <hr>
-                <p style="margin: 0;">Sanha Halal Associates Pakistan PVT. LTD.</p>
-                <p style="margin: 0;">Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama D.H.A. phase 5</p>
-                <p style="margin: 0;">Email: evaluation@sanha.org.pk - Ph: +92 21 35295263</p>
+                <p style="margin: 0; font-size: 12px; text-align: left; line-height: 1.6; color: #334155;"><strong>Disclaimer:</strong> This Halal Evaluation Report is issued based on the information and documentation provided at the time of evaluation. It is valid only for the specified batch/lot and for the specific materials/products mentioned. Any misuse, alteration, or use of this report beyond its intended purpose is strictly prohibited. SANHA Halal Pakistan reserves the right to revoke this evaluation in case of any non-compliance or deviation from the Halal standards.</p>
                 <hr>
-                <span>&copy; 2023 SANHA. All rights reserved.</span>
+                <p style="margin: 0; font-weight: bold; color: #14532d;">Sanha Halal Associates Pakistan (Pvt.) Ltd.</p>
+                <p style="margin: 3px 0; font-size: 12px; color: #475569;">Suite 103, 2nd Floor, Plot 11-C, Lane 9, Zamzama Commercial Lane 5, D.H.A. Phase 5, Karachi, Pakistan</p>
+                <p style="margin: 3px 0; font-size: 12px; color: #475569;">Tel: +92 21 35295263 &nbsp;|&nbsp; Email: evaluation@sanha.org.pk</p>
+                <hr>
+                <span style="font-size: 12px; color: #94a3b8;">&copy; 2023 SANHA. All rights reserved.</span>
             </div>
             </body>
             </html>
@@ -286,6 +323,7 @@ frappe.ready(function () {
                 const tempTable = $('<tbody>');
                 data.forEach((row, i) => {
                     const tr = $('<tr>');
+                    tr.attr('data-creation', row.creation || '');
                     tr.append(`<td><input type="checkbox" class="row-checkbox" data-id="${row.name}"></td>`);
                     tr.append(`<td>${i + 1}</td>`); // serial across all
                     tr.append(`<td>${row.raw_material || ''}</td>`);
@@ -322,14 +360,64 @@ frappe.ready(function () {
         });
     });
 
-    // ✅ PRINT SELECTED – only selected rows from current page
+    // ✅ PRINT SELECTED – selected rows from current page, or whole selected client if none checked
     $('#printBtnSelected').on('click', () => {
         const selected = $('.row-checkbox:checked').closest('tr');
-        if (selected.length === 0) {
-            frappe.msgprint('Please select at least one record to print.');
+        if (selected.length > 0) {
+            // PART A: print exactly the checked rows
+            const rows = selected;
+            const sortedDates = rows.map(function () { return $(this).data('creation'); }).get().sort();
+            const client = $('#clientFilter').val();
+            const clientDetails = client
+                ? `<b>Client:</b> <b>${client}</b> | <b>Code:</b> <b>N/A</b>`
+                : '<b>Client:</b> <b>All</b> | <b>Code:</b> <b>N/A</b>';
+            const dateRange = sortedDates.length
+                ? `<b>Date Range:</b> <b>${frappe.datetime.str_to_user(sortedDates[0])}</b> to <b>${frappe.datetime.str_to_user(sortedDates[sortedDates.length - 1])}</b>`
+                : '<b>Date Range:</b> <b>N/A</b>';
+            openPrint(rows, "Selected Queries", clientDetails, dateRange);
             return;
         }
-        openPrint(selected, "Selected Queries");
+
+        // PART B: nothing checked -> print all data for the selected client (respect filters)
+        frappe.call({
+            method: 'frappe.client.get_list',
+            args: {
+                doctype: 'Query',
+                fields: ['name', 'client_name', 'client_code', 'raw_material', 'supplier', 'manufacturer', 'query_types', 'workflow_state', 'creation'],
+                filters: buildFilters().filters,
+                order_by: 'raw_material, creation asc',
+                limit_page_length: 0
+            },
+            callback: function (r) {
+                const data = r.message || [];
+                if (!data.length) {
+                    frappe.msgprint('No records found to print.');
+                    return;
+                }
+                const tempTable = $('<tbody>');
+                data.forEach((row, i) => {
+                    const tr = $('<tr>');
+                    tr.append(`<td><input type="checkbox" class="row-checkbox" data-id="${row.name}"></td>`);
+                    tr.append(`<td>${i + 1}</td>`);
+                    tr.append(`<td>${row.raw_material || ''}</td>`);
+                    tr.append(`<td>${row.supplier || ''}</td>`);
+                    tr.append(`<td>${row.manufacturer || ''}</td>`);
+                    tr.append(`<td>${row.query_types || ''}</td>`);
+                    tr.append(`<td>${row.workflow_state || ''}</td>`);
+                    tempTable.append(tr);
+                });
+
+                const client = buildFilters().client;
+                const clientDetails = client
+                    ? `<b>Client:</b> <b>${client}</b> | <b>Code:</b> <b>${data[0].client_code || 'N/A'}</b>`
+                    : '<b>Client:</b> <b>All</b> | <b>Code:</b> <b>N/A</b>';
+                const sortedDates = data.map(d => d.creation).sort();
+                const dateRange = sortedDates.length
+                    ? `<b>Date Range:</b> <b>${frappe.datetime.str_to_user(sortedDates[0])}</b> to <b>${frappe.datetime.str_to_user(sortedDates[sortedDates.length - 1])}</b>`
+                    : '<b>Date Range:</b> <b>N/A</b>';
+                openPrint(tempTable.find('tr'), "Query Report", clientDetails, dateRange);
+            }
+        });
     });
 
     $('#selectAll').on('change', function () {
@@ -337,6 +425,7 @@ frappe.ready(function () {
     });
 
     // Init
+    $('#pagePrintDateTime').text(formatPrintDateTime(new Date()));
     fetchFilterOptions();
     fetchData();
 });
