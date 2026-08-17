@@ -701,14 +701,12 @@ function openPrintSelectedWindow() {
             if (row.creation) sortedDates.push(row.creation);
         });
         var win = buildPrintWindow(tempTable.find('tr'), client, data[0].client_code || '', sortedDates);
-        win.print();
     };
 
     if (selected.length > 0) {
         // PART A: print exactly the checked rows (date range from those rows)
         var sortedDates = selected.map(function() { return $(this).data('creation'); }).get().filter(Boolean).sort();
         var win = buildPrintWindow(selected, client, '', sortedDates);
-        win.print();
     } else {
         // PART B: nothing checked -> print all data for the selected client
         var filters = {
@@ -829,6 +827,7 @@ function buildPrintWindow(rows, client, clientCode, sortedDates) {
 
     win.document.write('</body></html>');
     win.document.close();
+    win.onload = function() { win.print(); };
     return win;
 }
 
