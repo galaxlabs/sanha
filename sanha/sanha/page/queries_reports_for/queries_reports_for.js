@@ -526,18 +526,18 @@ fetchAllData('Query', ['query_types'], [], function(queryTypes) {
     });
 });
 
-function fetchData(client, queryType, page, limit) {
-    var filters = { 
-        workflow_state: ['in', ['Submitted','Approved', 'Halal', 'Haram', 'Rejected', 'Hold', 'Doubtful']],
-        workflow_state: ['not in', ['Draft']],
+function buildCurrentFilters() {
+    var filters = {
+        workflow_state: ['not in', ['Draft']]
     };
+    var client = clientNameDropdown.val();
+    var queryType = queryTypeDropdown.val();
     if (client && client !== 'Select Client') {
         filters.client_name = client;
     }
     if (queryType && queryType !== 'Select Query Type') {
         filters.query_types = ['like', '%' + queryType + '%'];
     }
-
     var additionalFilters = {};
     filterRow.find('input').each(function(index) {
         var value = $(this).val();
@@ -555,8 +555,12 @@ function fetchData(client, queryType, page, limit) {
             }
         }
     });
-
     Object.assign(filters, additionalFilters);
+    return filters;
+}
+
+function fetchData(client, queryType, page, limit) {
+    var filters = buildCurrentFilters();
 
     frappe.call({
         method: 'frappe.client.get_list',
@@ -619,6 +623,14 @@ function updateOwnerTable(selectedClient) {
 }
 
 function updateDateRange(filters) {
+    var checkedDates = $('.row-checkbox:checked').closest('tr').map(function() {
+        return $(this).data('creation');
+    }).get().filter(Boolean).sort();
+    if (checkedDates.length) {
+        date_range_section.empty();
+        $('<p>').html('<b>Date Range:</b> <b>' + moment(checkedDates[0]).format('DD-MM-YYYY hh:mm A') + '</b> to <b>' + moment(checkedDates[checkedDates.length - 1]).format('DD-MM-YYYY hh:mm A') + '</b>').appendTo(date_range_section);
+        return;
+    }
     frappe.call({
         method: 'frappe.client.get_list',
         args: {
@@ -673,6 +685,12 @@ fetchData(clientNameDropdown.val(), queryTypeDropdown.val(), currentPage, itemsP
 // Select all checkbox handler
 $('#selectAll').on('change', function() {
     $('.row-checkbox').prop('checked', this.checked);
+    updateDateRange(buildCurrentFilters());
+});
+
+// Refresh date range when individual row checkboxes change
+$(document).on('change', '.row-checkbox', function() {
+    updateDateRange(buildCurrentFilters());
 });
 
 // Print Selected: open a fresh HTML window with selected rows (or all for the selected client if none checked)
