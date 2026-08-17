@@ -107,22 +107,34 @@ frappe.ready(function () {
                     $('#client-details-heading').html(
                         `<b>Client:</b> <b>${selectedClient || 'All'}</b> | <b>Code:</b> <b>${code}</b>`
                     );
-
-                    const sortedDates = data.map(d => d.creation).sort();  // ascending
-                    const startDate = frappe.datetime.str_to_user(sortedDates[0]);
-                    const endDate = frappe.datetime.str_to_user(sortedDates[sortedDates.length - 1]);
-                    $('#date-range').html(
-                        `<b>Date Range:</b> <b>${startDate}</b> to <b>${endDate}</b>`
-                    );
                 } else {
                     tableBody.html(`<tr><td colspan="6" class="text-center">No data found.</td></tr>`);
-                    $('#date-range').html('');
                     $('#client-details-heading').html('<b>Client:</b> <b>All</b> | <b>Code:</b> <b>N/A</b>');
                 }
 
+                refreshDateRange();
                 $('#pageIndicator').text(`Page ${currentPage}`);
             }
         });
+    }
+
+    // Live update of the date range: uses selected rows when any are checked, else the current filtered data
+    function refreshDateRange() {
+        const checked = $('.row-checkbox:checked');
+        let dates;
+        if (checked.length) {
+            dates = checked.closest('tr').map(function () {
+                return $(this).data('creation');
+            }).get().filter(Boolean);
+        } else {
+            dates = tableBody.find('tr').map(function () {
+                return $(this).data('creation');
+            }).get().filter(Boolean);
+        }
+        dates.sort();
+        $('#date-range').html(dates.length
+            ? `<b>Date Range:</b> <b>${frappe.datetime.str_to_user(dates[0])}</b> to <b>${frappe.datetime.str_to_user(dates[dates.length - 1])}</b>`
+            : '<b>Date Range:</b> <b>N/A</b>');
     }
 
     // ✅ Local print function – used by "Print All", "Print Selected" and client fallback
@@ -284,6 +296,37 @@ frappe.ready(function () {
         };
     }
 
+    // Live update of the date range: uses selected rows when any are checked, else the full filtered set
+    function refreshDateRange() {
+        const checked = $('.row-checkbox:checked');
+        if (checked.length) {
+            const dates = checked.closest('tr').map(function () {
+                return $(this).data('creation');
+            }).get().filter(Boolean).sort();
+            $('#date-range').html(dates.length
+                ? `<b>Date Range:</b> <b>${frappe.datetime.str_to_user(dates[0])}</b> to <b>${frappe.datetime.str_to_user(dates[dates.length - 1])}</b>`
+                : '<b>Date Range:</b> <b>N/A</b>');
+            return;
+        }
+        frappe.call({
+            method: 'frappe.client.get_list',
+            args: {
+                doctype: 'Query',
+                fields: ['creation'],
+                filters: buildFilters().filters,
+                order_by: 'creation asc',
+                limit_page_length: 0
+            },
+            callback: function (r) {
+                const dates = (r.message || []).map(d => d.creation).filter(Boolean).sort();
+                $('#date-range').html(dates.length
+                    ? `<b>Date Range:</b> <b>${frappe.datetime.str_to_user(dates[0])}</b> to <b>${frappe.datetime.str_to_user(dates[dates.length - 1])}</b>`
+                    : '<b>Date Range:</b> <b>N/A</b>');
+            }
+        });
+    }
+    $('#dataTable').on('change', '.row-checkbox', refreshDateRange);
+
     // 🔁 Event bindings
     $('#fromDate, #toDate').on('change', () => { currentPage = 1; fetchData(); });
     $('#clientFilter, #queryTypeFilter').on('change', () => { currentPage = 1; fetchData(); });
@@ -422,6 +465,7 @@ frappe.ready(function () {
 
     $('#selectAll').on('change', function () {
         $('.row-checkbox').prop('checked', this.checked);
+        refreshDateRange();
     });
 
     // Init

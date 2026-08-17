@@ -132,10 +132,53 @@ frappe.ready(function () {
                     $('#date-range').html('');
                 }
 
+                refreshDateRange();
                 $('#pageIndicator').text(`Page ${currentPage}`);
             }
         });
     }
+
+    // Live update of the date range: uses selected rows when any are checked, else the full filtered set
+    function refreshDateRange() {
+        const checked = $('.row-checkbox:checked');
+        if (checked.length) {
+            const dates = checked.closest('tr').map(function () {
+                return $(this).data('creation');
+            }).get().filter(Boolean).sort();
+            $('#date-range').html(dates.length
+                ? `<b>Date Range:</b> <b>${frappe.datetime.str_to_user(dates[0])}</b> to <b>${frappe.datetime.str_to_user(dates[dates.length - 1])}</b>`
+                : '<b>Date Range:</b> <b>N/A</b>');
+            return;
+        }
+        const filters = [
+            ['owner', '=', frappe.session.user],
+            ['workflow_state', 'not in', []]
+        ];
+        const fromDate = $('#fromDate').val();
+        const toDate = $('#toDate').val();
+        const queryType = $('#queryTypeFilter').val();
+        if (fromDate) filters.push(['creation', '>=', fromDate + ' 00:00:00']);
+        if (toDate) filters.push(['creation', '<=', toDate + ' 23:59:59']);
+        if (queryType) filters.push(['query_types', 'like', `%${queryType}%`]);
+
+        frappe.call({
+            method: 'frappe.client.get_list',
+            args: {
+                doctype: 'Query',
+                fields: ['creation'],
+                filters: filters,
+                order_by: 'creation asc',
+                limit_page_length: 0
+            },
+            callback: function (r) {
+                const dates = (r.message || []).map(d => d.creation).filter(Boolean).sort();
+                $('#date-range').html(dates.length
+                    ? `<b>Date Range:</b> <b>${frappe.datetime.str_to_user(dates[0])}</b> to <b>${frappe.datetime.str_to_user(dates[dates.length - 1])}</b>`
+                    : '<b>Date Range:</b> <b>N/A</b>');
+            }
+        });
+    }
+    $('#dataTable').on('change', '.row-checkbox', refreshDateRange);
 
     function openPrint(rows, title = "Print Report", clientDetails, dateRange) {
         const win = window.open('', '_blank');
@@ -327,6 +370,7 @@ frappe.ready(function () {
 
     $('#selectAll').on('change', function () {
         $('.row-checkbox').prop('checked', this.checked);
+        refreshDateRange();
     });
 
     // Init
