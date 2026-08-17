@@ -619,52 +619,25 @@ function updateOwnerTable(selectedClient) {
 }
 
 function updateDateRange(filters) {
-    var start = 0;
-    var limit = 500;
-    var allData = [];
-    var oldestDate = null;
-    var latestModified = null;
-
-    function fetchDateRange() {
-        frappe.call({
-            method: 'frappe.client.get_list',
-            args: {
-                doctype: 'Query',
-                fields: ['creation', 'modified'],
-                filters: filters,
-                order_by: 'creation asc',
-                limit_start: start,
-                limit_page_length: limit
-            },
-            callback: function(response) {
-                var data = response.message || [];
-                if (data.length > 0) {
-                    data.forEach(function(row) {
-                        if (!oldestDate || row.creation < oldestDate) {
-                            oldestDate = row.creation;
-                        }
-                        if (!latestModified || row.modified > latestModified) {
-                            latestModified = row.modified;
-                        }
-                    });
-                    start += limit;
-                    fetchDateRange();
-                } else {
-                    if (oldestDate && latestModified) {
-                        var oldestDateStr = moment(oldestDate).format('DD-MM-YYYY hh:mm A');
-                        var latestDateStr = moment(latestModified).format('DD-MM-YYYY hh:mm A');
-                        date_range_section.empty();
-                        $('<p>').html('Date Range: <strong>From: ' + oldestDateStr + '</strong> To: <strong>' + latestDateStr + '</strong>').appendTo(date_range_section);
-                    } else {
-                        date_range_section.empty();
-                        $('<p>').text('Date Range: No Data Available').appendTo(date_range_section);
-                    }
-                }
+    frappe.call({
+        method: 'frappe.client.get_list',
+        args: {
+            doctype: 'Query',
+            fields: ['creation'],
+            filters: filters,
+            order_by: 'creation asc',
+            limit_page_length: 0
+        },
+        callback: function(response) {
+            var dates = (response.message || []).map(function(row) { return row.creation; }).filter(Boolean).sort();
+            date_range_section.empty();
+            if (dates.length) {
+                $('<p>').html('<b>Date Range:</b> <b>' + moment(dates[0]).format('DD-MM-YYYY hh:mm A') + '</b> to <b>' + moment(dates[dates.length - 1]).format('DD-MM-YYYY hh:mm A') + '</b>').appendTo(date_range_section);
+            } else {
+                $('<p>').text('Date Range: No Data Available').appendTo(date_range_section);
             }
-        });
-    }
-
-    fetchDateRange();
+        }
+    });
 }
 
 clientNameDropdown.on('change', function() {
@@ -796,9 +769,9 @@ function buildPrintWindow(rows, client, clientCode, sortedDates) {
     win.document.write('* { box-sizing: border-box; }');
     win.document.write('html, body { margin: 0; padding: 0; }');
     win.document.write("body { font-family: 'Ubuntu', Arial, sans-serif; }");
-    win.document.write('.header-section { padding: 10px 0; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #14532d; display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 20px; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); }');
-    win.document.write('.logo-container { flex: 0 0 auto; }');
-    win.document.write('.slogan-container { text-align: right; flex: 0 1 auto; white-space: nowrap; }');
+    win.document.write('.header-section { padding: 10px 0; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #14532d; text-align: center; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); }');
+    win.document.write('.logo-container { display: block; margin: 0 auto; width: 150px; }');
+    win.document.write('.slogan-container { text-align: center; margin-top: 4px; }');
     win.document.write('.slogan { font-style: italic; color: #14532d; font-size: 18px; font-weight: 600; }');
     win.document.write('.reference-section { margin-bottom: 20px; text-align: center; font-size: 14px; font-weight: bold; }');
     win.document.write('.print-datetime { display: block; margin-top: 5px; font-size: 12px; font-weight: normal; }');
