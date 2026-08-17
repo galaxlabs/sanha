@@ -792,10 +792,13 @@ function buildPrintWindow(rows, client, clientCode, sortedDates) {
 
     win.document.write('<html><head><title>Queries Reports</title><style>');
     win.document.write("@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');");
+    win.document.write('@page { margin: 12mm 10mm; }');
+    win.document.write('* { box-sizing: border-box; }');
+    win.document.write('html, body { margin: 0; padding: 0; }');
     win.document.write("body { font-family: 'Ubuntu', Arial, sans-serif; }");
-    win.document.write('.header-section { padding: 20px; margin-top: 30px; margin-bottom: 20px; border-bottom: 2px solid #14532d; display: table; width: 100%; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); }');
-    win.document.write('.logo-container { display: table-cell; text-align: right; width: 55%; margin-top: 20px; }');
-    win.document.write('.slogan-container { display: table-cell; text-align: right; vertical-align: middle; width: 45%; }');
+    win.document.write('.header-section { padding: 10px 0; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #14532d; display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 20px; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); }');
+    win.document.write('.logo-container { flex: 0 0 auto; }');
+    win.document.write('.slogan-container { text-align: right; flex: 0 1 auto; white-space: nowrap; }');
     win.document.write('.slogan { font-style: italic; color: #14532d; font-size: 18px; font-weight: 600; }');
     win.document.write('.reference-section { margin-bottom: 20px; text-align: center; font-size: 14px; font-weight: bold; }');
     win.document.write('.print-datetime { display: block; margin-top: 5px; font-size: 12px; font-weight: normal; }');

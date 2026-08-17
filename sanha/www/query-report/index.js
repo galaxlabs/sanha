@@ -147,27 +147,24 @@ frappe.ready(function () {
                 <title>${title}</title>
                 <style>
                     @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
+                    @page { margin: 12mm 10mm; }
+                    * { box-sizing: border-box; }
+                    html, body { margin: 0; padding: 0; }
                     body { font-family: 'Ubuntu', Arial, sans-serif; }
                     .header-section {
-                        padding: 20px;
-                        margin-top: 30px;
-                        margin-bottom: 20px;
+                        padding: 10px 0;
+                        margin-top: 0;
+                        margin-bottom: 16px;
                         border-bottom: 1px solid rgb(204, 204, 204);
-                        display: table;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
                         width: 100%;
+                        gap: 20px;
                     }
-                    .logo-container {
-                        display: table-cell;
-                        text-align: right;
-                        width: 55%;
-                        margin-top: 20px;
-                    }
-                    .slogan-container {
-                        display: table-cell;
-                        text-align: right;
-                        vertical-align: middle;
-                        width: 45%;
-                    }
+                    .logo-container { flex: 0 0 auto; }
+                    .slogan-container { text-align: right; flex: 0 1 auto; white-space: nowrap; }
+                    .slogan { font-style: italic; color: #14532d; font-size: 18px; font-weight: 600; }
                     .reference-section {
                         margin-bottom: 20px;
                         text-align: center;
@@ -220,7 +217,7 @@ frappe.ready(function () {
                     <img src="/files/sanha-logo.png" style="width: 150px; height: auto;">
                 </div>
                 <div class="slogan-container">
-                    <span>Eat Halal, Be Healthy.</span>
+                    <span class="slogan">Eat Halal, Be Healthy.</span>
                 </div>
             </div>
         `);

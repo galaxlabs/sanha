@@ -185,17 +185,21 @@ frappe.ready(function () {
         win.document.write(`<html><head><title>${title}</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
+            @page { margin: 12mm 10mm; }
+            * { box-sizing: border-box; }
+            html, body { margin: 0; padding: 0; }
             body { font-family: 'Ubuntu', Arial, sans-serif; }
             .header-section {
-                padding: 20px; margin-top: 30px; margin-bottom: 20px;
-                border-bottom: 2px solid #14532d; display: table; width: 100%;
+                padding: 10px 0; margin-top: 0; margin-bottom: 16px;
+                border-bottom: 2px solid #14532d; display: flex; width: 100%;
+                align-items: center; justify-content: space-between; gap: 20px;
                 background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
             }
             .logo-container {
-                display: table-cell; text-align: right; width: 55%; margin-top: 20px;
+                flex: 0 0 auto;
             }
             .slogan-container {
-                display: table-cell; text-align: right; vertical-align: middle; width: 45%;
+                text-align: right; flex: 0 1 auto; white-space: nowrap;
             }
             .slogan { font-style: italic; color: #14532d; font-size: 18px; font-weight: 600; }
             .reference-section {
