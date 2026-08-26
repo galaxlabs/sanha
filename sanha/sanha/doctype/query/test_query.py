@@ -13,10 +13,7 @@ from sanha.sanha.doctype.query.query import (
 
 
 class TestQuery(FrappeTestCase):
-	@patch.object(Query, "is_new", return_value=False)
-	@patch("sanha.sanha.doctype.query.query.frappe.get_roles", return_value=["Client"])
-	@patch("sanha.sanha.doctype.query.query.frappe.db.get_value", return_value="Returned")
-	def test_client_can_edit_returned_query(self, get_value, get_roles, is_new):
+	def test_client_can_edit_returned_query(self):
 		doc = Query(
 			{
 				"doctype": "Query",
@@ -26,18 +23,25 @@ class TestQuery(FrappeTestCase):
 			}
 		)
 
-		with patch("sanha.sanha.doctype.query.query.frappe.get_doc") as get_doc:
+		with (
+			patch.object(Query, "is_new", return_value=False),
+			patch("sanha.sanha.doctype.query.query.frappe.get_roles", return_value=["Client"]),
+			patch("sanha.sanha.doctype.query.query.frappe.db.get_value", return_value="Returned"),
+			patch("sanha.sanha.doctype.query.query.frappe.get_doc") as get_doc,
+		):
 			doc.validate_client_edit_lock()
 			get_doc.assert_not_called()
 
-	@patch.object(Query, "is_new", return_value=False)
-	@patch("sanha.sanha.doctype.query.query.frappe.get_roles", return_value=["Client"])
-	@patch("sanha.sanha.doctype.query.query.frappe.db.get_value", return_value="Submitted")
-	def test_client_cannot_edit_submitted_query(self, get_value, get_roles, is_new):
+	def test_client_cannot_edit_submitted_query(self):
 		doc = Query({"doctype": "Query", "name": "QUERY-SUBMITTED", "raw_material": "Updated"})
 		previous = frappe._dict({"raw_material": "Original", "documents": []})
 
-		with patch("sanha.sanha.doctype.query.query.frappe.get_doc", return_value=previous):
+		with (
+			patch.object(Query, "is_new", return_value=False),
+			patch("sanha.sanha.doctype.query.query.frappe.get_roles", return_value=["Client"]),
+			patch("sanha.sanha.doctype.query.query.frappe.db.get_value", return_value="Submitted"),
+			patch("sanha.sanha.doctype.query.query.frappe.get_doc", return_value=previous),
+		):
 			self.assertRaises(frappe.PermissionError, doc.validate_client_edit_lock)
 
 	@patch("sanha.sanha.doctype.query.query.get_system_managers", return_value=["manager@example.com"])
