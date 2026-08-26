@@ -2,7 +2,10 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
+from frappe.utils import strip_html
+from frappe.utils.user import get_system_managers
 
 
 LOCKED_PARENT_FIELDS = (
@@ -16,6 +19,7 @@ LOCKED_PARENT_FIELDS = (
     "workflow_state",
 )
 DOCUMENT_FIELDS = ("documents", "issue_date", "expiry_date", "attachment")
+STAFF_ROLES = {"Evaluation", "SB User", "Certificate Manager", "Admin", "System Manager", "Administrator"}
 
 
 def _same_value(left, right):
@@ -36,12 +40,11 @@ class Query(Document):
             return
 
         roles = set(frappe.get_roles(frappe.session.user))
-        staff_roles = {"Evaluation", "SB User", "Certificate Manager", "Admin", "System Manager", "Administrator"}
-        if "Client" not in roles or staff_roles.intersection(roles):
+        if "Client" not in roles or STAFF_ROLES.intersection(roles):
             return
 
         previous_state = frappe.db.get_value("Query", self.name, "workflow_state") or "Draft"
-        if previous_state == "Draft":
+        if previous_state in {"Draft", "Returned"}:
             return
 
         previous = frappe.get_doc("Query", self.name)
@@ -170,6 +173,40 @@ class Query(Document):
             )
 
 
+def notify_system_managers_on_client_query_comment(doc, method=None):
+    if (
+        doc.comment_type != "Comment"
+        or doc.reference_doctype != "Query"
+        or not doc.reference_name
+    ):
+        return
+
+    actor = doc.comment_email or doc.owner or frappe.session.user
+    roles = set(frappe.get_roles(actor))
+    if "Client" not in roles or STAFF_ROLES.intersection(roles):
+        return
+
+    actor_name = frappe.db.get_value("User", actor, "full_name") or actor
+    subject = _("{0} commented on Query {1}").format(actor_name, doc.reference_name)
+    content = strip_html(doc.content or "").strip()
+
+    for manager in get_system_managers(only_name=True):
+        notification = frappe.new_doc("Notification Log")
+        notification.update(
+            {
+                "type": "Alert",
+                "for_user": manager,
+                "from_user": actor,
+                "document_type": "Query",
+                "document_name": doc.reference_name,
+                "subject": subject,
+                "email_content": content,
+                "read": 0,
+            }
+        )
+        notification.insert(ignore_permissions=True)
+
+
 @frappe.whitelist()
 def find_similar_query(raw_material: str | None = None,
                     manufacturer: str | None = None,
@@ -183,8 +220,6 @@ def find_similar_query(raw_material: str | None = None,
         return {"matches": []}
 
     roles = set(frappe.get_roles(frappe.session.user))
-    staff_roles = {"Evaluation", "SB User", "Certificate Manager", "Admin", "System Manager", "Administrator"}
-
     conditions = [
         "q.docstatus < 2",
         "q.workflow_state NOT IN ('Draft', 'Delisted')",
@@ -201,7 +236,7 @@ def find_similar_query(raw_material: str | None = None,
         conditions.append("q.name != %(exclude_name)s")
         params["exclude_name"] = exclude_name
 
-    if not staff_roles.intersection(roles):
+    if not STAFF_ROLES.intersection(roles):
         conditions.append("q.owner = %(user)s")
         params["user"] = frappe.session.user
 

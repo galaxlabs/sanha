@@ -582,41 +582,6 @@ def validate_query(doc, method=None):
     if doc.doctype != "Query":
         return
 
-    # Client users may only append new document rows after a Query leaves Draft.
-    roles = set(frappe.get_roles(frappe.session.user))
-    staff_roles = {"Evaluation", "SB User", "Certificate Manager", "Admin", "System Manager", "Administrator"}
-    if not doc.is_new() and "Client" in roles and not staff_roles.intersection(roles):
-        previous_state = frappe.db.get_value("Query", doc.name, "workflow_state") or "Draft"
-        if previous_state != "Draft":
-            previous = frappe.get_doc("Query", doc.name)
-            locked_parent_fields = (
-                "raw_material",
-                "query_types",
-                "supplier",
-                "supplier_contact",
-                "manufacturer",
-                "manufacturer_contact",
-                "client_name",
-                "workflow_state",
-            )
-            document_fields = ("documents", "issue_date", "expiry_date", "attachment")
-
-            for field in locked_parent_fields:
-                if str(doc.get(field) or "") != str(previous.get(field) or ""):
-                    frappe.throw("Submitted queries are locked for client users. Only new document rows can be added.", frappe.PermissionError)
-
-            existing_rows = {row.name: row for row in previous.get("documents") or []}
-            submitted_rows = {row.name: row for row in doc.get("documents") or [] if row.name in existing_rows}
-
-            if set(existing_rows) - set(submitted_rows):
-                frappe.throw("Existing document rows cannot be removed after submission.", frappe.PermissionError)
-
-            for row_name, old_row in existing_rows.items():
-                new_row = submitted_rows[row_name]
-                for field in document_fields:
-                    if str(new_row.get(field) or "") != str(old_row.get(field) or ""):
-                        frappe.throw("Existing document rows cannot be changed after submission. Add a new document row instead.", frappe.PermissionError)
-
     # 1) Force client_name from owner email (scope must be correct)
     enforce_client_from_owner(doc)
 

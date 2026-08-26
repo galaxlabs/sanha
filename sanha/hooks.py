@@ -281,8 +281,10 @@ fixtures = [
 doc_events = {
     "Query": {
         "validate": "sanha.dup_register.validate_query"
+    },
+    "Comment": {
+        "after_insert": "sanha.sanha.doctype.query.query.notify_system_managers_on_client_query_comment"
     }
-    
 }
 scheduler_events = {
 	"daily": [
