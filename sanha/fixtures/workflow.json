@@ -190,7 +190,7 @@
     "allow_self_approval": 1,
     "allowed": "Evaluation",
     "condition": null,
-    "next_state": "Draft",
+    "next_state": "Returned",
     "state": "Submitted",
     "workflow_builder_id": "action-16"
    },
