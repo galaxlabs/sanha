@@ -32,27 +32,79 @@ frappe.ready(function () {
                 limit: 1
             },
             callback: function (res) {
+                const queryClient = (res.message && res.message.length > 0) ? res.message[0] : {};
+                clientName = queryClient.client_name || frappe.session.user;
+                clientCode = queryClient.client_code || '';
 
-            if (res.message && res.message.length > 0) {
-                // ✅ Display field values, not session user email
-                clientName = res.message[0].client_name || frappe.session.user;
-                clientCode = res.message[0].client_code || 'N/A';
-            } else {
-                clientName = 'Unknown Client';
-                clientCode = 'N/A';
+                if (clientCode) {
+                    showClientDetails();
+                    fetchFilterOptions();
+                    fetchData();
+                    return;
+                }
+
+                fetchClientDetailsFromClient(clientName);
             }
+        });
+    }
 
-            // ✅ Show actual field values in the UI
-            $('#client-details-heading').html(
-                `<b>Client:</b> <b>${clientName}</b> | <b>Code:</b> <b>${clientCode}</b>`
-            );
+    function fetchClientDetailsFromClient(queryClientName) {
+        frappe.call({
+            method: 'frappe.client.get_list',
+            args: {
+                doctype: 'Client',
+                filters: { email: frappe.session.user },
+                fields: ['client_name', 'client_code'],
+                limit_page_length: 1
+            },
+            callback: function (res) {
+                const client = (res.message && res.message.length > 0) ? res.message[0] : null;
+                if (client) {
+                    clientName = client.client_name || queryClientName || frappe.session.user;
+                    clientCode = client.client_code || 'N/A';
+                    showClientDetails();
+                    fetchFilterOptions();
+                    fetchData();
+                    return;
+                }
 
+                fetchClientDetailsByName(queryClientName);
+            }
+        });
+    }
 
+    function fetchClientDetailsByName(queryClientName) {
+        if (!queryClientName || queryClientName === frappe.session.user) {
+            clientCode = 'N/A';
+            showClientDetails();
+            fetchFilterOptions();
+            fetchData();
+            return;
+        }
 
+        frappe.call({
+            method: 'frappe.client.get_list',
+            args: {
+                doctype: 'Client',
+                filters: { client_name: queryClientName },
+                fields: ['client_name', 'client_code'],
+                limit_page_length: 1
+            },
+            callback: function (res) {
+                const client = (res.message && res.message.length > 0) ? res.message[0] : null;
+                clientName = client?.client_name || queryClientName;
+                clientCode = client?.client_code || 'N/A';
+                showClientDetails();
                 fetchFilterOptions();
                 fetchData();
             }
         });
+    }
+
+    function showClientDetails() {
+        $('#client-details-heading').html(
+            `<b>Client:</b> <b>${clientName}</b> | <b>Code:</b> <b>${clientCode}</b>`
+        );
     }
 
     function fetchFilterOptions() {
