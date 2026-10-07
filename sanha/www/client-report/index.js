@@ -35,8 +35,8 @@ frappe.ready(function () {
 
             if (res.message && res.message.length > 0) {
                 // ✅ Display field values, not session user email
-                clientName = res.message[0].client_name || client_name;
-                clientCode = res.message[0].client_code || client_code;
+                clientName = res.message[0].client_name || frappe.session.user;
+                clientCode = res.message[0].client_code || 'N/A';
             } else {
                 clientName = 'Unknown Client';
                 clientCode = 'N/A';
@@ -64,7 +64,7 @@ frappe.ready(function () {
         });
     }
 
-    function fetchData() {
+    function buildFilters() {
         const filters = [
             ['owner', '=', frappe.session.user],
             ['workflow_state', 'not in', []]
@@ -77,6 +77,12 @@ frappe.ready(function () {
         if (fromDate) filters.push(['creation', '>=', fromDate + ' 00:00:00']);
         if (toDate) filters.push(['creation', '<=', toDate + ' 23:59:59']);
         if (queryType) filters.push(['query_types', 'like', `%${queryType}%`]);
+
+        return filters;
+    }
+
+    function fetchData() {
+        const filters = buildFilters();
 
 
             $('#dataTable').on('keyup', '.col-filter', function () {
@@ -101,7 +107,7 @@ frappe.ready(function () {
                 doctype: 'Query',
                 fields: ['name', 'client_name', 'client_code', 'raw_material', 'supplier', 'manufacturer', 'query_types', 'workflow_state', 'creation'],
                 filters: filters,
-                limit_start: (currentPage - 1) * itemsPerPage,
+                limit_start: itemsPerPage ? (currentPage - 1) * itemsPerPage : 0,
                 limit_page_length: itemsPerPage,
                 order_by: 'raw_material, creation asc'
             },
@@ -150,16 +156,7 @@ frappe.ready(function () {
                 : '<b>Date Range:</b> <b>N/A</b>');
             return;
         }
-        const filters = [
-            ['owner', '=', frappe.session.user],
-            ['workflow_state', 'not in', []]
-        ];
-        const fromDate = $('#fromDate').val();
-        const toDate = $('#toDate').val();
-        const queryType = $('#queryTypeFilter').val();
-        if (fromDate) filters.push(['creation', '>=', fromDate + ' 00:00:00']);
-        if (toDate) filters.push(['creation', '<=', toDate + ' 23:59:59']);
-        if (queryType) filters.push(['query_types', 'like', `%${queryType}%`]);
+        const filters = buildFilters();
 
         frappe.call({
             method: 'frappe.client.get_list',
@@ -296,11 +293,11 @@ frappe.ready(function () {
     // Event Bindings
     $('#fromDate, #toDate').on('change', () => { currentPage = 1; fetchData(); });
     $('#queryTypeFilter').on('change', () => { currentPage = 1; fetchData(); });
-    // $('#itemsPerPage').on('change', function () {
-    //     itemsPerPage = parseInt(this.value);
-    //     currentPage = 1;
-    //     fetchData();
-    // });
+    $('#itemsPerPage').on('change', function () {
+        itemsPerPage = parseInt(this.value, 10);
+        currentPage = 1;
+        fetchData();
+    });
     $('#prevPage').on('click', () => { if (currentPage > 1) { currentPage--; fetchData(); } });
     $('#nextPage').on('click', () => { currentPage++; fetchData(); });
 
@@ -318,10 +315,7 @@ frappe.ready(function () {
                 'raw_material', 'supplier', 'manufacturer', 
                 'query_types', 'workflow_state', 'creation'
             ],
-            filters: [
-                ['owner', '=', frappe.session.user],
-                ['workflow_state', 'not in', []]
-            ],
+            filters: buildFilters(),
             order_by: 'raw_material, creation asc',
             limit_page_length: 0 // ⚡ fetch ALL records
         },
@@ -357,7 +351,6 @@ frappe.ready(function () {
     });
 });
 
-
     $('#printBtnSelected').on('click', () => {
         const selected = $('.row-checkbox:checked').closest('tr');
         const rows = selected.length > 0 ? selected : $('#dataTable tbody tr');
@@ -381,4 +374,3 @@ frappe.ready(function () {
     $('#pagePrintDateTime').text(formatPrintDateTime(new Date()));
     fetchClientDetailsFromQuery();
 });
-                
