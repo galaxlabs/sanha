@@ -190,18 +190,9 @@
     "allow_self_approval": 1,
     "allowed": "Evaluation",
     "condition": null,
-    "next_state": "Returned",
+    "next_state": "Draft",
     "state": "Submitted",
     "workflow_builder_id": "action-16"
-   },
-   {
-    "action": "Submit",
-    "allow_self_approval": 1,
-    "allowed": "Client",
-    "condition": null,
-    "next_state": "Submitted",
-    "state": "Draft",
-    "workflow_builder_id": "action-17"
    },
    {
     "action": "Forward",
@@ -283,6 +274,15 @@
     "next_state": "Submitted to SB",
     "state": "Returned To Evaluation",
     "workflow_builder_id": "action-13"
+   },
+   {
+    "action": "Return",
+    "allow_self_approval": 1,
+    "allowed": "Evaluation",
+    "condition": null,
+    "next_state": "Draft",
+    "state": "Returned To Evaluation",
+    "workflow_builder_id": null
    },
    {
     "action": "Approve",
