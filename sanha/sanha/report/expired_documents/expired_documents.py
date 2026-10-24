@@ -72,10 +72,20 @@ def execute(filters=None):
             AND d.expiry_date < CURDATE()
             AND NOT EXISTS (
                 SELECT 1
-                FROM `tabDocuments` newer
-                WHERE newer.parent = d.parent
-                  AND IFNULL(newer.documents, '') = IFNULL(d.documents, '')
-                  AND newer.idx > d.idx
+                FROM `tabDocuments` valid
+                WHERE valid.parent = d.parent
+                  AND valid.parenttype = 'Query'
+                  AND IFNULL(valid.documents, '') = IFNULL(d.documents, '')
+                  AND valid.expiry_date >= CURDATE()
+            )
+            AND NOT EXISTS (
+                SELECT 1
+                FROM `tabDocuments` newer_expired
+                WHERE newer_expired.parent = d.parent
+                  AND newer_expired.parenttype = 'Query'
+                  AND IFNULL(newer_expired.documents, '') = IFNULL(d.documents, '')
+                  AND newer_expired.expiry_date < CURDATE()
+                  AND newer_expired.idx > d.idx
             )
             {scope_condition}
         ORDER BY d.expiry_date ASC, q.modified DESC
