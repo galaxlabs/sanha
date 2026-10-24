@@ -44,6 +44,76 @@ class TestQuery(FrappeTestCase):
 		):
 			self.assertRaises(frappe.PermissionError, doc.validate_client_edit_lock)
 
+	def test_client_cannot_add_document_outside_draft_or_returned(self):
+		doc = Query(
+			{
+				"doctype": "Query",
+				"name": "QUERY-SUBMITTED",
+				"workflow_state": "Submitted",
+				"documents": [
+					{
+						"doctype": "Documents",
+						"documents": "MSDS",
+						"issue_date": "2026-10-23",
+						"attachment": "/private/files/new-msds.pdf",
+					}
+				],
+			}
+		)
+		previous = frappe._dict({"documents": []})
+
+		with (
+			patch.object(Query, "is_new", return_value=False),
+			patch("sanha.sanha.doctype.query.query.frappe.get_roles", return_value=["Client"]),
+			patch("sanha.sanha.doctype.query.query.frappe.db.get_value", return_value="Submitted"),
+			patch("sanha.sanha.doctype.query.query.frappe.get_doc", return_value=previous),
+		):
+			self.assertRaises(frappe.PermissionError, doc.validate_client_edit_lock)
+
+	def test_returned_submission_requires_new_halal_certificate_expiry(self):
+		doc = Query(
+			{
+				"doctype": "Query",
+				"name": "QUERY-RETURNED",
+				"workflow_state": "Submitted to SB",
+				"documents": [
+					{
+						"doctype": "Documents",
+						"documents": "Halal Certificate",
+						"issue_date": "2026-10-23",
+						"attachment": "/private/files/new-certificate.pdf",
+					}
+				],
+			}
+		)
+
+		with (
+			patch("sanha.sanha.doctype.query.query.frappe.get_roles", return_value=["Client"]),
+			patch("sanha.sanha.doctype.query.query.frappe.db.exists", return_value=True),
+			patch("sanha.sanha.doctype.query.query.frappe.db.get_value", return_value="Returned"),
+		):
+			self.assertRaises(frappe.ValidationError, doc.validate_client_submission_documents)
+
+	def test_msds_requires_issue_date_but_not_expiry_date(self):
+		doc = Query(
+			{
+				"doctype": "Query",
+				"name": "QUERY-DRAFT",
+				"workflow_state": "Draft",
+				"documents": [
+					{
+						"doctype": "Documents",
+						"documents": "MSDS",
+						"issue_date": "2026-10-23",
+						"attachment": "/private/files/new-msds.pdf",
+					}
+				],
+			}
+		)
+
+		with patch("sanha.sanha.doctype.query.query.frappe.get_roles", return_value=["Client"]):
+			doc.validate_client_document_rows()
+
 	@patch("sanha.sanha.doctype.query.query.get_system_managers", return_value=["manager@example.com"])
 	@patch("sanha.sanha.doctype.query.query.frappe.get_roles", return_value=["Client"])
 	@patch("sanha.sanha.doctype.query.query.frappe.db.get_value", return_value="Client User")

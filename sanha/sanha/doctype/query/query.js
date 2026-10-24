@@ -2,6 +2,7 @@
 // For license information, please see license.txt
 
 const QUERY_REQUIRED_BEFORE_DOCUMENTS = ["query_types", "raw_material"];
+const CLIENT_EDITABLE_QUERY_STATES = new Set(["Draft", "Returned"]);
 
 frappe.dom.set_style(`
   .mandatory-documents-glow {
@@ -26,11 +27,69 @@ function glow_documents_table(frm) {
 
 function update_documents_gate(frm) {
   const can_show_documents = !frm.is_new() && query_header_is_complete(frm);
+  const client_can_edit =
+    !frappe.user.has_role("Client") ||
+    CLIENT_EDITABLE_QUERY_STATES.has(frm.doc.workflow_state || "Draft");
 
   frm.toggle_display("documents", can_show_documents);
-  frm.set_df_property("documents", "read_only", can_show_documents ? 0 : 1);
+  frm.set_df_property("documents", "read_only", can_show_documents && client_can_edit ? 0 : 1);
 
   frm.dashboard.clear_headline();
+}
+
+function hide_standard_query_attachments(frm) {
+  if (!frappe.user.has_role("Client")) return;
+
+  const hide_attachments = () => {
+    if (frm.attachments && frm.attachments.parent) {
+      $(frm.attachments.parent).hide();
+    }
+
+    $(frm.page.wrapper)
+      .find(".form-attachments, .attachments-actions, .add-attachment-btn")
+      .hide();
+  };
+
+  hide_attachments();
+  setTimeout(hide_attachments, 0);
+}
+
+function remember_saved_document_attachments(frm) {
+  if (frm.is_new() || (frm.is_dirty && frm.is_dirty())) return;
+
+  frm.__sanha_saved_document_attachments = new Map(
+    (frm.doc.documents || []).map((row) => [row.name, row.attachment || ""]),
+  );
+}
+
+async function preserve_replaced_attachment(frm, cdt, cdn) {
+  if (frm.__sanha_preserving_attachment || !frappe.user.has_role("Client")) return false;
+  if (!CLIENT_EDITABLE_QUERY_STATES.has(frm.doc.workflow_state || "Draft")) return false;
+
+  const row = locals[cdt][cdn];
+  const previous_attachment = frm.__sanha_saved_document_attachments?.get(row.name);
+  if (!previous_attachment || !row.attachment || row.attachment === previous_attachment) return false;
+
+  const new_attachment = row.attachment;
+  frm.__sanha_preserving_attachment = true;
+
+  try {
+    await frappe.model.set_value(cdt, cdn, "attachment", previous_attachment);
+    frm.add_child("documents", {
+      documents: row.documents,
+      issue_date: null,
+      expiry_date: null,
+      attachment: new_attachment,
+    });
+    frm.refresh_field("documents");
+    frappe.show_alert({
+      message: __("The previous file was kept. Complete the dates in the new Documents row."),
+      indicator: "blue",
+    });
+    return true;
+  } finally {
+    frm.__sanha_preserving_attachment = false;
+  }
 }
 
 function ensure_documents_row_and_focus(frm) {
@@ -79,10 +138,14 @@ function remove_duplicate_document_attachments(frm) {
 
 frappe.ui.form.on("Query", {
   onload(frm) {
+    hide_standard_query_attachments(frm);
+    remember_saved_document_attachments(frm);
     update_documents_gate(frm);
   },
 
   refresh(frm) {
+    hide_standard_query_attachments(frm);
+    remember_saved_document_attachments(frm);
     update_documents_gate(frm);
     frm.events.try_autosave_and_show_documents(frm);
   },
@@ -126,7 +189,8 @@ frappe.ui.form.on("Query", {
 });
 
 frappe.ui.form.on("Documents", {
-  attachment(frm) {
+  async attachment(frm, cdt, cdn) {
+    if (await preserve_replaced_attachment(frm, cdt, cdn)) return;
     remove_duplicate_document_attachments(frm);
   },
 });

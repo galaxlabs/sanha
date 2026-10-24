@@ -20,6 +20,21 @@ LOCKED_PARENT_FIELDS = (
 )
 DOCUMENT_FIELDS = ("documents", "issue_date", "expiry_date", "attachment")
 STAFF_ROLES = {"Evaluation", "SB User", "Certificate Manager", "Admin", "System Manager", "Administrator"}
+CLIENT_EDITABLE_STATES = {"Draft", "Returned"}
+CLIENT_SUBMISSION_TRANSITIONS = {("Draft", "Submitted"), ("Returned", "Submitted to SB")}
+ISSUE_DATE_REQUIRED_DOCUMENTS = {
+    "MSDS",
+    "Halal Declaration",
+    "TDS",
+    "SDS",
+    "Product Spec",
+    "PDS",
+    "Lab Sample Report",
+    "Halal Questionnaire",
+    "Declaration",
+    "Halal Certificate",
+}
+EXPIRY_DATE_REQUIRED_DOCUMENTS = {"Halal Certificate"}
 
 
 def _same_value(left, right):
@@ -30,6 +45,7 @@ class Query(Document):
     def validate(self):
         self.validate_client_edit_lock()
         self.validate_duplicate_document_attachments()
+        self.validate_client_document_rows()
         self.validate_client_submission_documents()
 
     def on_update(self):
@@ -44,13 +60,13 @@ class Query(Document):
             return
 
         previous_state = frappe.db.get_value("Query", self.name, "workflow_state") or "Draft"
-        if previous_state in {"Draft", "Returned"}:
+        if previous_state in CLIENT_EDITABLE_STATES:
             return
 
         previous = frappe.get_doc("Query", self.name)
         for field in LOCKED_PARENT_FIELDS:
             if not _same_value(self.get(field), previous.get(field)):
-                frappe.throw("Submitted queries are locked for client users. Only new document rows can be added.", frappe.PermissionError)
+                frappe.throw("Submitted queries are locked for client users.", frappe.PermissionError)
 
         existing_rows = {row.name: row for row in previous.get("documents") or []}
         submitted_rows = {row.name: row for row in self.get("documents") or [] if row.name in existing_rows}
@@ -58,11 +74,14 @@ class Query(Document):
         if set(existing_rows) - set(submitted_rows):
             frappe.throw("Existing document rows cannot be removed after submission.", frappe.PermissionError)
 
+        if any(row.name not in existing_rows for row in self.get("documents") or []):
+            frappe.throw("Documents can only be added in Draft or Returned state.", frappe.PermissionError)
+
         for row_name, old_row in existing_rows.items():
             new_row = submitted_rows[row_name]
             for field in DOCUMENT_FIELDS:
                 if not _same_value(new_row.get(field), old_row.get(field)):
-                    frappe.throw("Existing document rows cannot be changed after submission. Add a new document row instead.", frappe.PermissionError)
+                    frappe.throw("Existing document rows cannot be changed outside Draft or Returned state.", frappe.PermissionError)
 
     def validate_duplicate_document_attachments(self):
         seen = set()
@@ -74,6 +93,27 @@ class Query(Document):
                 frappe.throw(f"Duplicate attachment found in Documents table: {attachment}")
             seen.add(attachment)
 
+    def validate_client_document_rows(self):
+        roles = set(frappe.get_roles(frappe.session.user))
+        current_state = self.workflow_state or "Draft"
+        if "Client" not in roles or current_state not in CLIENT_EDITABLE_STATES:
+            return
+
+        self.validate_document_rows()
+
+    def validate_document_rows(self, require_documents=False):
+        rows = self.get("documents") or []
+        if require_documents and not rows:
+            frappe.throw("You must add at least one document before submission.")
+
+        for index, row in enumerate(rows, start=1):
+            if not row.attachment:
+                frappe.throw(f"Row #{index}: Please attach a file.")
+            if row.documents in ISSUE_DATE_REQUIRED_DOCUMENTS and not row.issue_date:
+                frappe.throw(f"Row #{index}: Issue Date is required for {row.documents}.")
+            if row.documents in EXPIRY_DATE_REQUIRED_DOCUMENTS and not row.expiry_date:
+                frappe.throw(f"Row #{index}: Expiry Date is required for {row.documents}.")
+
     def validate_client_submission_documents(self):
         user_roles = frappe.get_roles(frappe.session.user)
         is_client = "Client" in user_roles
@@ -83,21 +123,12 @@ class Query(Document):
             previous_state = frappe.db.get_value("Query", self.name, "workflow_state") or "Draft"
 
         current_state = self.workflow_state or "Draft"
-        is_client_submitting_now = (
-            is_client
-            and previous_state == "Draft"
-            and current_state in {"Submitted"}
-        )
+        is_client_submitting_now = is_client and (previous_state, current_state) in CLIENT_SUBMISSION_TRANSITIONS
 
         if not is_client_submitting_now:
             return
 
-        if not self.get("documents"):
-            frappe.throw("You must add at least one document before submission.")
-
-        for index, row in enumerate(self.get("documents") or [], start=1):
-            if not row.attachment:
-                frappe.throw(f"Row #{index}: Please attach a file.")
+        self.validate_document_rows(require_documents=True)
 
     def relink_query_attachment_files(self):
         for row in self.get("documents") or []:
