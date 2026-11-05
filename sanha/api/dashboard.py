@@ -67,3 +67,18 @@ def playlist_videos(url):
     ns = {"atom": "http://www.w3.org/2005/Atom", "yt": "http://www.youtube.com/xml/schemas/2015"}
     root = ET.fromstring(response.content)
     return [{"id": entry.findtext("yt:videoId", namespaces=ns), "title": entry.findtext("atom:title", namespaces=ns)} for entry in root.findall("atom:entry", ns)]
+
+
+@frappe.whitelist()
+def client_resources(kind):
+    from sanha.api.auth import _find_client
+    user = frappe.session.user
+    client = _find_client(user, frappe.db.get_value("User", user, "email"))
+    if not client:
+        frappe.throw("Client account is not linked.", frappe.PermissionError)
+    if kind == "records":
+        doc = frappe.get_doc("Client", client.name)
+        return [{"name": row.name, "doc_type": row.doc_type, "date": row.date, "attachment": row.attach_ilxb} for row in doc.records_hub or []]
+    if kind == "templates":
+        return [{"name": row.name, "title": row.name, "modified": row.modified} for row in frappe.get_all("Templates", fields=["name", "modified"], order_by="modified desc", limit_page_length=100, ignore_permissions=True)]
+    frappe.throw("Unsupported resource.")
