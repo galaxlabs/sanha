@@ -1,4 +1,8 @@
 import json
+import re
+import xml.etree.ElementTree as ET
+
+import requests
 
 import frappe
 from sanha.sanha.report.expired_documents.expired_documents import execute as get_expired_documents
@@ -51,3 +55,15 @@ def overview_metrics(filters=None):
     )[0]
     metrics["clients"] = frappe.db.count("Client") if not filters else None
     return metrics
+
+
+@frappe.whitelist()
+def playlist_videos(url):
+    playlist_id = re.search(r"(?:list=|playlist/)([\w-]+)", url or "")
+    if not playlist_id:
+        frappe.throw("A valid YouTube playlist URL is required.")
+    response = requests.get(f"https://www.youtube.com/feeds/videos.xml?playlist_id={playlist_id.group(1)}", timeout=10)
+    response.raise_for_status()
+    ns = {"atom": "http://www.w3.org/2005/Atom", "yt": "http://www.youtube.com/xml/schemas/2015"}
+    root = ET.fromstring(response.content)
+    return [{"id": entry.findtext("yt:videoId", namespaces=ns), "title": entry.findtext("atom:title", namespaces=ns)} for entry in root.findall("atom:entry", ns)]
