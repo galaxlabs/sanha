@@ -9,6 +9,9 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "auto_submit_after",
+  "auto_submit_user",
+  "auto_submit_error",
   "section_break_rmvm",
   "similar_info",
   "query_types",
@@ -37,21 +40,26 @@
   "client_code"
  ],
  "fields": [
+  {"fieldname":"auto_submit_after","fieldtype":"Datetime","label":"Auto Submit After","read_only":1,"hidden":1},
+  {"fieldname":"auto_submit_user","fieldtype":"Link","options":"User","label":"Auto Submit User","read_only":1,"hidden":1,"ignore_user_permissions":1},
+  {"fieldname":"auto_submit_error","fieldtype":"Small Text","label":"Auto Submit Status","read_only":1},
   {
    "fieldname": "query_types",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Query Types",
-   "options": "Query Types",
-   "reqd": 1
+    "options": "Query Types",
+    "mandatory_depends_on": "eval:doc.workflow_state && doc.workflow_state !== 'Draft'",
+    "reqd": 0
   },
   {
    "fieldname": "raw_material",
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Raw Material",
-   "reqd": 1
+    "label": "Raw Material",
+    "mandatory_depends_on": "eval:doc.workflow_state && doc.workflow_state !== 'Draft'",
+    "reqd": 0
   },
   {
    "fieldname": "column_break_klxm",

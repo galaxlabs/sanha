@@ -592,4 +592,5 @@ def validate_query(doc, method=None):
     validate_documents_on_state_change(doc)
 
     # 4) Strict duplicate prevention (raw_material + manufacturer + scope)
-    prevent_duplicate_on_validate(doc, method)
+    if (doc.workflow_state or "Draft") != "Draft":
+        prevent_duplicate_on_validate(doc, method)

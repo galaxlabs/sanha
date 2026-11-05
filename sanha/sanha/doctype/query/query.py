@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import strip_html
 from frappe.utils.user import get_system_managers
+from frappe.utils import add_to_date, now_datetime
 from sanha.api.auth import _find_client
 
 
@@ -45,7 +46,7 @@ def _client_scope(user):
 
     email = frappe.db.get_value("User", user, "email")
     client = _find_client(user, email)
-    return client.get("name") if client else None
+    return client.get("name") if client else ""
 
 
 def get_permission_query_conditions(user=None):
@@ -56,10 +57,14 @@ def get_permission_query_conditions(user=None):
     return "`tabQuery`.client_name = {0}".format(frappe.db.escape(client_name))
 
 
-def has_permission(doc, user=None, permission_type=None):
+def has_permission(doc, user=None, ptype=None, permission_type=None):
     client_name = _client_scope(user or frappe.session.user)
     if client_name is None:
-        return None
+        return True
+    if not client_name:
+        return False
+    if ptype == "create" and not doc.client_name:
+        doc.client_name = client_name
     return doc.client_name == client_name
 
 
@@ -68,11 +73,33 @@ def _same_value(left, right):
 
 
 class Query(Document):
+    def before_validate(self):
+        # Persist partially completed drafts, including unfinished document rows.
+        self.flags.ignore_mandatory = (self.workflow_state or "Draft") == "Draft"
+
     def validate(self):
         self.validate_client_edit_lock()
         self.validate_duplicate_document_attachments()
         self.validate_client_document_rows()
         self.validate_client_submission_documents()
+        old = self.get_doc_before_save()
+        if (self.workflow_state or "Draft") != "Draft" and (not old or old.workflow_state in CLIENT_EDITABLE_STATES):
+            self.validate_submission_ready()
+        self.schedule_auto_submission()
+
+    def validate_submission_ready(self):
+        if not (self.raw_material or "").strip() or not self.query_types:
+            frappe.throw("Raw Material and Query Type are required before submission.")
+        self.validate_document_rows(require_documents=True)
+
+    def schedule_auto_submission(self):
+        self.auto_submit_after = None
+        self.auto_submit_user = None
+        self.auto_submit_error = None
+        roles = set(frappe.get_roles())
+        if (self.workflow_state or "Draft") == "Draft" and "Client" in roles and not STAFF_ROLES.intersection(roles):
+            self.auto_submit_after = add_to_date(now_datetime(), minutes=5)
+            self.auto_submit_user = frappe.session.user
 
     def on_update(self):
         self.relink_query_attachment_files()
@@ -122,7 +149,7 @@ class Query(Document):
     def validate_client_document_rows(self):
         roles = set(frappe.get_roles(frappe.session.user))
         current_state = self.workflow_state or "Draft"
-        if "Client" not in roles or current_state not in CLIENT_EDITABLE_STATES:
+        if "Client" not in roles or current_state == "Draft" or current_state not in CLIENT_EDITABLE_STATES:
             return
 
         self.validate_document_rows()
@@ -133,6 +160,8 @@ class Query(Document):
             frappe.throw("You must add at least one document before submission.")
 
         for index, row in enumerate(rows, start=1):
+            if not row.documents:
+                frappe.throw(f"Row #{index}: Document Type is required.")
             if not row.attachment:
                 frappe.throw(f"Row #{index}: Please attach a file.")
             if row.documents in ISSUE_DATE_REQUIRED_DOCUMENTS and not row.issue_date:
