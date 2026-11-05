@@ -80,5 +80,5 @@ def client_resources(kind):
         doc = frappe.get_doc("Client", client.name)
         return [{"name": row.name, "doc_type": row.doc_type, "date": row.date, "attachment": row.attach_ilxb} for row in doc.records_hub or []]
     if kind == "templates":
-        return [{"name": row.name, "title": row.name, "modified": row.modified} for row in frappe.get_all("Templates", fields=["name", "modified"], order_by="modified desc", limit_page_length=100, ignore_permissions=True)]
+        return frappe.get_list("Templates", fields=["name", "title", "text_template", "modified"], order_by="modified desc", limit_page_length=100)
     frappe.throw("Unsupported resource.")
