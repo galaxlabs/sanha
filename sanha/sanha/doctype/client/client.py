@@ -157,6 +157,16 @@ class Client(Document):
             self.status = new_status
 
 
+@frappe.whitelist()
+def unlink_portal_user(client):
+    """Remove a Client portal link without deleting the Frappe User account."""
+    frappe.only_for(("Administrator", "System Manager", "Admin"))
+    email = frappe.db.get_value("Client", client, "email")
+    if not email:
+        return
+    frappe.db.delete("User Permission", {"user": email, "allow": "Client", "for_value": client})
+
+
 # import email
 # from pydoc import doc
 # import frappe

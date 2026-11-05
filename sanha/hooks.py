@@ -294,6 +294,11 @@ doc_events = {
     }
 }
 scheduler_events = {
+	"cron": {
+		"*/1 * * * *": [
+			"sanha.tasks.submit_ready_client_drafts"
+		]
+	},
 	"daily": [
 		"sanha.sanha.doctype.client.client.update_all_client_statuses",
 		"sanha.dup_register.scan_and_sync"
