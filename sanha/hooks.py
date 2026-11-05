@@ -124,10 +124,17 @@ app_include_js = [
 # permission_query_conditions = {
 # 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
+# Client records are scoped server-side; staff roles retain full Query access.
+permission_query_conditions = {
+	"Query": "sanha.sanha.doctype.query.query.get_permission_query_conditions",
+}
 #
 # has_permission = {
 # 	"Event": "frappe.desk.doctype.event.event.has_permission",
 # }
+has_permission = {
+	"Query": "sanha.sanha.doctype.query.query.has_permission",
+}
 
 # DocType Class
 # ---------------

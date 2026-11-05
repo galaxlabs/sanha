@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import strip_html
 from frappe.utils.user import get_system_managers
+from sanha.api.auth import _find_client
 
 
 LOCKED_PARENT_FIELDS = (
@@ -35,6 +36,31 @@ ISSUE_DATE_REQUIRED_DOCUMENTS = {
     "Halal Certificate",
 }
 EXPIRY_DATE_REQUIRED_DOCUMENTS = {"Halal Certificate"}
+
+
+def _client_scope(user):
+    roles = set(frappe.get_roles(user))
+    if "Client" not in roles or STAFF_ROLES.intersection(roles):
+        return None
+
+    email = frappe.db.get_value("User", user, "email")
+    client = _find_client(user, email)
+    return client.get("name") if client else None
+
+
+def get_permission_query_conditions(user=None):
+    """Limit pure Client accounts to records for their linked Client."""
+    client_name = _client_scope(user or frappe.session.user)
+    if client_name is None:
+        return None
+    return "`tabQuery`.client_name = {0}".format(frappe.db.escape(client_name))
+
+
+def has_permission(doc, user=None, permission_type=None):
+    client_name = _client_scope(user or frappe.session.user)
+    if client_name is None:
+        return None
+    return doc.client_name == client_name
 
 
 def _same_value(left, right):

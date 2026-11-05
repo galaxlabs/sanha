@@ -9,16 +9,16 @@
 # In the Script section, add the following code
 
 import frappe
+from sanha.api.auth import _find_client
 
 
 STAFF_ROLES = {"Evaluation", "SB User", "Certificate Manager", "Admin", "System Manager", "Administrator"}
 
 
 def get_client_name_for_user(user):
-    client_name = frappe.db.get_value("Client", {"email": user}, "name")
-    if client_name:
-        return client_name
-    return frappe.db.get_value("Client", {"owner": user}, "name")
+    email = frappe.db.get_value("User", user, "email")
+    client = _find_client(user, email)
+    return client.get("name") if client else None
 
 
 def get_scope_condition():
