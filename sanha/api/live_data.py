@@ -60,8 +60,15 @@ def read_rows(doctype, filters):
     if not doctype.startswith("Report:"):
         rows = frappe.get_list(doctype, fields=FIELDS[doctype], filters=filters, order_by="name asc", limit_page_length=0)
         if doctype == "Query" and rows:
-            children = frappe.get_all("Documents", filters={"parenttype": "Query", "parent": ["in", [row.name for row in rows]]}, fields=["parent", "count(name) as row_count", "max(modified) as latest"], group_by="parent", limit_page_length=0)
-            stamps = {row.parent: f"{row.row_count}:{row.latest or ''}" for row in children}
+            # Huge IN lists cause expensive optimizer/index-dive work on MariaDB.
+            # Small Client datasets use indexed lookups; large datasets use one
+            # ordered aggregate, then discard all unauthorized parent metadata.
+            visible = {row.name for row in rows}
+            child_filters = {"parenttype": "Query"}
+            if len(visible) <= 200:
+                child_filters["parent"] = ["in", sorted(visible)]
+            children = frappe.get_all("Documents", filters=child_filters, fields=["parent", "count(name) as row_count", "max(modified) as latest"], group_by="parent", order_by="parent asc", limit_page_length=0)
+            stamps = {row.parent: f"{row.row_count}:{row.latest or ''}" for row in children if row.parent in visible}
             for row in rows:
                 row["__child_stamp"] = stamps.get(row.name, "0:")
         return rows, None
@@ -96,6 +103,26 @@ def client_count():
         filters = [["name", "=", client.name if client else ""]]
     rows = frappe.get_list("Client", filters=filters, fields=["count(name) as value"], limit_page_length=0)
     return int(rows[0].value) if rows else 0
+
+
+def actor_client():
+    if is_staff(frappe.session.user):
+        return None
+    client = _find_client(frappe.session.user, frappe.db.get_value("User", frappe.session.user, "email"))
+    return client.name if client else None
+
+
+@frappe.whitelist(allow_guest=True)
+def access_status(doctype="Query"):
+    """Current-session proof for a single retry; never grants any permission."""
+    user = frappe.session.user
+    if user == "Guest":
+        return {"user": "Guest", "allowed": False, "scope": None, "client_scope": None}
+    try:
+        _, signature = scope(doctype)
+    except (frappe.PermissionError, frappe.AuthenticationError):
+        return {"user": user, "allowed": False, "scope": None, "client_scope": actor_client()}
+    return {"user": user, "allowed": True, "scope": signature, "client_scope": actor_client()}
 
 
 @frappe.whitelist()
@@ -134,4 +161,4 @@ def sync(doctype, cursor=None, fork=0):
             if int(metrics["total_queries"]) != len(rows):
                 frappe.throw("Records changed during sync. Please retry.")
     frappe.cache().set_value(key, {"schema": SCHEMA, "user": frappe.session.user, "doctype": doctype, "scope": signature, "digest": current, "hashes": hashes, "metrics": metrics}, expires_in_sec=86400)
-    return {"schema": SCHEMA, "user": frappe.session.user, "doctype": doctype, "scope": signature, "cursor": token + ":" + current, "reset": bool(reset), "upserts": upserts, "deleted": deleted, "total": len(rows), "metrics": metrics, "meta": meta, "order": order if reset or previous_digest != current else None, "checked_at": now()}
+    return {"schema": SCHEMA, "user": frappe.session.user, "doctype": doctype, "scope": signature, "client_scope": actor_client(), "cursor": token + ":" + current, "reset": bool(reset), "upserts": upserts, "deleted": deleted, "total": len(rows), "metrics": metrics, "meta": meta, "order": order if reset or previous_digest != current else None, "checked_at": now()}
