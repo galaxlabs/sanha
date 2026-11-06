@@ -198,7 +198,7 @@ def similar_queries(doc, signatures, comparable):
         if not key or not other or not (score >= .72 or key in other or other in key):
             continue
         same_entities = all(real_entity(doc.get(field)) and real_entity(row.get(field)) and normalized(doc.get(field)) == normalized(row.get(field)) for field in ("supplier", "manufacturer"))
-        matches.append({**row, "similarity": round(score * 100), "same_entities": same_entities, "same_material": key == other, "exact_documents": False})
+        matches.append({**row, "similarity": round(score * 100), "same_entities": same_entities, "same_material": key == other, "exact_documents": False, "documents_checked": False})
     matches.sort(key=lambda row: (row["same_entities"] and row["same_material"], row["similarity"], str(row["modified"])), reverse=True)
     checked = 0
     for row in matches:
@@ -211,6 +211,7 @@ def similar_queries(doc, signatures, comparable):
                     content, _ = linked_content(prior, attachment)
                     other_signatures.append((normalized(attachment.documents), hashlib.sha256(content).hexdigest(), str(attachment.issue_date or ""), str(attachment.expiry_date or "")))
                 row["exact_documents"] = bool(other_signatures) and sorted(other_signatures) == signatures
+                row["documents_checked"] = True
             except Exception:
                 row["comparison_warning"] = "Historical files could not be verified."
             checked += 1
@@ -235,7 +236,7 @@ def collect_review(doc, config):
     terms = [term.strip() for term in (config.get("review_terms") or "").splitlines() if term.strip()]
     alerts = [{"term": term, "source": source["id"], "excerpt": source["text"][max(0, normalized(source["text"]).find(normalized(term)) - 70):][:250]} for source in sources for term in terms if normalized(term) in normalized(source["text"])]
     clauses = [{"id": f"C{index + 1}", "text": text.strip()} for index, text in enumerate((config.get("review_clauses") or "").splitlines()) if text.strip()]
-    result = {"query": doc.name, "reviewed_at": now(), "query_modified": str(doc.modified), "documents": documents, "sources": sources, "similar": similar, "similar_count": matching_count, "prior_document_checks": checked, "alerts": alerts, "clauses": clauses, "policy_version": str(config.modified), "ai_status": "not_configured", "summaries": [], "findings": [], "limits": "First 20 documents / 20 pages per PDF / 6000 text characters per page; at most 8 vision pages, 50 historical file comparisons and 100 similar results per run."}
+    result = {"query": doc.name, "reviewed_at": now(), "query_modified": str(doc.modified), "documents": documents, "sources": sources, "similar": similar, "similar_count": matching_count, "prior_document_checks": checked, "alerts": alerts, "configured_terms": len(terms), "clauses": clauses, "policy_version": str(config.modified), "ai_status": "not_configured", "summaries": [], "findings": [], "limits": "First 20 documents / 20 pages per PDF / 6000 text characters per page; at most 8 vision pages, 50 historical file comparisons and 100 similar results per run."}
     result["entity_warnings"] = [f"{field}: missing/placeholder; not evidence of an exact company match." for field in ("supplier", "manufacturer") if not real_entity(doc.get(field))]
     if not config.get_password("api_key", raise_exception=False):
         return result
