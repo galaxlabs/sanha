@@ -126,6 +126,22 @@ def verify_access_proof():
     return {"checks": ["proof includes no record data", "denial cannot become access grant", "Guest cannot receive proof"], "passed": 3, "records_changed": 0}
 
 
+def verify_child_deltas():
+    cache = MemoryCache()
+    child = [frappe._dict(parent="A", row_count=1, latest="2026-01-01")]
+    with patch.object(live_data, "scope", return_value=([], "same-scope")), patch.object(frappe, "get_list", side_effect=lambda *args, **kwargs: [frappe._dict(name="A", modified="unchanged-parent")]), patch.object(frappe, "get_all", side_effect=lambda *args, **kwargs: child), patch.object(live_data, "client_count", return_value=1), patch.object(live_data, "overview_metrics", return_value={"total_queries": 1}), patch.object(frappe, "cache", return_value=cache):
+        result = live_data.sync("Query")
+        for count, latest in [(2, "2026-01-02"), (2, "2026-01-03")]:
+            child[:] = [frappe._dict(parent="A", row_count=count, latest=latest)]
+            result = live_data.sync("Query", result["cursor"])
+            assert not result["reset"] and [row.name for row in result["upserts"]] == ["A"]
+            assert result["upserts"][0]["__child_stamp"] == f"{count}:{latest}"
+        child.clear()
+        result = live_data.sync("Query", result["cursor"])
+        assert result["upserts"][0]["__child_stamp"] == "0:"
+    return {"checks": ["child insertion updates parent delta", "child edit updates parent delta without parent modified bump", "child removal updates parent delta"], "passed": 3, "records_changed": 0}
+
+
 def benchmark(user="Administrator"):
     original = frappe.session.user
     first = None
