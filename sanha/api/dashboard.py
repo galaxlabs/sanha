@@ -28,28 +28,22 @@ def expired_documents():
 def overview_metrics(filters=None):
     """Return dashboard totals directly from the database without REST page limits."""
     filters = json.loads(filters) if isinstance(filters, str) else (filters or [])
-    query_conditions = []
-    values = {}
-    for index, item in enumerate(filters):
-        field, operator, value = item
-        key = f"value_{index}"
-        query_conditions.append(f"q.`{field}` {operator} %({key})s")
-        values[key] = value
-    where = f"WHERE {' AND '.join(query_conditions)}" if query_conditions else ""
-    metrics = frappe.db.sql(
-        f"""
-        SELECT
-            COUNT(*) AS total_queries,
-            COUNT(DISTINCT NULLIF(q.raw_material, '')) AS unique_materials,
-            SUM(CASE WHEN q.is_duplicate = 1 THEN 1 ELSE 0 END) AS duplicate_queries
-        FROM `tabQuery` q
-        {where}
-        """,
-        values,
-        as_dict=True,
-    )[0]
-    metrics["clients"] = frappe.db.count("Client") if not filters else None
-    return metrics
+    # Fixed aggregate expressions; Frappe validates caller filters and applies
+    # role, User Permission, sharing and Query permission-condition hooks.
+    grouped = frappe.get_list(
+        "Query", filters=filters,
+        fields=["raw_material", "is_duplicate", "count(name) as row_count"],
+        group_by="raw_material, is_duplicate", limit_page_length=0,
+    )
+    total = sum(int(row.row_count) for row in grouped)
+    material_groups = frappe.get_list("Query", filters=filters, fields=["raw_material"], group_by="raw_material", limit_page_length=0)
+    material_count = sum(1 for row in material_groups if row.raw_material and row.raw_material.rstrip())
+    duplicates = sum(int(row.row_count) for row in grouped if int(row.is_duplicate or 0) == 1)
+    clients = None
+    if frappe.has_permission("Client", "read"):
+        client_count = frappe.get_list("Client", fields=["count(name) as row_count"], limit_page_length=0)
+        clients = int(client_count[0].row_count) if client_count else 0
+    return {"total_queries": total, "unique_materials": material_count, "duplicate_queries": duplicates, "clients": clients}
 
 
 @frappe.whitelist()
