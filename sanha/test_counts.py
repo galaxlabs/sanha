@@ -20,7 +20,12 @@ def verify_counts(user="Administrator"):
         assert metrics["total_queries"] == expected_total, (metrics, expected_total)
         expected_duplicates = frappe.db.count("Query", {**filters, "is_duplicate": 1})
         assert metrics["duplicate_queries"] == expected_duplicates
-        assert metrics["unique_materials"] <= metrics["total_queries"]
+        # Independent fixed-SQL oracle, only used by this read-only verification.
+        if filters:
+            expected_materials = frappe.db.sql("SELECT COUNT(DISTINCT NULLIF(raw_material, '')) FROM `tabQuery` WHERE client_name = %s", (filters["client_name"],))[0][0]
+        else:
+            expected_materials = frappe.db.sql("SELECT COUNT(DISTINCT NULLIF(raw_material, '')) FROM `tabQuery`")[0][0]
+        assert metrics["unique_materials"] == int(expected_materials)
         # Apply an additional filter and ensure it cannot widen Client scope.
         approved = overview_metrics([["workflow_state", "=", "Approved"]])
         assert approved["total_queries"] == frappe.db.count("Query", {**filters, "workflow_state": "Approved"})
