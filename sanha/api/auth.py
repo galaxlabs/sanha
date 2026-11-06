@@ -1,4 +1,4 @@
-import frappe
+﻿import frappe
 
 
 CLIENT_FIELDS = [
@@ -147,3 +147,10 @@ def get_current_user():
 @frappe.whitelist(allow_guest=True)
 def get_me():
     return get_current_user()
+
+
+@frappe.whitelist(allow_guest=True)
+def get_csrf_token():
+    """Return the current session's CSRF token for the SPA (POST requests need it)."""
+    from frappe.sessions import get_csrf_token as frappe_csrf_token
+    return {"csrf_token": frappe_csrf_token()}
