@@ -77,3 +77,14 @@ def verify_client(user):
     finally:
         frappe.set_user(original)
         frappe.cache().delete_value("portal-live:" + staff["cursor"].split(":")[0])
+
+
+def verify_any_client():
+    for client in frappe.get_all("Client", fields=["name", "email"]):
+        if not frappe.db.count("Query", {"client_name": client.name}):
+            continue
+        users = [client.email] + frappe.get_all("User Permission", filters={"allow": "Client", "for_value": client.name}, pluck="user")
+        for user in users:
+            if user and frappe.db.get_value("User", user, "enabled") and "Client" in frappe.get_roles(user) and not live_data.is_staff(user):
+                return verify_client(user)
+    raise AssertionError("No populated Client account available")
