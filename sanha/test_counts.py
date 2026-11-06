@@ -36,3 +36,17 @@ def verify_counts(user="Administrator"):
         return {"scope": "Client" if filters else "staff", "metrics": metrics, "paged_rows": len(pages), "checks": "passed"}
     finally:
         frappe.set_user(original)
+
+
+def verify_populated_client():
+    """Choose an existing Client test account with Queries, without creating data."""
+    for client in frappe.get_all("Client", fields=["name", "email"]):
+        if not frappe.db.count("Query", {"client_name": client.name}):
+            continue
+        candidates = [client.email] + frappe.get_all("User Permission", filters={"allow": "Client", "for_value": client.name}, pluck="user")
+        for user in candidates:
+            if user and frappe.db.get_value("User", user, "enabled") and "Client" in frappe.get_roles(user):
+                result = verify_counts(user)
+                if result["scope"] == "Client" and result["paged_rows"]:
+                    return result
+    raise AssertionError("No populated Client account available for scope verification")
