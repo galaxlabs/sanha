@@ -142,15 +142,15 @@ def _call_llm(config, messages):
         return "AI Agent is not configured. Please set an API Key in Chat Agent Config (Settings → Chat Agent Config)."
 
     if "claude" in provider:
-        return _call_claude(api_key, model, messages)
-    return _call_openai(api_key, model, messages)
+        return _call_claude(api_key, model, messages, max_tokens=max(256, min(int(config.get("max_tokens") or 2048), 4096)))
+    return _call_openai(api_key, model, messages, max_tokens=max(256, min(int(config.get("max_tokens") or 2048), 4096)))
 
-def _call_openai(api_key, model, messages):
+def _call_openai(api_key, model, messages, max_tokens=2048):
     try:
         resp = requests.post(
             "https://api.openai.com/v1/chat/completions",
             headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-            json={"model": model, "messages": messages, "temperature": 0.3, "max_tokens": 1024},
+            json={"model": model, "messages": messages, "temperature": 0.3, "max_tokens": max_tokens},
             timeout=30,
         )
         data = resp.json()
@@ -164,15 +164,29 @@ def _call_openai(api_key, model, messages):
         frappe.log_error(f"OpenAI call failed: {e}", "sanha_chat")
         return f"Could not reach AI provider: {str(e)}"
 
-def _call_claude(api_key, model, messages):
+def _call_claude(api_key, model, messages, max_tokens=2048):
     try:
         system_msg = messages[0]["content"] if messages[0]["role"] == "system" else ""
-        conv = [m for m in messages if m["role"] != "system"]
+        conv = []
+        for message in messages:
+            if message["role"] == "system":
+                continue
+            copied = dict(message)
+            if isinstance(copied.get("content"), list):
+                parts = []
+                for part in copied["content"]:
+                    if part.get("type") == "image_url":
+                        header, data = part["image_url"]["url"].split(",", 1)
+                        parts.append({"type": "image", "source": {"type": "base64", "media_type": header.split(":", 1)[1].split(";", 1)[0], "data": data}})
+                    else:
+                        parts.append(part)
+                copied["content"] = parts
+            conv.append(copied)
         resp = requests.post(
             "https://api.anthropic.com/v1/messages",
             headers={"x-api-key": api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json"},
             json={"model": model or "claude-3-haiku-20240307", "system": system_msg,
-                  "messages": conv, "max_tokens": 1024, "temperature": 0.3},
+                   "messages": conv, "max_tokens": max_tokens, "temperature": 0.3},
             timeout=30,
         )
         data = resp.json()

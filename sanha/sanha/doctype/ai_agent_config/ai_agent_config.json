@@ -20,9 +20,21 @@
   "enable_file_upload",
   "enable_query_lookup",
   "section_break_offj",
-  "system_prompt"
+   "system_prompt",
+   "review_clauses",
+   "review_terms"
  ],
- "fields": [
+  "fields": [
+   {
+    "fieldname": "review_clauses",
+    "fieldtype": "Long Text",
+    "label": "Staff Review Clauses (one clause per line)"
+   },
+   {
+    "fieldname": "review_terms",
+    "fieldtype": "Long Text",
+    "label": "Review Alert Terms (one term per line)"
+   },
   {
    "fieldname": "agent_name",
    "fieldtype": "Data",

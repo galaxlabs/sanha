@@ -8,6 +8,8 @@ requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
+    "pypdf>=3,<7",
+    "pypdfium2>=4.30,<6",
     "yt-dlp>=2026.10.26,<2027",
     # "frappe~=15.0.0" # Installed and managed by bench.
 ]
