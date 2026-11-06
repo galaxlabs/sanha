@@ -8,6 +8,7 @@ from frappe.utils import strip_html
 from frappe.utils.user import get_system_managers
 from frappe.utils import add_to_date, now_datetime
 from sanha.api.auth import _find_client
+from sanha.auto_submission import auto_submission_enabled
 
 
 LOCKED_PARENT_FIELDS = (
@@ -103,7 +104,7 @@ class Query(Document):
         self.auto_submit_user = None
         self.auto_submit_error = None
         roles = set(frappe.get_roles())
-        if (self.workflow_state or "Draft") == "Draft" and "Client" in roles and not STAFF_ROLES.intersection(roles):
+        if auto_submission_enabled() and (self.workflow_state or "Draft") == "Draft" and "Client" in roles and not STAFF_ROLES.intersection(roles):
             self.auto_submit_after = add_to_date(now_datetime(), minutes=5)
             self.auto_submit_user = frappe.session.user
 

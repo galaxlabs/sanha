@@ -8,11 +8,11 @@ def run_checks():
     original = frappe.session.user
     doc = MagicMock()
     doc.client_name = "Client A"
-    due = frappe._dict(workflow_state="Draft", auto_submit_after="2020-01-01", auto_submit_user="client-fixture")
+    due = frappe._dict(workflow_state="Draft", auto_submit_after="2026-11-11 00:05:00", auto_submit_user="client-fixture", modified="2026-11-11 00:00:00")
     def value(doctype, *args, **kwargs):
         return due if doctype == "Query" else "client-fixture"
     try:
-        with patch.object(frappe, "get_all", return_value=["Q-TEST"]) as listing, patch.object(frappe.db, "get_value", side_effect=value), patch.object(frappe, "get_doc", return_value=doc), patch.object(frappe, "get_roles", return_value=["Client"]), patch.object(tasks, "_find_client", return_value=frappe._dict(name="Client A")), patch.object(frappe, "set_user"), patch.object(tasks, "apply_workflow") as workflow, patch.object(frappe.db, "savepoint"), patch.object(frappe.db, "rollback"), patch.object(frappe.db, "set_value") as write:
+        with patch.object(tasks, "auto_submission_enabled", return_value=True), patch.object(tasks, "now_datetime", return_value=frappe.utils.get_datetime("2026-11-12")), patch.object(frappe, "get_all", return_value=["Q-TEST"]) as listing, patch.object(frappe.db, "get_value", side_effect=value), patch.object(frappe, "get_doc", return_value=doc), patch.object(frappe, "get_roles", return_value=["Client"]), patch.object(tasks, "_find_client", return_value=frappe._dict(name="Client A")), patch.object(frappe, "set_user"), patch.object(tasks, "apply_workflow") as workflow, patch.object(frappe.db, "savepoint"), patch.object(frappe.db, "rollback"), patch.object(frappe.db, "set_value") as write:
             tasks.submit_ready_client_drafts()
             workflow.assert_called_once_with(doc, "Submit")
             assert write.call_args.args[2]["was_auto_submitted"] == 1
