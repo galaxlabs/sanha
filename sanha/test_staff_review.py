@@ -73,7 +73,7 @@ def run_checks():
     with patch.object(review, "require_admin"), patch.object(frappe, "get_single", return_value=config_doc):
         settings = review.settings()
         assert settings["api_key"] == "" and settings["key_configured"] is True
-        review.save_settings({"api_key": "", "model": "gpt-4o"})
+        review.save_settings({"agent_name": "Test staff assistant"})
         assert not any(call.args[0] == "api_key" for call in config_doc.set.call_args_list)
     tests.append("API key is never returned or overwritten by blank setting")
 
@@ -95,12 +95,12 @@ def run_checks():
     signature = [("halal certificate", hashlib.sha256(b"certificate").hexdigest(), "", "")]
     with patch.object(frappe, "get_list", return_value=[candidate]), patch.object(frappe, "get_doc", return_value=prior), patch.object(review, "linked_content", return_value=(b"certificate", "/private/files/a.pdf")):
         matches, _, _ = review.similar_queries(doc, signature, True)
-        assert matches[0]["exact_documents"]
+        assert not matches[0]["exact_documents"] and matches[0]["same_entities"]
         doc.supplier = "same as manufacturer"
         matches, _, _ = review.similar_queries(doc, signature, True)
         assert not matches[0]["exact_documents"] and not matches[0]["same_entities"]
         doc.supplier = "Supplier Ltd"
-    tests.append("exact approval requires real companies and identical files")
+    tests.append("historical metadata match is not claimed as exact document identity")
 
     config = MagicMock()
     config.modified = "policy-test"
@@ -109,7 +109,7 @@ def run_checks():
     config.as_dict.return_value = policy
     config.get_password.return_value = False
     source = {"id": "D1:P1", "text": "Certificate includes restricted-example", "url": "/private/files/a.pdf", "page": 1}
-    with patch.object(review, "read_documents", return_value=([], [source], [], False)), patch.object(review, "similar_queries", return_value=([], 0, 0)), patch.object(review, "_call_llm") as llm:
+    with patch.object(review, "read_documents", return_value=([], [source], [], False)), patch.object(review, "has_ready_provider", side_effect=lambda task: bool(config.get_password("api_key", raise_exception=False))), patch.object(review, "_call_llm") as llm:
         result = review.collect_review(doc, config)
         assert result["ai_status"] == "not_configured" and result["alerts"][0]["source"] == "D1:P1"
         llm.assert_not_called()

@@ -1,0 +1,17 @@
+{
+ "doctype":"DocType", "name":"AI Query Review", "module":"Sanha", "autoname":"field:fingerprint", "engine":"InnoDB",
+ "field_order":["fingerprint","query","query_version","status","requested_by","attempts","attempt_date","budget_signature","result_json","error"],
+ "fields":[
+  {"fieldname":"fingerprint","fieldtype":"Data","label":"Input Fingerprint","reqd":1,"unique":1},
+  {"fieldname":"query","fieldtype":"Data","label":"Query ID","search_index":1,"reqd":1},
+  {"fieldname":"query_version","fieldtype":"Data","label":"Query Version"},
+  {"fieldname":"status","fieldtype":"Select","options":"Queued\nWorking\nComplete\nUnavailable\nFailed","label":"Status"},
+  {"fieldname":"requested_by","fieldtype":"Link","options":"User","label":"Requested By"},
+  {"fieldname":"attempts","fieldtype":"Int","label":"Attempts","default":"0"},
+  {"fieldname":"attempt_date","fieldtype":"Date","label":"Attempt Date"},
+  {"fieldname":"budget_signature","fieldtype":"Data","label":"Attempt Budget Policy"},
+  {"fieldname":"result_json","fieldtype":"Long Text","label":"Private Review Result"},
+  {"fieldname":"error","fieldtype":"Small Text","label":"Review Status Message"}
+ ],
+ "permissions":[], "sort_field":"modified", "sort_order":"DESC"
+}

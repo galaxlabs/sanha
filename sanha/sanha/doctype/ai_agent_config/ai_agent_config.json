@@ -22,9 +22,16 @@
   "section_break_offj",
    "system_prompt",
    "review_clauses",
-   "review_terms"
+   "review_terms",
+   "auto_staff_review"
  ],
   "fields": [
+   {
+    "fieldname": "auto_staff_review",
+    "fieldtype": "Check",
+    "label": "Automatic Staff Query Summary",
+    "default": "1"
+   },
    {
     "fieldname": "review_clauses",
     "fieldtype": "Long Text",

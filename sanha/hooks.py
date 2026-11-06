@@ -289,7 +289,8 @@ fixtures = [
 # Include API endpoints
 doc_events = {
     "Query": {
-        "validate": "sanha.dup_register.validate_query"
+        "validate": "sanha.dup_register.validate_query",
+        "on_update": "sanha.api.review_cache.schedule_review"
     },
     "Comment": {
         "after_insert": "sanha.sanha.doctype.query.query.notify_system_managers_on_client_query_comment"

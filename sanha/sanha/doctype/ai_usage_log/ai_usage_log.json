@@ -1,0 +1,19 @@
+{
+ "doctype":"DocType", "name":"AI Usage Log", "module":"Sanha", "autoname":"hash", "engine":"InnoDB",
+ "field_order":["profile","model","task","usage_date","actor","query_reference","status","input_tokens","output_tokens","total_tokens","estimated","request_hash"],
+ "fields":[
+  {"fieldname":"profile","fieldtype":"Link","options":"AI Provider Profile","label":"Provider Profile","reqd":1,"search_index":1},
+  {"fieldname":"model","fieldtype":"Data","label":"Model"},
+  {"fieldname":"task","fieldtype":"Data","label":"Task"},
+  {"fieldname":"usage_date","fieldtype":"Date","label":"Date","reqd":1,"search_index":1},
+  {"fieldname":"actor","fieldtype":"Link","options":"User","label":"Actor"},
+  {"fieldname":"query_reference","fieldtype":"Data","label":"Query ID"},
+  {"fieldname":"status","fieldtype":"Select","options":"Reserved\nSuccess\nRejected\nUnknown","label":"Status"},
+  {"fieldname":"input_tokens","fieldtype":"Int","label":"Input Tokens"},
+  {"fieldname":"output_tokens","fieldtype":"Int","label":"Output Tokens"},
+  {"fieldname":"total_tokens","fieldtype":"Int","label":"Budget Counted Tokens"},
+  {"fieldname":"estimated","fieldtype":"Check","label":"Estimated / Reserved","default":"1"},
+  {"fieldname":"request_hash","fieldtype":"Data","label":"Request Hash"}
+ ],
+ "permissions":[{"role":"System Manager","read":1},{"role":"Admin","read":1}], "sort_field":"creation", "sort_order":"DESC"
+}
