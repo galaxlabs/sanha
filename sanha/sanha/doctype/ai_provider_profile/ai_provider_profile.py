@@ -7,10 +7,12 @@ from uuid import uuid4
 class AIProviderProfile(Document):
     def validate(self):
         from sanha.api.ai_providers import validate_model
+        value = self.get("api_key")
+        new_key = bool(value) and not (isinstance(value, str) and set(value) == {"*"})
         self.model = str(self.model or "").strip().removeprefix("models/")
         if self.enabled or self.model:
             validate_model(self.provider, self.model)
-        if self.enabled and not (self.get("api_key") and self.api_key != "********") and not self.get_password("api_key", raise_exception=False):
+        if self.enabled and not new_key and not self.get_password("api_key", raise_exception=False):
             frappe.throw("Save an API key before enabling this connection.")
         if not self.use_for_text and not self.use_for_vision:
             frappe.throw("Choose at least one task for this connection.")
@@ -20,5 +22,5 @@ class AIProviderProfile(Document):
             frappe.throw("Daily token budget must be between 0 and 100000000.")
         if not 0 <= cint(self.priority) <= 999:
             frappe.throw("Priority must be between 0 and 999.")
-        if self.get("api_key") and self.api_key != "********":
+        if new_key:
             self.credential_revision = uuid4().hex

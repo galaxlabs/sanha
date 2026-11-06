@@ -2,6 +2,7 @@
 import hashlib
 import json
 import re
+from uuid import uuid4
 
 import frappe
 import requests
@@ -96,8 +97,10 @@ def save_profile(data, name=None):
         frappe.throw("Unsupported provider fields.")
     doc = frappe.get_doc("AI Provider Profile", name) if name else frappe.new_doc("AI Provider Profile")
     for field, value in data.items():
-        if field == "api_key" and (not value or value == "********"):
-            continue
+        if field == "api_key":
+            if value is not None and not isinstance(value, str): frappe.throw("API key must be text.")
+            if not value or set(value) == {"*"}: continue
+            doc.credential_revision = uuid4().hex
         doc.set(field, value)
     doc.save(ignore_permissions=True)
     return {"name": doc.name}

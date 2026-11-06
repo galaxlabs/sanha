@@ -25,7 +25,8 @@ def run_checks():
         revision = first.credential_revision
         providers.save_profile({"title": first.title + " edited", "api_key": ""}, first.name)
         reloaded = frappe.get_doc("AI Provider Profile", first.name)
-        assert reloaded.get_password("api_key") == marker and reloaded.credential_revision == revision
+        assert reloaded.get_password("api_key") == marker, "Blank update must preserve credential"
+        assert reloaded.credential_revision == revision, "Blank update must preserve credential revision"
         assert marker not in json.dumps(providers.list_profiles(), default=str)
         checks.append("separate encrypted keys, blank preserves key, safe profile listing")
 
