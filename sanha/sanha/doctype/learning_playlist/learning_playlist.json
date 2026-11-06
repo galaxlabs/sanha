@@ -1,6 +1,7 @@
 {
  "actions": [],
- "autoname": "field:title",
+ "autoname": "hash",
+ "title_field": "title",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": ["title", "subject", "youtube_url", "description", "sort_order", "published"],

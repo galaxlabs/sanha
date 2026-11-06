@@ -127,6 +127,7 @@ app_include_js = [
 # Client records are scoped server-side; staff roles retain full Query access.
 permission_query_conditions = {
 	"Query": "sanha.sanha.doctype.query.query.get_permission_query_conditions",
+	"Learning Playlist": "sanha.sanha.doctype.learning_playlist.learning_playlist.get_permission_query_conditions",
 }
 #
 # has_permission = {
@@ -134,6 +135,7 @@ permission_query_conditions = {
 # }
 has_permission = {
 	"Query": "sanha.sanha.doctype.query.query.has_permission",
+	"Learning Playlist": "sanha.sanha.doctype.learning_playlist.learning_playlist.has_permission",
 }
 
 # DocType Class
