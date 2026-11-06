@@ -1,0 +1,11 @@
+{
+ "doctype":"DocType", "name":"Portal Message", "module":"Sanha", "autoname":"hash", "engine":"InnoDB",
+ "field_order":["sender","recipient","query_reference","message"],
+ "fields":[
+  {"fieldname":"sender","fieldtype":"Link","options":"User","label":"Sender","reqd":1},
+  {"fieldname":"recipient","fieldtype":"Link","options":"User","label":"Recipient","reqd":1},
+  {"fieldname":"query_reference","fieldtype":"Link","options":"Query","label":"Query"},
+  {"fieldname":"message","fieldtype":"Long Text","label":"Message","reqd":1}
+ ],
+ "permissions":[], "sort_field":"creation", "sort_order":"DESC"
+}
