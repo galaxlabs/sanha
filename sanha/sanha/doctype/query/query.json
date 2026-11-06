@@ -12,6 +12,9 @@
   "auto_submit_after",
   "auto_submit_user",
   "auto_submit_error",
+  "was_auto_submitted",
+  "auto_submitted_at",
+  "auto_submitted_by",
   "section_break_rmvm",
   "similar_info",
   "query_types",
@@ -39,7 +42,10 @@
   "column_break_ooht",
   "client_code"
  ],
- "fields": [
+  "fields": [
+  {"fieldname":"was_auto_submitted","fieldtype":"Check","label":"Auto-submitted (recorded from activation onward)","default":"0","read_only":1,"in_standard_filter":1,"no_copy":1},
+  {"fieldname":"auto_submitted_at","fieldtype":"Datetime","label":"Last Automatic Submission At","read_only":1,"no_copy":1},
+  {"fieldname":"auto_submitted_by","fieldtype":"Link","options":"User","label":"Automatic Submission Client User","read_only":1,"ignore_user_permissions":1,"no_copy":1},
   {"fieldname":"auto_submit_after","fieldtype":"Datetime","label":"Auto Submit After","read_only":1,"hidden":1},
   {"fieldname":"auto_submit_user","fieldtype":"Link","options":"User","label":"Auto Submit User","read_only":1,"hidden":1,"ignore_user_permissions":1},
   {"fieldname":"auto_submit_error","fieldtype":"Small Text","label":"Auto Submit Status","read_only":1},

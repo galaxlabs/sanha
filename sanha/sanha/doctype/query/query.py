@@ -74,6 +74,12 @@ def _same_value(left, right):
 
 class Query(Document):
     def before_validate(self):
+        # Provenance is assigned only by the scheduler after successful workflow.
+        # Read-only UI fields alone do not prevent forged REST updates.
+        provenance = ("was_auto_submitted", "auto_submitted_at", "auto_submitted_by")
+        saved = frappe.db.get_value("Query", self.name, list(provenance), as_dict=True) if not self.is_new() else None
+        for field in provenance:
+            self.set(field, saved.get(field) if saved else (0 if field == "was_auto_submitted" else None))
         # Persist partially completed drafts, including unfinished document rows.
         self.flags.ignore_mandatory = (self.workflow_state or "Draft") == "Draft"
 

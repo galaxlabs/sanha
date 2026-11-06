@@ -30,6 +30,13 @@ def submit_ready_client_drafts():
             frappe.set_user(user)
             query.validate_submission_ready()
             apply_workflow(query, "Submit")
+            # Prospective provenance only: never infer flags from old Submitted rows.
+            frappe.db.set_value("Query", name, {
+                "was_auto_submitted": 1,
+                "auto_submitted_at": now_datetime(),
+                "auto_submitted_by": user,
+            }, update_modified=False)
+            frappe.get_doc("Query", name).add_comment("Info", "Automatically submitted by the five-minute Client save scheduler. Client actor: " + frappe.utils.escape_html(user))
         except Exception as exc:
             frappe.db.rollback(save_point="auto_submit_query")
             # Remains a Draft. A later Client save schedules another attempt.
