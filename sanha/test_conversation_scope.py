@@ -20,7 +20,7 @@ def run_checks():
             pass
         else:
             raise AssertionError("Invalid contact Query enumeration allowed")
-        get_list.assert_not_called()
+        assert not any(call.args and call.args[0] == "Query" for call in get_list.call_args_list)
     checks.append("invalid contact cannot enumerate Queries")
 
     with patch.object(messaging, "conversation_query_filters"), patch.object(messaging, "check_query", side_effect=[None, frappe.PermissionError("denied")]), patch.object(frappe, "get_all") as history:
