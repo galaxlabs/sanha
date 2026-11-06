@@ -1,5 +1,6 @@
 import hashlib
 import json
+import io
 from unittest.mock import MagicMock, patch
 
 import frappe
@@ -24,6 +25,13 @@ def run_checks():
             else:
                 raise AssertionError("Client started a staff review")
             enqueue.assert_not_called()
+            for operation in (review.settings, lambda: review.save_settings({"provider": "Open AI"}), review.eligible_queries, lambda: review.status("any-token")):
+                try:
+                    operation()
+                except frappe.PermissionError:
+                    pass
+                else:
+                    raise AssertionError("Client accessed staff settings or review data")
         tests.append("Client cannot enqueue review")
     finally:
         frappe.set_user(original)
@@ -60,6 +68,25 @@ def run_checks():
     assert len(found) == 1 and found[0]["text"] == "valid"
     tests.append("fabricated references discarded")
 
+    config_doc = MagicMock()
+    config_doc.get_password.return_value = "configured-test-value"
+    with patch.object(review, "require_admin"), patch.object(frappe, "get_single", return_value=config_doc):
+        settings = review.settings()
+        assert settings["api_key"] == "" and settings["key_configured"] is True
+        review.save_settings({"api_key": "", "model": "gpt-4o"})
+        assert not any(call.args[0] == "api_key" for call in config_doc.set.call_args_list)
+    tests.append("API key is never returned or overwritten by blank setting")
+
+    from pypdf import PdfWriter
+    writer = PdfWriter()
+    writer.add_blank_page(width=612, height=792)
+    buffer = io.BytesIO()
+    writer.write(buffer)
+    with patch.object(review, "_call_llm", return_value='{"text":"Example document transcription"}'):
+        extracted = review.vision_text(buffer.getvalue(), "/private/files/sample.pdf", 1, MagicMock())
+        assert extracted == "Example document transcription"
+    tests.append("scanned PDF rendering and mocked vision transcription")
+
     doc = frappe._dict(name="Current", raw_material="Material", supplier="Supplier Ltd", manufacturer="Factory Ltd", documents=[], modified="test")
     candidate = frappe._dict(name="Prior", raw_material="Material", supplier="Supplier Ltd", manufacturer="Factory Ltd", workflow_state="Approved", modified="test")
     attachment = frappe._dict(documents="Halal Certificate", issue_date=None, expiry_date=None)
@@ -92,3 +119,20 @@ def run_checks():
         assert result["ai_status"] == "complete" and len(result["summaries"]) == 1 and result["findings"] == []
     tests.append("missing key explicit; mocked AI citation and alert checks")
     return {"checks": tests, "passed": len(tests), "paid_provider_calls": 0, "records_changed": 0}
+
+
+def check_existing_evidence():
+    """Exercise existing file access without transmitting documents to a provider."""
+    review.require_staff()
+    parents = frappe.get_all("Documents", filters={"parenttype": "Query", "attachment": ["is", "set"]}, pluck="parent", limit_page_length=30)
+    for name in dict.fromkeys(parents):
+        doc = frappe.get_doc("Query", name)
+        if not doc.workflow_state or doc.workflow_state == "Draft":
+            continue
+        doc.check_permission("read")
+        config = frappe.get_single("AI Agent Config")
+        with patch.object(config, "get_password", return_value=False), patch.object(review, "_call_llm") as llm:
+            result = review.collect_review(doc, config)
+            llm.assert_not_called()
+        return {"query": name, "documents": len(result["documents"]), "readable_pages": len(result["sources"]), "similar_queries": result["similar_count"], "ai_status": result["ai_status"], "paid_provider_calls": 0, "records_changed": 0}
+    return {"checks": "No submitted Query with attachments available"}
