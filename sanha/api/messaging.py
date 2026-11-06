@@ -12,7 +12,7 @@ def is_staff(user):
 def allowed_contact(user, other):
     if not is_staff(user) and "Client" not in frappe.get_roles(user):
         return False
-    if user == other or other == "Guest" or not frappe.db.get_value("User", other, "enabled"):
+    if user == other or other in {"Guest", "Administrator"} or not frappe.db.get_value("User", other, "enabled"):
         return False
     if is_staff(other):
         return True

@@ -12,6 +12,9 @@ def run_policy_checks():
             assert messaging.allowed_contact("client-a", staff)
             assert messaging.allowed_contact(staff, "client-b")
         assert not messaging.allowed_contact("client-a", "Guest")
+        assert not messaging.allowed_contact("eval", "Administrator")
+        assert messaging.allowed_contact("eval", "sb")
+        assert messaging.allowed_contact("cm", "eval")
     with patch.object(messaging, "allowed_contact", return_value=False), patch.object(frappe, "get_doc") as create:
         try:
             messaging.send("client-b", "Blocked message")
