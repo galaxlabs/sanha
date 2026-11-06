@@ -323,8 +323,11 @@ def find_similar_query(raw_material: str | None = None,
         params["exclude_name"] = exclude_name
 
     if not STAFF_ROLES.intersection(roles):
-        conditions.append("q.owner = %(user)s")
-        params["user"] = frappe.session.user
+        scope = _client_scope(frappe.session.user)
+        if scope is None:
+            frappe.throw("Client or staff access required.", frappe.PermissionError)
+        conditions.append("q.client_name = %(client_scope)s")
+        params["client_scope"] = scope
 
     matches = frappe.db.sql(f"""
         SELECT
@@ -342,6 +345,7 @@ def find_similar_query(raw_material: str | None = None,
         LIMIT 5
     """, params, as_dict=True)
 
+    matches = [match for match in matches if frappe.has_permission("Query", "read", doc=frappe.get_doc("Query", match.name))]
     for match in matches:
         match["documents"] = frappe.get_all(
             "Documents",
@@ -365,7 +369,10 @@ def find_duplicates(raw_material=None, supplier=None, manufacturer=None, for_cur
         filters["owner"] = user
 
     # Get all matches except the earliest one
-    records = frappe.get_all("Query", filters=filters, fields=["name", "owner", "modified", "client_name"])
+    scope = _client_scope(user)
+    if scope is not None:
+        filters["client_name"] = scope
+    records = frappe.get_list("Query", filters=filters, fields=["name", "owner", "modified", "client_name"], limit_page_length=0)
     records_sorted = sorted(records, key=lambda x: x["modified"])
     return records_sorted[1:]  # skip the first (original) entry
 

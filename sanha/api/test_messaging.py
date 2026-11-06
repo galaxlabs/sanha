@@ -23,7 +23,7 @@ def run_policy_checks():
         else:
             raise AssertionError("Client-to-client send must be rejected")
         create.assert_not_called()
-    with patch.object(messaging, "is_staff", return_value=False), patch.object(messaging, "_find_client", return_value=frappe._dict(name="Client A")), patch.object(frappe.db, "get_value", return_value="client-a"), patch.object(frappe, "get_doc", return_value=frappe._dict(client_name="Client B")):
+    with patch.object(messaging, "is_staff", return_value=False), patch.object(messaging, "_find_client", return_value=frappe._dict(name="Client A")), patch.object(frappe.db, "get_value", return_value="client-a"), patch.object(frappe, "get_list", return_value=[]):
         try:
             messaging.check_query("OTHER-QUERY", "client-a")
         except frappe.PermissionError:

@@ -1,4 +1,5 @@
 import frappe
+import json
 from frappe.utils import cint
 from sanha.api.auth import _find_client
 
@@ -31,25 +32,63 @@ def contacts():
 def check_query(query, user):
     if not query:
         return
-    doc = frappe.get_doc("Query", query)
     if not is_staff(user):
         client = _find_client(user, frappe.db.get_value("User", user, "email"))
-        if not client or doc.client_name != client.name:
+        visible = frappe.get_list("Query", filters={"name": query, "client_name": client.name}, fields=["name"], user=user, limit_page_length=1) if client else []
+        if not visible:
             frappe.throw("This query is not available to this conversation.", frappe.PermissionError)
-    elif not frappe.has_permission("Query", "read", doc, user=user):
-        frappe.throw("Query is not accessible.", frappe.PermissionError)
+    else:
+        doc = frappe.get_doc("Query", query)
+        if not frappe.has_permission("Query", "read", doc, user=user):
+            frappe.throw("Query is not accessible.", frappe.PermissionError)
+
+
+def conversation_query_filters(contact):
+    user = frappe.session.user
+    if not contact or not allowed_contact(user, contact):
+        frappe.throw("Contact is not allowed.", frappe.PermissionError)
+    filters = []
+    for participant in (user, contact):
+        if not is_staff(participant):
+            client = _find_client(participant, frappe.db.get_value("User", participant, "email"))
+            if not client:
+                frappe.throw("Client account is not linked.", frappe.PermissionError)
+            filters.append(["client_name", "=", client.name])
+    return filters
 
 
 @frappe.whitelist()
-def query_options(search="", start=0):
-    user = frappe.session.user
-    filters = []
-    if not is_staff(user):
-        client = _find_client(user, frappe.db.get_value("User", user, "email"))
-        if not client:
-            return []
-        filters.append(["client_name", "=", client.name])
-    return frappe.get_list("Query", filters=filters, or_filters=[["name", "like", "%" + search + "%"], ["raw_material", "like", "%" + search + "%"]], fields=["name", "raw_material"], limit_start=max(0, cint(start)), limit_page_length=30, order_by="modified desc")
+def query_options(contact, search="", start=0):
+    filters = conversation_query_filters(contact)
+    search = str(search or "")[:100]
+    return frappe.get_list("Query", filters=filters, or_filters=[["name", "like", "%" + search + "%"], ["raw_material", "like", "%" + search + "%"]], fields=["name", "raw_material", "workflow_state"], limit_start=max(0, cint(start)), limit_page_length=30, order_by="modified desc, name asc")
+
+
+@frappe.whitelist()
+def query_timeline(contact, query):
+    conversation_query_filters(contact)
+    check_query(query, frappe.session.user)
+    check_query(query, contact)
+    doc = frappe.get_doc("Query", query)
+    doc.check_permission("read")
+    events = [{"id": "created", "time": str(doc.creation), "kind": "created", "label": "Query created"}]
+    versions = frappe.get_all("Version", filters={"ref_doctype": "Query", "docname": doc.name}, fields=["name", "creation", "data"], order_by="creation asc", limit_page_length=0)
+    for version in versions:
+        try:
+            data = json.loads(version.data or "{}")
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(data, dict):
+            continue
+        changes = data.get("changed") or []
+        if not isinstance(changes, list):
+            continue
+        for index, change in enumerate(changes):
+            if isinstance(change, (list, tuple)) and len(change) >= 3 and change[0] == "workflow_state":
+                events.append({"id": f"{version.name}:{index}", "time": str(version.creation), "kind": "workflow", "label": "Workflow status changed", "from_state": change[1], "to_state": change[2]})
+    events.append({"id": "updated", "time": str(doc.modified), "kind": "updated", "label": "Last record update"})
+    events.sort(key=lambda event: event["time"])
+    return {"query": doc.name, "raw_material": doc.raw_material, "current_state": doc.workflow_state, "events": events, "history_note": "Only recorded workflow changes are shown. Internal comments and other document fields are not included; earlier history may be unavailable if version tracking was not enabled."}
 
 
 @frappe.whitelist()
