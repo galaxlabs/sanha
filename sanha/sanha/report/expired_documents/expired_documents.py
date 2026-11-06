@@ -28,8 +28,8 @@ def get_scope_condition():
 
     client_name = get_client_name_for_user(frappe.session.user)
     if client_name:
-        return "AND (q.client_name = %(client_name)s OR q.owner = %(user)s)", {"client_name": client_name, "user": frappe.session.user}
-    return "AND q.owner = %(user)s", {"user": frappe.session.user}
+        return "AND q.client_name = %(client_name)s", {"client_name": client_name}
+    return "AND 1 = 0", {}
 
 def execute(filters=None):
     columns, data = [], []
