@@ -43,6 +43,21 @@ def run_checks():
         assert "STAFF-ONLY-CONTENT" not in json.dumps(result)
     checks.append("timeline exposes status events, not internal fields")
 
+    messages = [frappe._dict(sender="client-a", recipient="client-a"), frappe._dict(sender=frappe.session.user, recipient="client-a")]
+    with patch.object(messaging, "allowed_contact", return_value=True), patch.object(frappe, "get_all", return_value=messages):
+        assert len(messaging.conversation("client-a")) == 1
+    checks.append("only exact conversation pairs returned")
+
+    from sanha.sanha.doctype.query import query as controller
+    with patch.object(frappe, "get_roles", return_value=["Client"]), patch.object(controller, "_client_scope", return_value="Client A"), patch.object(frappe.db, "sql", return_value=[]) as sql:
+        controller.find_similar_query(raw_material="Material", manufacturer="Company")
+        assert "q.client_name = %(client_scope)s" in sql.call_args.args[0]
+        assert sql.call_args.args[1]["client_scope"] == "Client A"
+    with patch.object(controller, "_client_scope", return_value="Client A"), patch.object(frappe, "get_list", return_value=[]) as get_list:
+        controller.find_duplicates(raw_material="Material", for_current_user=False)
+        assert get_list.call_args.kwargs["filters"]["client_name"] == "Client A"
+    checks.append("similarity and duplicate endpoints cannot bypass tenant scope")
+
     original = frappe.session.user
     try:
         frappe.set_user("Guest")

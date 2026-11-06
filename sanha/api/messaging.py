@@ -96,7 +96,8 @@ def conversation(contact):
     user = frappe.session.user
     if not allowed_contact(user, contact):
         frappe.throw("Contact is not allowed.", frappe.PermissionError)
-    return frappe.get_all("Portal Message", filters={"sender": ["in", [user, contact]], "recipient": ["in", [user, contact]]}, fields=["name", "sender", "recipient", "message", "query_reference", "creation"], order_by="creation desc", limit_page_length=100)[::-1]
+    rows = frappe.get_all("Portal Message", filters={"sender": ["in", [user, contact]], "recipient": ["in", [user, contact]]}, fields=["name", "sender", "recipient", "message", "query_reference", "creation"], order_by="creation desc", limit_page_length=100)
+    return [row for row in rows[::-1] if (row.sender == user and row.recipient == contact) or (row.sender == contact and row.recipient == user)]
 
 
 @frappe.whitelist(methods=["POST"])
