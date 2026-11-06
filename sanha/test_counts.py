@@ -50,3 +50,16 @@ def verify_populated_client():
                 if result["scope"] == "Client" and result["paged_rows"]:
                     return result
     raise AssertionError("No populated Client account available for scope verification")
+
+
+def verify_staff_samples():
+    results = {}
+    for role in ("Evaluation", "SB User", "Certificate Manager"):
+        users = frappe.get_all("Has Role", filters={"parenttype": "User", "role": role}, pluck="parent")
+        for user in users:
+            if user != "Administrator" and frappe.db.get_value("User", user, "enabled"):
+                results[role] = verify_counts(user)
+                break
+        else:
+            results[role] = {"checks": "no enabled account available"}
+    return results
