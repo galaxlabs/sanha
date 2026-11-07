@@ -116,7 +116,7 @@ def run_checks():
         config.get_password.return_value = True
         llm.return_value = json.dumps({"summaries": [{"text": "Evidence summary", "sources": ["D1:P1"]}], "findings": [{"text": "Unsupported", "sources": ["missing"]}]})
         result = review.collect_review(doc, config)
-        assert result["ai_status"] == "complete" and len(result["summaries"]) == 1 and result["findings"] == []
+        assert result["ai_status"] == "partial_cited_output" and len(result["summaries"]) == 1 and result["findings"] == []
     tests.append("missing key explicit; mocked AI citation and alert checks")
     return {"checks": tests, "passed": len(tests), "paid_provider_calls": 0, "records_changed": 0}
 

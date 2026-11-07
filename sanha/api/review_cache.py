@@ -33,13 +33,13 @@ def fingerprint(doc, config, facts=None):
     from sanha.api.decision_support import final_decisions
     decisions, count = final_decisions(doc.raw_material, doc.manufacturer, doc.supplier, doc.name)
     reference_facts = [{k: r[k] for k in ("name", "modified", "workflow_state", "match_basis", "same_entities")} for r in decisions[:10]]
-    payload = {"revision": "material-assessment-v5", "decisions": reference_facts, "decision_count": count, "query": {field: doc.get(field) for field in ("name", "raw_material", "query_types", "supplier", "manufacturer")}, "documents": file_facts(doc) if facts is None else facts, "clauses": config.get("review_clauses"), "terms": config.get("review_terms"), "routes": routing_signature()}
+    payload = {"revision": "material-assessment-v6-word", "decisions": reference_facts, "decision_count": count, "query": {field: doc.get(field) for field in ("name", "raw_material", "query_types", "supplier", "manufacturer")}, "documents": file_facts(doc) if facts is None else facts, "clauses": config.get("review_clauses"), "terms": config.get("review_terms"), "routes": routing_signature()}
     return hashlib.sha256(json.dumps(payload, default=str, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
 def public_result(record):
     parsed = json.loads(record.result_json or "{}")
-    parsed["sources"] = [{field: source.get(field) for field in ("id", "query", "document", "page", "url", "extraction")} for source in parsed.get("sources", [])]
+    parsed["sources"] = [{field: source.get(field) for field in ("id", "query", "document", "page", "locator", "url", "extraction")} for source in parsed.get("sources", [])]
     parsed["similar"] = []
     parsed["research_sources"] = [{field: source.get(field) for field in ("id", "kind", "query", "title", "url", "retrieved_at", "scope")} for source in parsed.get("research_sources", [])]
     parsed["summaries"] = parsed.get("summaries", [])[:1]
@@ -143,6 +143,8 @@ def run(query, reviewer=None):
         record.error = "" if record.status == "Complete" else "No valid cited summary generated. Check connection, budget and readable current documents."
         if result.get("provider_failure_reason"):
             record.error = "AI provider: " + result["provider_failure_reason"][:300]
+        elif result.get("ai_status") == "partial_cited_output":
+            record.error = "Analysis is incomplete: some required sections/questions could not be cited. Available evidence is retained."
         record.save(ignore_permissions=True); frappe.db.commit()
     except Exception:
         frappe.db.rollback()

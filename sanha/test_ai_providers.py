@@ -119,7 +119,7 @@ def run_checks():
         with patch.object(staff_review, "read_documents", return_value=([], [source], [], False)), patch.object(staff_review, "has_ready_provider", return_value=True), patch.object(staff_review, "similar_queries", return_value=([], 0, 0)), patch.object(staff_review, "chemistry", return_value=([], "test")), patch.object(staff_review, "linked_content", side_effect=AssertionError("Historical files must not be opened")), patch.object(staff_review, "_call_llm", return_value=json.dumps({"analysis": {"text": "Concise analysis", "sources": ["D1:P1"]}, "findings": []})) as llm:
             analyzed = staff_review.collect_review(doc, config)
             payload = json.loads(llm.call_args.args[1][1]["content"])
-            assert "prior_matches" not in payload and analyzed["ai_status"] == "complete" and len(analyzed["summaries"]) == 1
+            assert "prior_matches" not in payload and analyzed["ai_status"] == "partial_cited_output" and len(analyzed["summaries"]) == 1
         checks.append("current Query files only; one cited analysis; historical references are metadata-only")
         return {"checks": checks, "passed": len(checks), "real_provider_requests": 0, "business_records_changed": 0}
     finally:

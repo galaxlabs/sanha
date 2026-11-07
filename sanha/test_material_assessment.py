@@ -97,13 +97,14 @@ def run_checks():
     with patch.object(review, "read_documents", return_value=(absent, [], [], False)), patch.object(review, "similar_queries", return_value=([dict(approved)], 1, 0)), patch.object(review, "chemistry", return_value=([], "no_unambiguous_public_identity")), patch.object(review, "has_ready_provider", return_value=True), patch.object(review, "_call_llm", return_value=json.dumps(response)) as llm:
         result = review.collect_review(doc, config)
         payload = json.loads(llm.call_args.args[1][1]["content"])
-        assert result["ai_status"] == "complete" and result["summaries"]
+        assert result["ai_status"] == "partial_cited_output" and result["summaries"]
         assert payload["database_first_references"][0]["id"] == "H1" and payload["research_sources"][0]["id"] == "Q0"
         assert "owner" not in json.loads(payload["database_first_references"][0]["text"])
         assert "client_name" not in json.loads(payload["database_first_references"][0]["text"])
         assert "missing_evidence" in result["assessment"] and "identity" not in result["assessment"]
         assert len(result["follow_up_questions"]) == 1 and result["follow_up_questions"][0]["sources"] == ["Q0"]
     checks.append("analysis still runs on entered metadata/final decisions when OCR text unavailable")
+    checks.append("incomplete cited sections/questions cannot be mislabeled a complete assessment")
     checks.append("database-first citations and actionable missing-evidence section preserved")
     checks.append("fabricated public references removed from structured assessment")
     lookup_cache = MagicMock(); lookup_cache.get_value.return_value = None
@@ -167,7 +168,44 @@ def run_checks():
     checks.append("cleanup administration private; Guest denied")
     checks.extend(_sql_checks())
     checks.extend(_daily_sql_checks())
+    checks.extend(_word_checks())
     return {"passed": len(checks), "checks": checks, "business_records_changed": 0, "paid_provider_calls": 0}
+
+
+def _word_checks():
+    import io
+    import zipfile
+    from sanha.api.word_documents import read_word
+    def word(xml, image=False):
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            archive.writestr("word/document.xml", xml)
+            archive.writestr("word/_rels/document.xml.rels", '<Relationships><Relationship Target="https://example.invalid/private" TargetMode="External" /></Relationships>')
+            if image:
+                archive.writestr("word/media/test.png", b"mock-image")
+        return buffer.getvalue()
+    xml = '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>No MSDS found</w:t></w:r></w:p></w:body></w:document>'
+    content = word(xml)
+    assert read_word(content)["pages"][0][1] == "No MSDS found"
+    fake_cache = MagicMock(); fake_cache.get_value.return_value = None
+    doc = frappe._dict(name="WORD-TEST", documents=[frappe._dict(documents="MSDS", attachment="/private/files/test.docx", issue_date=None, expiry_date=None)])
+    with patch.object(review, "linked_content", return_value=(content, "/private/files/test.docx")), patch.object(frappe, "cache", return_value=fake_cache):
+        documents, sources, _, _ = review.read_documents(doc)
+        assert sources[0]["id"] == "D1:T1" and sources[0]["page"] is None
+        assert review.document_observations(documents, sources)[0]["status"] == "absence_notice"
+    image_only = word(xml.replace("No MSDS found", ""), image=True)
+    with patch.object(review, "linked_content", return_value=(image_only, "/private/files/test.docx")), patch.object(frappe, "cache", return_value=fake_cache), patch.object(review, "has_ready_provider", return_value=True), patch.object(review, "routing_signature", return_value="word-test"), patch.object(review, "vision_text", return_value="Product: Sucrose\nManufacturer: Word Factory") as vision:
+        _, sources, _, _ = review.read_documents(doc, config=MagicMock(), vision_budget=1)
+        assert sources[0]["id"] == "D1:IMG1" and sources[0]["page"] is None
+        vision.assert_called_once()
+    try:
+        read_word(word('<!DOCTYPE x [<!ENTITY x "bad">]>' + xml))
+        raise AssertionError("Word entity declarations accepted")
+    except ValueError:
+        pass
+    return ["native Word absence notices parsed with truthful logical section citations",
+            "image-only Word OCR bounded and cited as an embedded image, not PDF page",
+            "Word external relationships ignored and entity declarations rejected"]
 
 
 def _sql_checks():
