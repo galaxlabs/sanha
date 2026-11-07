@@ -8,6 +8,8 @@ from sanha.api import ai_providers as providers, review_cache, staff_review
 
 
 def run_checks():
+    if frappe.local.site != "eval.portal":
+        frappe.throw("Provider persistence fixtures run on development only.")
     profiles, caches, checks = [], [], []
     marker = "unit-test-credential-" + uuid4().hex
     review_query = "AI-REGRESSION-" + uuid4().hex
@@ -56,7 +58,7 @@ def run_checks():
             assert providers.call(messages) == "Cached answer"
             before = int(providers.day_usage(first.name)["tokens"])
             assert providers.call(messages) == "Cached answer"
-            assert inference.call_count == 1 and int(providers.day_usage(first.name)["tokens"]) == before == 30
+            assert inference.call_count == 1 and int(providers.day_usage(first.name)["tokens"]) == before == 30, (inference.call_count, before, providers.day_usage(first.name))
         checks.append("cached response spends no additional tokens or calls")
 
         with patch.object(providers, "ready_profiles", return_value=[first, second]), patch.object(providers, "invoke", side_effect=[providers.ProviderError("provider_busy", 503), ("Fallback answer", (10, 20))]) as inference, patch.object(cache, "set_value", side_effect=capture):
@@ -93,6 +95,8 @@ def run_checks():
         config.modified = "policy-one"
         config.get.side_effect = lambda field: {"review_clauses": "Clause", "review_terms": "Term"}.get(field)
         result = {"ai_status": "complete", "reviewed_at": "test", "summaries": [{"text": "One consolidated summary", "sources": ["D1:P1"]}], "sources": [{"id": "D1:P1", "text": "PRIVATE EXTRACTION", "url": "/private/files/fake.pdf", "page": 1}], "documents": []}
+        frappe.db.sql("INSERT INTO tabQuery (name,creation,modified,owner,modified_by,workflow_state,docstatus,raw_material) VALUES (%s,NOW(6),NOW(6),%s,%s,%s,0,%s)",
+                      (review_query, "Administrator", "Administrator", "Submitted", "Provider regression fixture"))
         with patch.object(staff_review, "check_query", return_value=doc), patch.object(review_cache, "review_config", return_value=config), patch.object(review_cache, "file_facts", return_value=[]), patch.object(review_cache, "routing_signature", return_value="route-version"), patch.object(review_cache, "auto_enabled", return_value=True), patch.object(review_cache, "ready_profiles", return_value=[first]), patch.object(review_cache, "budget_signature", return_value="budget-version"), patch.object(staff_review, "collect_review", return_value=result) as collect:
             review_cache.run(review_query)
             review_cache.run(review_query)
@@ -112,16 +116,17 @@ def run_checks():
 
         source = {"id": "D1:P1", "text": "Current document only", "page": 1, "url": "/private/files/current.pdf"}
         config.as_dict.return_value = {}
-        with patch.object(staff_review, "read_documents", return_value=([], [source], [], False)), patch.object(staff_review, "has_ready_provider", return_value=True), patch.object(staff_review, "similar_queries", side_effect=AssertionError("Historical data must not be read during analysis")), patch.object(staff_review, "_call_llm", return_value=json.dumps({"analysis": {"text": "Concise analysis", "sources": ["D1:P1"]}, "findings": []})) as llm:
+        with patch.object(staff_review, "read_documents", return_value=([], [source], [], False)), patch.object(staff_review, "has_ready_provider", return_value=True), patch.object(staff_review, "similar_queries", return_value=([], 0, 0)), patch.object(staff_review, "chemistry", return_value=([], "test")), patch.object(staff_review, "linked_content", side_effect=AssertionError("Historical files must not be opened")), patch.object(staff_review, "_call_llm", return_value=json.dumps({"analysis": {"text": "Concise analysis", "sources": ["D1:P1"]}, "findings": []})) as llm:
             analyzed = staff_review.collect_review(doc, config)
             payload = json.loads(llm.call_args.args[1][1]["content"])
             assert "prior_matches" not in payload and analyzed["ai_status"] == "complete" and len(analyzed["summaries"]) == 1
-        checks.append("current Query only; one cited analysis; no historical document stage")
+        checks.append("current Query files only; one cited analysis; historical references are metadata-only")
         return {"checks": checks, "passed": len(checks), "real_provider_requests": 0, "business_records_changed": 0}
     finally:
         frappe.db.rollback()
         for key in caches: cache.delete_value(key)
         frappe.db.delete("AI Query Review", {"query": review_query})
+        frappe.db.delete("Query", {"name": review_query})
         if profiles:
             frappe.db.delete("AI Usage Log", {"profile": ["in", profiles]})
             for name in profiles:

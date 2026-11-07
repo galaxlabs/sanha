@@ -1,0 +1,15 @@
+{
+ "doctype":"DocType","name":"Entity Name Alias","module":"Sanha","autoname":"hash","engine":"InnoDB","track_changes":1,
+ "field_order":["original_name","normalized_name","canonical_name","identity_key","material_context","source_url","evidence_json","verified"],
+ "fields":[
+  {"fieldname":"original_name","fieldtype":"Data","label":"Original Name","reqd":1},
+  {"fieldname":"normalized_name","fieldtype":"Data","label":"Normalized Name","read_only":1,"search_index":1},
+  {"fieldname":"canonical_name","fieldtype":"Data","label":"Canonical Company Name","reqd":1},
+  {"fieldname":"identity_key","fieldtype":"Data","label":"Public Identity Reference","reqd":1},
+  {"fieldname":"material_context","fieldtype":"Data","label":"Material Context"},
+  {"fieldname":"source_url","fieldtype":"Data","label":"Verified Public Reference","reqd":1},
+  {"fieldname":"evidence_json","fieldtype":"Long Text","label":"Identity Evidence","reqd":1},
+  {"fieldname":"verified","fieldtype":"Check","label":"Verified","default":"0","hidden":1,"read_only":1}
+ ],
+ "permissions":[{"role":"System Manager","read":1,"write":1,"create":1},{"role":"Admin","read":1,"write":1,"create":1}]
+}

@@ -305,63 +305,11 @@ def find_similar_query(raw_material: str | None = None,
                     manufacturer: str | None = None,
                     supplier: str | None = None,
                     exclude_name: str | None = None):
-    """Return helpful existing Queries for the same raw material/manufacturer/supplier."""
-    raw_material = (raw_material or "").strip()
-    manufacturer = (manufacturer or "").strip()
-    supplier = (supplier or "").strip()
-    if not raw_material or not manufacturer:
-        return {"matches": []}
+    """Return decided, permission-scoped same material/manufacturer references."""
+    from sanha.api.decision_support import final_decisions
+    matches, count = final_decisions(raw_material, manufacturer, supplier, exclude_name, require_manufacturer=True)
+    return {"matches": matches[:5], "total": count, "historical_file_reads": 0}
 
-    roles = set(frappe.get_roles(frappe.session.user))
-    conditions = [
-        "q.docstatus < 2",
-        "q.workflow_state NOT IN ('Draft', 'Delisted')",
-        "LOWER(TRIM(IFNULL(q.raw_material, ''))) = LOWER(TRIM(%(raw_material)s))",
-        "LOWER(TRIM(IFNULL(q.manufacturer, ''))) = LOWER(TRIM(%(manufacturer)s))",
-    ]
-    params = {"raw_material": raw_material, "manufacturer": manufacturer}
-
-    if supplier:
-        conditions.append("LOWER(TRIM(IFNULL(q.supplier, ''))) = LOWER(TRIM(%(supplier)s))")
-        params["supplier"] = supplier
-
-    if exclude_name:
-        conditions.append("q.name != %(exclude_name)s")
-        params["exclude_name"] = exclude_name
-
-    if not STAFF_ROLES.intersection(roles):
-        scope = _client_scope(frappe.session.user)
-        if scope is None:
-            frappe.throw("Client or staff access required.", frappe.PermissionError)
-        conditions.append("q.client_name = %(client_scope)s")
-        params["client_scope"] = scope
-
-    matches = frappe.db.sql(f"""
-        SELECT
-            q.name,
-            q.raw_material,
-            q.supplier,
-            q.manufacturer,
-            q.workflow_state,
-            q.client_name,
-            q.owner,
-            q.modified
-        FROM `tabQuery` q
-        WHERE {' AND '.join(conditions)}
-        ORDER BY q.modified DESC
-        LIMIT 5
-    """, params, as_dict=True)
-
-    matches = [match for match in matches if frappe.has_permission("Query", "read", doc=frappe.get_doc("Query", match.name))]
-    for match in matches:
-        match["documents"] = frappe.get_all(
-            "Documents",
-            filters={"parent": match.name, "parenttype": "Query"},
-            fields=["documents", "issue_date", "expiry_date", "attachment", "idx"],
-            order_by="idx asc",
-            ignore_permissions=True,
-        )
-    return {"matches": matches}
 
 @frappe.whitelist()
 def find_duplicates(raw_material=None, supplier=None, manufacturer=None, for_current_user=False):

@@ -303,6 +303,7 @@ scheduler_events = {
 		]
 	},
 	"daily": [
+		"sanha.api.entity_cleanup.enqueue_daily",
 		"sanha.sanha.doctype.client.client.update_all_client_statuses",
 		"sanha.dup_register.scan_and_sync"
 	]

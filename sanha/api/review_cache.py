@@ -8,6 +8,10 @@ from sanha.api import staff_review
 from sanha.api.ai_providers import ready_profiles, routing_signature, budget_signature
 
 
+def review_config():
+    return frappe.get_single("AI Agent Config")
+
+
 def auto_enabled():
     if not frappe.get_meta("AI Agent Config").has_field("auto_staff_review"):
         return False
@@ -26,7 +30,10 @@ def file_facts(doc):
 
 
 def fingerprint(doc, config, facts=None):
-    payload = {"revision": "consolidated-review-v2", "query": {field: doc.get(field) for field in ("name", "raw_material", "query_types", "supplier", "manufacturer")}, "documents": file_facts(doc) if facts is None else facts, "clauses": config.get("review_clauses"), "terms": config.get("review_terms"), "routes": routing_signature()}
+    from sanha.api.decision_support import final_decisions
+    decisions, count = final_decisions(doc.raw_material, doc.manufacturer, doc.supplier, doc.name)
+    reference_facts = [{k: r[k] for k in ("name", "modified", "workflow_state", "match_basis", "same_entities")} for r in decisions[:10]]
+    payload = {"revision": "material-assessment-v5", "decisions": reference_facts, "decision_count": count, "query": {field: doc.get(field) for field in ("name", "raw_material", "query_types", "supplier", "manufacturer")}, "documents": file_facts(doc) if facts is None else facts, "clauses": config.get("review_clauses"), "terms": config.get("review_terms"), "routes": routing_signature()}
     return hashlib.sha256(json.dumps(payload, default=str, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
@@ -34,6 +41,7 @@ def public_result(record):
     parsed = json.loads(record.result_json or "{}")
     parsed["sources"] = [{field: source.get(field) for field in ("id", "query", "document", "page", "url", "extraction")} for source in parsed.get("sources", [])]
     parsed["similar"] = []
+    parsed["research_sources"] = [{field: source.get(field) for field in ("id", "kind", "query", "title", "url", "retrieved_at", "scope")} for source in parsed.get("research_sources", [])]
     parsed["summaries"] = parsed.get("summaries", [])[:1]
     return parsed
 
@@ -43,7 +51,7 @@ def latest(query):
     doc = staff_review.check_query(query)
     if doc.workflow_state == "Delisted":
         return {"query": query, "current_state": doc.workflow_state, "status": "not_applicable", "auto_enabled": False}
-    config = frappe.get_single("AI Agent Config")
+    config = review_config()
     key = fingerprint(doc, config)
     name = frappe.db.exists("AI Query Review", key)
     result = {"fingerprint": key, "request_key": key, "query": query, "current_material": doc.raw_material, "current_state": doc.workflow_state, "auto_enabled": auto_enabled(), "providers_ready": bool(ready_profiles("review")), "status": "missing"}
@@ -66,14 +74,14 @@ def latest(query):
 def ensure(query, retry=0):
     doc = staff_review.check_query(query)
     if doc.workflow_state == "Delisted": return {"status": "not_applicable"}
-    key = fingerprint(doc, frappe.get_single("AI Agent Config"))
+    key = fingerprint(doc, review_config())
     if not auto_enabled(): return {"status": "auto_disabled"}
     if not ready_profiles("review"): return {"status": "needs_configuration"}
     if cint(retry) and frappe.db.exists("AI Query Review", key):
         saved = frappe.get_doc("AI Query Review", key)
         if saved.status in {"Failed", "Unavailable"}:
             frappe.db.set_value("AI Query Review", key, {"status": "Queued", "error": ""})
-    frappe.enqueue("sanha.api.review_cache.run", query=query, queue="long", timeout=600, enqueue_after_commit=True)
+    frappe.enqueue("sanha.api.review_cache.run", query=query, reviewer=frappe.session.user, queue="long", timeout=600, enqueue_after_commit=True)
     return {"status": "queued"}
 
 
@@ -102,14 +110,14 @@ def safe_enqueue(query):
         schedule_error("Summary queue unavailable after Query commit.")
 
 
-def run(query):
+def run(query, reviewer=None):
     original = frappe.session.user
     record = None
     try:
-        frappe.set_user("Administrator")
+        frappe.set_user(reviewer or "Administrator")
         doc = staff_review.check_query(query)
         if doc.workflow_state == "Delisted": return
-        config = frappe.get_single("AI Agent Config")
+        config = review_config()
         if not auto_enabled() or not ready_profiles("review"): return
         key = fingerprint(doc, config)
         existing = frappe.db.exists("AI Query Review", key)
@@ -133,6 +141,8 @@ def run(query):
         record.status = "Complete" if result.get("ai_status") == "complete" else "Unavailable"
         record.result_json = json.dumps(result, default=str, ensure_ascii=False)
         record.error = "" if record.status == "Complete" else "No valid cited summary generated. Check connection, budget and readable current documents."
+        if result.get("provider_failure_reason"):
+            record.error = "AI provider: " + result["provider_failure_reason"][:300]
         record.save(ignore_permissions=True); frappe.db.commit()
     except Exception:
         frappe.db.rollback()

@@ -1,0 +1,9 @@
+{
+ "doctype":"DocType","name":"Entity Cleanup Settings","module":"Sanha","issingle":1,"engine":"InnoDB",
+ "field_order":["enabled","daily_limit"],
+ "fields":[
+  {"fieldname":"enabled","fieldtype":"Check","label":"Enable Daily Verified Entity Corrections","default":"0"},
+  {"fieldname":"daily_limit","fieldtype":"Int","label":"Maximum Distinct Queries Per Day","default":"10","read_only":1}
+ ],
+ "permissions":[{"role":"System Manager","read":1,"write":1,"create":1},{"role":"Admin","read":1,"write":1,"create":1}]
+}

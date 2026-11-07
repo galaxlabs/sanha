@@ -8,9 +8,9 @@ import frappe
 import requests
 from frappe.utils import cint, now, today
 
-PROVIDERS = {"OpenAI", "Claude", "Gemini", "DeepSeek"}
-EDITABLE = {"title", "provider", "model", "api_key", "enabled", "use_for_text", "use_for_vision", "priority", "max_output_tokens", "daily_token_budget"}
-SAFE_FIELDS = ["name", "title", "provider", "model", "enabled", "use_for_text", "use_for_vision", "priority", "max_output_tokens", "daily_token_budget", "credential_revision", "legacy_imported", "setup_note", "last_test_status", "last_tested"]
+PROVIDERS = {"OpenAI", "Claude", "Gemini", "DeepSeek", "Qwen"}
+EDITABLE = {"title", "provider", "provider_region", "model", "api_key", "enabled", "use_for_text", "use_for_vision", "priority", "max_output_tokens", "daily_token_budget"}
+SAFE_FIELDS = ["name", "title", "provider", "provider_region", "model", "enabled", "use_for_text", "use_for_vision", "priority", "max_output_tokens", "daily_token_budget", "credential_revision", "legacy_imported", "setup_note", "last_test_status", "last_tested"]
 
 
 class ProviderError(Exception):
@@ -25,10 +25,22 @@ def require_admin():
 
 
 def model_compatible(provider, model):
-    checks = {"OpenAI": r"(?:gpt-|chatgpt-|o[134](?:-|$))", "Claude": r"claude-", "Gemini": r"gemini-", "DeepSeek": r"deepseek-"}
+    checks = {"OpenAI": r"(?:gpt-|chatgpt-|o[134](?:-|$))", "Claude": r"claude-", "Gemini": r"gemini-", "DeepSeek": r"deepseek-", "Qwen": r"(?:qwen|qwq-)"}
     if provider not in PROVIDERS or not isinstance(model, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", model) or not re.match(checks.get(provider, r"(?!)"), model):
         return False
     return not (provider == "OpenAI" and any(word in model.lower() for word in ("audio", "realtime", "image", "transcribe", "search", "tts")))
+
+
+def vision_compatible(provider, model):
+    if not model_compatible(provider, model):
+        return False
+    if provider == "DeepSeek":
+        return False
+    if provider == "Qwen":
+        return "vl" in model.lower() or "omni" in model.lower()
+    if provider == "OpenAI":
+        return bool(re.match(r"(?:gpt-4o|gpt-4\.1|gpt-5|o[134])", model))
+    return provider in {"Claude", "Gemini"}
 
 
 def validate_model(provider, model):
@@ -50,6 +62,7 @@ def ready_profiles(task="review"):
         doc = frappe.get_doc("AI Provider Profile", name)
         try:
             if not model_compatible(doc.provider, doc.model): continue
+            if task == "vision" and not vision_compatible(doc.provider, doc.model): continue
             if doc.get_password("api_key", raise_exception=False) and cint(doc.daily_token_budget) > 0:
                 result.append(doc)
         except Exception:
@@ -63,7 +76,7 @@ def routing_signature(task=None):
     filters = {"enabled": 1}
     if task:
         filters["use_for_vision" if task == "vision" else "use_for_text"] = 1
-    rows = frappe.get_all("AI Provider Profile", filters=filters, fields=["name", "provider", "model", "enabled", "use_for_text", "use_for_vision", "priority", "max_output_tokens", "credential_revision"], order_by="name asc", limit_page_length=0)
+    rows = frappe.get_all("AI Provider Profile", filters=filters, fields=["name", "provider", "provider_region", "model", "enabled", "use_for_text", "use_for_vision", "priority", "max_output_tokens", "credential_revision"], order_by="name asc", limit_page_length=0)
     return hashlib.sha256(json.dumps(rows, default=str, sort_keys=True).encode()).hexdigest()
 
 
@@ -156,6 +169,9 @@ def endpoint(doc):
         return "https://generativelanguage.googleapis.com/v1beta", {"x-goog-api-key": key}
     if doc.provider == "DeepSeek":
         return "https://api.deepseek.com", {"Authorization": "Bearer " + key}
+    if doc.provider == "Qwen":
+        host = "dashscope.aliyuncs.com" if doc.get("provider_region") == "China" else "dashscope-intl.aliyuncs.com"
+        return "https://" + host + "/compatible-mode/v1", {"Authorization": "Bearer " + key}
     raise ProviderError("unsupported_provider")
 
 
@@ -250,7 +266,7 @@ def finish(name, status, usage=None):
 
 def invoke(doc, messages, maximum):
     base, headers = endpoint(doc)
-    if doc.provider in {"OpenAI", "DeepSeek"}:
+    if doc.provider in {"OpenAI", "DeepSeek", "Qwen"}:
         payload = {"model": doc.model, "messages": messages}
         if not re.match(r"(?:gpt-5|o[134])", doc.model):
             payload["temperature"] = 0.2
@@ -307,6 +323,7 @@ def invoke(doc, messages, maximum):
 
 def call(messages, task="review", reference=None):
     frappe.local.ai_last_cache_key = None
+    frappe.local.ai_last_call = None
     from sanha.api.live_data import scope
     _, authorization = scope("Query")
     profiles = ready_profiles(task)
@@ -318,7 +335,7 @@ def call(messages, task="review", reference=None):
     for doc in profiles:
         cache_key = "ai-call:" + hashlib.sha256(f"{frappe.session.user}:{authorization}:{doc.name}:{doc.credential_revision}:{doc.model}:{doc.max_output_tokens}:{routes}:{task}:{request_hash}".encode()).hexdigest()
         candidates.append((doc, cache_key))
-        cached = frappe.cache().get_value(cache_key)
+        cached = frappe.cache().get_value(cache_key, expires=True)
         if cached:
             frappe.local.ai_last_cache_key = cache_key
             frappe.local.ai_last_call = {"provider": doc.provider, "model": doc.model, "cache_hit": True}

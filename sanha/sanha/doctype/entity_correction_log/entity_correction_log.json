@@ -1,0 +1,16 @@
+{
+ "doctype":"DocType","name":"Entity Correction Log","module":"Sanha","autoname":"field:request_key","engine":"InnoDB",
+ "field_order":["request_key","run_date","query","raw_material","status","before_json","after_json","evidence_json","reason"],
+ "fields":[
+  {"fieldname":"request_key","fieldtype":"Data","label":"Daily Query Reservation","unique":1,"reqd":1,"read_only":1},
+  {"fieldname":"run_date","fieldtype":"Date","label":"Run Date","reqd":1,"search_index":1,"read_only":1},
+  {"fieldname":"query","fieldtype":"Link","options":"Query","label":"Query","reqd":1,"read_only":1},
+  {"fieldname":"raw_material","fieldtype":"Data","label":"Material","read_only":1},
+  {"fieldname":"status","fieldtype":"Select","options":"Reserved\nCorrected\nUnresolved\nUnchanged\nConflict\nFailed","label":"Status","default":"Reserved","read_only":1},
+  {"fieldname":"before_json","fieldtype":"Long Text","label":"Original Values","read_only":1},
+  {"fieldname":"after_json","fieldtype":"Long Text","label":"Corrected Values","read_only":1},
+  {"fieldname":"evidence_json","fieldtype":"Long Text","label":"Evidence","read_only":1},
+  {"fieldname":"reason","fieldtype":"Small Text","label":"Outcome / Unresolved Reason","read_only":1}
+ ],
+ "permissions":[{"role":"System Manager","read":1},{"role":"Admin","read":1}]
+}

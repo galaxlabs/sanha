@@ -109,7 +109,7 @@ def run_checks():
     config.as_dict.return_value = policy
     config.get_password.return_value = False
     source = {"id": "D1:P1", "text": "Certificate includes restricted-example", "url": "/private/files/a.pdf", "page": 1}
-    with patch.object(review, "read_documents", return_value=([], [source], [], False)), patch.object(review, "has_ready_provider", side_effect=lambda task: bool(config.get_password("api_key", raise_exception=False))), patch.object(review, "_call_llm") as llm:
+    with patch.object(review, "read_documents", return_value=([], [source], [], False)), patch.object(review, "similar_queries", return_value=([], 0, 0)), patch.object(review, "chemistry", return_value=([], "test")), patch.object(review, "has_ready_provider", side_effect=lambda task: bool(config.get_password("api_key", raise_exception=False))), patch.object(review, "_call_llm") as llm:
         result = review.collect_review(doc, config)
         assert result["ai_status"] == "not_configured" and result["alerts"][0]["source"] == "D1:P1"
         llm.assert_not_called()
@@ -131,7 +131,7 @@ def check_existing_evidence():
             continue
         doc.check_permission("read")
         config = frappe.get_single("AI Agent Config")
-        with patch.object(config, "get_password", return_value=False), patch.object(review, "_call_llm") as llm:
+        with patch.object(config, "get_password", return_value=False), patch.object(review, "has_ready_provider", return_value=False), patch.object(review, "_call_llm") as llm:
             result = review.collect_review(doc, config)
             llm.assert_not_called()
         return {"query": name, "documents": len(result["documents"]), "readable_pages": len(result["sources"]), "similar_queries": result["similar_count"], "ai_status": result["ai_status"], "paid_provider_calls": 0, "records_changed": 0}

@@ -17,6 +17,7 @@
   "legacy_imported",
   "priority",
   "provider",
+  "provider_region",
   "api_key",
   "credential_revision",
   "last_test_status",
@@ -35,8 +36,16 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Provider",
-   "options": "OpenAI\nClaude\nGemini\nDeepSeek",
+   "options": "OpenAI\nClaude\nGemini\nDeepSeek\nQwen",
    "reqd": 1
+  },
+  {
+   "fieldname":"provider_region",
+   "fieldtype":"Select",
+   "label":"Qwen API Region",
+   "options":"International\nChina",
+   "default":"International",
+   "depends_on":"eval:doc.provider === 'Qwen'"
   },
   {
    "fieldname": "model",

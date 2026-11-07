@@ -49,10 +49,12 @@ def run_checks():
     checks.append("only exact conversation pairs returned")
 
     from sanha.sanha.doctype.query import query as controller
-    with patch.object(frappe, "get_roles", return_value=["Client"]), patch.object(controller, "_client_scope", return_value="Client A"), patch.object(frappe.db, "sql", return_value=[]) as sql:
+    from sanha.api import decision_support
+    with patch.object(frappe, "get_roles", return_value=["Client"]), patch.object(decision_support, "alias_index", return_value={}), patch.object(frappe, "get_list", return_value=[]) as get_list, patch.object(frappe.db, "sql", side_effect=AssertionError("Similarity must use permission-aware Query reads")):
         controller.find_similar_query(raw_material="Material", manufacturer="Company")
-        assert "q.client_name = %(client_scope)s" in sql.call_args.args[0]
-        assert sql.call_args.args[1]["client_scope"] == "Client A"
+        get_list.assert_called_once()
+        assert get_list.call_args.args[0] == "Query"
+        assert ["workflow_state", "in", list(decision_support.FINAL_STATES)] in get_list.call_args.kwargs["filters"]
     with patch.object(controller, "_client_scope", return_value="Client A"), patch.object(frappe, "get_list", return_value=[]) as get_list:
         controller.find_duplicates(raw_material="Material", for_current_user=False)
         assert get_list.call_args.kwargs["filters"]["client_name"] == "Client A"
