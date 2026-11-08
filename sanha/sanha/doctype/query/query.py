@@ -1,6 +1,9 @@
 # Copyright (c) 2024, Sanha Halal Pakistan and contributors
 # For license information, please see license.txt
 
+import re
+from urllib.parse import unquote
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -71,6 +74,14 @@ def has_permission(doc, user=None, ptype=None, permission_type=None):
 
 def _same_value(left, right):
     return str(left or "") == str(right or "")
+
+
+PLACEHOLDER_FILE = re.compile(r"(no[\s_-]+[\w\s_-]{0,30}[\s_-]+found|not[\s_-]+found|placeholder|dummy|not[\s_-]+available|missing)", re.IGNORECASE)
+
+
+def is_placeholder_file(attachment):
+    name = unquote((attachment or "").rsplit("/", 1)[-1])
+    return bool(PLACEHOLDER_FILE.search(name))
 
 
 class Query(Document):
@@ -171,6 +182,8 @@ class Query(Document):
                 frappe.throw(f"Row #{index}: Document Type is required.")
             if not row.attachment:
                 frappe.throw(f"Row #{index}: Please attach a file.")
+            if is_placeholder_file(row.attachment):
+                frappe.throw(f"Row #{index}: The attached file looks like a placeholder (\"{row.attachment.rsplit('/', 1)[-1]}\"). Please upload the actual document.")
             if row.documents in ISSUE_DATE_REQUIRED_DOCUMENTS and not row.issue_date:
                 frappe.throw(f"Row #{index}: Issue Date is required for {row.documents}.")
             if row.documents in EXPIRY_DATE_REQUIRED_DOCUMENTS and not row.expiry_date:
