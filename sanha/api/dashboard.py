@@ -95,3 +95,26 @@ def breakdowns(filters=None):
         t["total"] += int(row.count)
     by = lambda d: sorted(d.values(), key=lambda x: -x["total"])
     return {"clients": by(clients), "manufacturers": by(manufacturers)[:100], "types": by(types)}
+
+
+@frappe.whitelist()
+def quality(filters=None):
+    """Return visible Query totals for duplicate, master, client and material counts."""
+    filters = json.loads(filters) if isinstance(filters, str) else (filters or [])
+    total = frappe.db.count("Query", filters=filters) if filters else frappe.db.count("Query")
+    dup_filters = list(filters) + [["Query", "is_duplicate", "=", 1]]
+    duplicates = frappe.get_list("Query", filters=dup_filters, fields=["name"], limit_page_length=0)
+    master_filters = list(filters) + [["Query", "is_master", "=", 1]]
+    masters = frappe.get_list("Query", filters=master_filters, fields=["name", "is_duplicate"], limit_page_length=0)
+    materials = frappe.get_list("Query", filters=filters, fields=["raw_material"], group_by="raw_material", limit_page_length=0)
+    clients = frappe.get_list("Query", filters=filters, fields=["client_name"], group_by="client_name", limit_page_length=0)
+    dup_count = len(duplicates)
+    master_count = len([m for m in masters if int(m.is_duplicate or 0) != 1])
+    return {
+        "total": total,
+        "duplicates": dup_count,
+        "masters": master_count,
+        "unique": total - dup_count - master_count,
+        "materials": len([m for m in materials if m.raw_material]),
+        "clients": len([c for c in clients if c.client_name]),
+    }
