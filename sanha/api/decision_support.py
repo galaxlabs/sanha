@@ -5,7 +5,7 @@ from difflib import SequenceMatcher
 
 import frappe
 
-FINAL_STATES = ("Approved", "Halal", "Rejected", "Haram")
+FINAL_STATES = ("Approved", "Halal", "Rejected", "Haram", "Doubtful")
 PLACEHOLDERS = {"", "na", "none", "unknown", "tobeadded", "tobeadedd", "sameassupplier",
                 "sameasmanufactur", "sameasmanufacture", "sameasmanufacturer", "openmarket", "localmarket"}
 
