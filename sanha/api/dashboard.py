@@ -65,3 +65,33 @@ def client_resources(kind):
     if kind == "templates":
         return frappe.get_list("Templates", fields=["name", "title", "text_template", "modified"], order_by="modified desc", limit_page_length=100)
     frappe.throw("Unsupported resource.")
+
+
+@frappe.whitelist()
+def breakdowns(filters=None):
+    """Return visible Query totals per client, manufacturer and type, computed by the database."""
+    filters = json.loads(filters) if isinstance(filters, str) else (filters or [])
+
+    def grouped(field, extra=None):
+        return frappe.get_list(
+            "Query",
+            filters=filters,
+            fields=[f"{field} as name", "workflow_state as state", "count(name) as count"],
+            group_by=f"{field}, workflow_state",
+            limit_page_length=0,
+        )
+
+    clients, manufacturers, types = {}, {}, {}
+    for row in grouped('client_name'):
+        c = clients.setdefault(row.name or 'Unknown', {"name": row.name or 'Unknown', "total": 0, "approved": 0})
+        c["total"] += int(row.count)
+        if row.state == "Approved":
+            c["approved"] += int(row.count)
+    for row in grouped('manufacturer'):
+        m = manufacturers.setdefault(row.name or 'Unknown', {"name": row.name or 'Unknown', "total": 0})
+        m["total"] += int(row.count)
+    for row in grouped('query_types'):
+        t = types.setdefault(row.name or 'Unknown', {"name": row.name or 'Unknown', "total": 0})
+        t["total"] += int(row.count)
+    by = lambda d: sorted(d.values(), key=lambda x: -x["total"])
+    return {"clients": by(clients), "manufacturers": by(manufacturers)[:100], "types": by(types)}
