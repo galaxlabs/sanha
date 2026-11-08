@@ -29,11 +29,13 @@ def file_facts(doc):
     return facts
 
 
-def fingerprint(doc, config, facts=None):
+def fingerprint(doc, config, facts=None, language="ur"):
     from sanha.api.decision_support import final_decisions
     decisions, count = final_decisions(doc.raw_material, doc.manufacturer, doc.supplier, doc.name)
     reference_facts = [{k: r[k] for k in ("name", "modified", "workflow_state", "match_basis", "same_entities")} for r in decisions[:10]]
     payload = {"revision": "material-assessment-v6-word", "decisions": reference_facts, "decision_count": count, "query": {field: doc.get(field) for field in ("name", "raw_material", "query_types", "supplier", "manufacturer")}, "documents": file_facts(doc) if facts is None else facts, "clauses": config.get("review_clauses"), "terms": config.get("review_terms"), "routes": routing_signature()}
+    if language != "ur":
+        payload["language"] = language
     return hashlib.sha256(json.dumps(payload, default=str, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
@@ -47,12 +49,13 @@ def public_result(record):
 
 
 @frappe.whitelist()
-def latest(query):
+def latest(query, language="ur"):
+    language = language if language in ("ur", "en") else "ur"
     doc = staff_review.check_query(query)
     if doc.workflow_state == "Delisted":
         return {"query": query, "current_state": doc.workflow_state, "status": "not_applicable", "auto_enabled": False}
     config = review_config()
-    key = fingerprint(doc, config)
+    key = fingerprint(doc, config, language=language)
     name = frappe.db.exists("AI Query Review", key)
     result = {"fingerprint": key, "request_key": key, "query": query, "current_material": doc.raw_material, "current_state": doc.workflow_state, "auto_enabled": auto_enabled(), "providers_ready": bool(ready_profiles("review")), "status": "missing"}
     if name:
@@ -71,17 +74,18 @@ def latest(query):
 
 
 @frappe.whitelist(methods=["POST"])
-def ensure(query, retry=0):
+def ensure(query, retry=0, language="ur"):
+    language = language if language in ("ur", "en") else "ur"
     doc = staff_review.check_query(query)
     if doc.workflow_state == "Delisted": return {"status": "not_applicable"}
-    key = fingerprint(doc, review_config())
+    key = fingerprint(doc, review_config(), language=language)
     if not auto_enabled(): return {"status": "auto_disabled"}
     if not ready_profiles("review"): return {"status": "needs_configuration"}
     if cint(retry) and frappe.db.exists("AI Query Review", key):
         saved = frappe.get_doc("AI Query Review", key)
         if saved.status in {"Failed", "Unavailable"}:
             frappe.db.set_value("AI Query Review", key, {"status": "Queued", "error": ""})
-    frappe.enqueue("sanha.api.review_cache.run", query=query, reviewer=frappe.session.user, queue="long", timeout=600, enqueue_after_commit=True)
+    frappe.enqueue("sanha.api.review_cache.run", query=query, reviewer=frappe.session.user, language=language, queue="long", timeout=600, enqueue_after_commit=True)
     return {"status": "queued"}
 
 
@@ -110,7 +114,8 @@ def safe_enqueue(query):
         schedule_error("Summary queue unavailable after Query commit.")
 
 
-def run(query, reviewer=None):
+def run(query, reviewer=None, language="ur"):
+    language = language if language in ("ur", "en") else "ur"
     original = frappe.session.user
     record = None
     try:
@@ -119,7 +124,7 @@ def run(query, reviewer=None):
         if doc.workflow_state == "Delisted": return
         config = review_config()
         if not auto_enabled() or not ready_profiles("review"): return
-        key = fingerprint(doc, config)
+        key = fingerprint(doc, config, language=language)
         existing = frappe.db.exists("AI Query Review", key)
         if existing:
             record = frappe.get_doc("AI Query Review", existing)
@@ -137,7 +142,7 @@ def run(query, reviewer=None):
             frappe.db.rollback(); return
         record.status = "Working"; record.attempt_date = today(); record.attempts = cint(record.attempts) + 1; record.error = ""; record.budget_signature = budget_signature()
         record.save(ignore_permissions=True); frappe.db.commit()
-        result = staff_review.collect_review(doc, config)
+        result = staff_review.collect_review(doc, config, language)
         record.status = "Complete" if result.get("ai_status") == "complete" else "Unavailable"
         record.result_json = json.dumps(result, default=str, ensure_ascii=False)
         record.error = "" if record.status == "Complete" else "No valid cited summary generated. Check connection, budget and readable current documents."
