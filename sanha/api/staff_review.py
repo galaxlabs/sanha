@@ -272,6 +272,42 @@ def cited_findings(answer, source_ids):
     return output[:50]
 
 
+def knowledge_references(doc, limit=5):
+    """Approved or Authentic, Active, in-date Knowledge Sources related to this raw material.
+    They are general guidance only, never proof of this product's composition."""
+    from sanha.sanha.doctype.knowledge_source.knowledge_source import usable_for_ai
+    material = (doc.raw_material or "").strip().lower()
+    if not material:
+        return []
+    words = [w for w in re.split(r"\W+", material) if len(w) >= 3]
+    rows = frappe.get_all(
+        "Knowledge Source",
+        filters={"status": "Active", "badge": ["in", ["Approved", "Authentic"]]},
+        fields=["name", "title", "url", "trust_level", "badge", "status", "last_checked_on", "e_numbers", "topics", "content_scope", "valid_from", "valid_till"],
+        limit_page_length=500,
+    )
+    output = []
+    for row in rows:
+        haystack = " ".join(str(row.get(key) or "") for key in ("title", "topics", "content_scope", "e_numbers")).lower()
+        if not (material in haystack or any(word in haystack for word in words)):
+            continue
+        if not usable_for_ai(frappe._dict(row)):
+            continue
+        output.append({
+            "id": f"K{len(output) + 1}",
+            "kind": "knowledge_source",
+            "title": row.title,
+            "url": row.url,
+            "badge": row.badge,
+            "trust_level": row.trust_level,
+            "last_checked_on": str(row.last_checked_on or ""),
+            "text": json.dumps({"title": row.title, "badge": row.badge, "trust_level": row.trust_level, "content_scope": row.content_scope, "topics": row.topics}, ensure_ascii=False),
+        })
+        if len(output) >= limit:
+            break
+    return output
+
+
 LANGUAGE_NAMES = {"ur": "Urdu", "en": "English"}
 
 
@@ -299,7 +335,8 @@ def collect_review(doc, config, language="ur"):
     declared = [{"id": item["id"], "kind": "document_metadata", "query": doc.name, "url": item.get("url"),
                  "title": item["type"], "scope": "Declared document type/extraction status only; NOT proof of unreadable content.",
                  "text": json.dumps({key: item.get(key) for key in ("type", "extraction_status", "warning", "issue_date", "expiry_date")}, default=str)} for item in documents]
-    result["research_sources"] = [metadata] + historical + public + declared
+    knowledge = knowledge_references(doc)
+    result["research_sources"] = [metadata] + historical + public + declared + knowledge
     prompt_sources = []
     chars = 0
     for source in sources:
@@ -313,8 +350,9 @@ def collect_review(doc, config, language="ur"):
     instruction += """ تمام وضاحتی متن اردو میں لکھیں: analysis، assessment، findings اور department_notes کا ہر text اردو ہو؛ صرف سائنسی نام، کمپنی نام اور حوالہ IDs انگریزی رہ سکتے ہیں۔ کسی عوامی حوالے کو صرف اسی دعوے کے لیے استعمال کریں جو اس کے فراہم کردہ متن میں موجود ہے؛ compound identity/formula کسی استعمال، process یا ماخذ کا ثبوت نہیں۔ عمومی علمی مشورے کو صاف 'عمومی رہنمائی' کہہ کر Q0 سے الگ شناخت دیں، اسے دستاویزی حقیقت نہ بنائیں۔ کسی جاندار کا metabolite ہونا اس مادے کے تجارتی manufacturing source کا ثبوت نہیں۔ Fictional/test/synthetic QA sample کا لیبل مصنوعی کیمیائی ماخذ کا ثبوت نہیں۔ اگر اصل source not declared ہو تو ماخذ نامعلوم ہی لکھیں۔"""
     instruction += """ Also return follow_up_questions:[{text,sources:[IDs]}] with THREE specific actionable Urdu questions for this product. Ask about its actual source, manufacturing/refining process and relevant ingredients/processing aids; request specific evidence to resolve gaps. The missing_evidence section must say what to REQUEST, not merely repeat that papers are missing. The halal_questions section must identify product-relevant unknown inputs/processes as QUESTIONS, not label a material non-halal because a certificate/approval is absent. Do not demand a halal certificate for every material without institutional policy. Keep these questions concise (each <=180 characters), and do not assert that a possible processing aid was actually used."""
     instruction += """ Source locators D:P are PDF/text pages, D:T are Word logical text sections, and D:IMG are Word embedded images. Bare D IDs cite declared document metadata/extraction status ONLY, never the unreadable content. Use Q0 for general material advice. Return ALL five assessment sections and at least three actionable questions even when evidence is absent; explicitly mark unknowns instead of omitting required sections."""
+    instruction += """ K references are APPROVED or AUTHENTIC knowledge sources (badge shown). Cite them only for general guidance about the material; they never prove this product's composition, process or authenticity."""
     payload = {"query": {field: doc.get(field) for field in ("name", "raw_material", "query_types", "supplier", "manufacturer")}, "documents": documents, "sources": prompt_sources,
-               "database_first_references": historical, "research_sources": [metadata] + public + declared,
+               "database_first_references": historical, "research_sources": [metadata] + public + declared + knowledge,
                "document_observations": result["document_observations"], "clauses": clauses}
     try:
         reply = _call_llm(config.as_dict(), [{"role": "system", "content": instruction}, {"role": "user", "content": json.dumps(payload, default=str, ensure_ascii=False)}], purpose="review", reference=doc.name)
