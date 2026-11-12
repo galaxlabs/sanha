@@ -1,5 +1,6 @@
 import frappe
 import json
+import re
 from frappe.utils import cint, now_datetime
 from sanha.api.auth import _find_client
 
@@ -89,6 +90,16 @@ def query_timeline(contact, query):
             if isinstance(change, (list, tuple)) and len(change) >= 3 and change[0] == "workflow_state":
                 events.append({"id": f"{version.name}:{index}", "time": str(version.creation), "kind": "workflow", "label": "Workflow status changed", "from_state": change[1], "to_state": change[2]})
     events.append({"id": "updated", "time": str(doc.modified), "kind": "updated", "label": "Last record update"})
+    if is_staff(frappe.session.user):
+        comments = frappe.get_all(
+            "Comment",
+            filters={"reference_doctype": "Query", "reference_name": doc.name, "comment_type": "Comment"},
+            fields=["name", "content", "comment_by", "creation"],
+            limit_page_length=500,
+        )
+        for comment in comments:
+            text = re.sub(r"<[^>]+>", "", comment.content or "").strip()
+            events.append({"id": f"comment:{comment.name}", "time": str(comment.creation), "kind": "comment", "label": "Team comment", "author": comment.comment_by, "text": text[:2000]})
     events.sort(key=lambda event: event["time"])
     return {"query": doc.name, "raw_material": doc.raw_material, "current_state": doc.workflow_state, "events": events, "history_note": "Only recorded workflow changes are shown. Internal comments and other document fields are not included; earlier history may be unavailable if version tracking was not enabled."}
 
