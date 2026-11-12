@@ -25,8 +25,7 @@ def list_comments(query):
         order_by="creation asc",
         limit_page_length=500,
     )
-    # Only comments written by staff accounts; older client comments on the same Query are excluded.
-    return [row for row in rows if is_staff(row.comment_email)]
+    return rows
 
 
 @frappe.whitelist(methods=["POST"])
