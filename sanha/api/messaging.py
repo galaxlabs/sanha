@@ -4,6 +4,8 @@ from frappe.utils import cint
 from sanha.api.auth import _find_client
 
 STAFF = {"Admin", "System Manager", "Administrator", "Evaluation", "SB User", "Certificate Manager"}
+# Roles that can be contacted in messaging. System Manager is not listed; the Web Admin account keeps Admin.
+CONTACT_ROLES = {"Admin", "Evaluation", "SB User", "Certificate Manager"}
 
 
 def is_staff(user):
@@ -16,7 +18,7 @@ def allowed_contact(user, other):
     if user == other or other in {"Guest", "Administrator"} or not frappe.db.get_value("User", other, "enabled"):
         return False
     if is_staff(other):
-        return True
+        return bool(CONTACT_ROLES.intersection(frappe.get_roles(other)))
     return is_staff(user) and "Client" in frappe.get_roles(other)
 
 
