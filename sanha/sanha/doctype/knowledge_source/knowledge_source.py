@@ -35,8 +35,11 @@ class KnowledgeSource(Document):
     def guard_badge_and_status(self):
         before = self.get_doc_before_save()
         if not before:
-            if self.badge != "None" and not _can_set_badge():
-                frappe.throw("Only Admin or System Manager can set a badge.")
+            if self.badge != "None":
+                if not _can_set_badge():
+                    frappe.throw("Only Admin or System Manager can set a badge.")
+                self.badge_set_by = frappe.session.user
+                self.badge_set_on = now_datetime()
             return
         badge_changed = before.badge != self.badge
         status_changed = before.status != self.status
