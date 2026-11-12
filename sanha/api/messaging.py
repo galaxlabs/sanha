@@ -90,16 +90,15 @@ def query_timeline(contact, query):
             if isinstance(change, (list, tuple)) and len(change) >= 3 and change[0] == "workflow_state":
                 events.append({"id": f"{version.name}:{index}", "time": str(version.creation), "kind": "workflow", "label": "Workflow status changed", "from_state": change[1], "to_state": change[2]})
     events.append({"id": "updated", "time": str(doc.modified), "kind": "updated", "label": "Last record update"})
-    if is_staff(frappe.session.user):
-        comments = frappe.get_all(
-            "Comment",
-            filters={"reference_doctype": "Query", "reference_name": doc.name, "comment_type": "Comment"},
-            fields=["name", "content", "comment_by", "creation"],
-            limit_page_length=500,
-        )
-        for comment in comments:
-            text = re.sub(r"<[^>]+>", "", comment.content or "").strip()
-            events.append({"id": f"comment:{comment.name}", "time": str(comment.creation), "kind": "comment", "label": "Team comment", "author": comment.comment_by, "text": text[:2000]})
+    comments = frappe.get_all(
+        "Comment",
+        filters={"reference_doctype": "Query", "reference_name": doc.name, "comment_type": "Comment"},
+        fields=["name", "content", "comment_by", "creation"],
+        limit_page_length=500,
+    )
+    for comment in comments:
+        text = re.sub(r"<[^>]+>", "", comment.content or "").strip()
+        events.append({"id": f"comment:{comment.name}", "time": str(comment.creation), "kind": "comment", "label": "Team comment", "author": comment.comment_by, "text": text[:2000]})
     events.sort(key=lambda event: event["time"])
     return {"query": doc.name, "raw_material": doc.raw_material, "current_state": doc.workflow_state, "events": events, "history_note": "Only recorded workflow changes are shown. Internal comments and other document fields are not included; earlier history may be unavailable if version tracking was not enabled."}
 
@@ -110,7 +109,32 @@ def conversation(contact):
     if not allowed_contact(user, contact):
         frappe.throw("Contact is not allowed.", frappe.PermissionError)
     rows = frappe.get_all("Portal Message", filters={"sender": ["in", [user, contact]], "recipient": ["in", [user, contact]]}, fields=["name", "sender", "recipient", "message", "query_reference", "creation", "delivered_at", "read_at"], order_by="creation desc", limit_page_length=100)
-    return [row for row in rows[::-1] if (row.sender == user and row.recipient == contact) or (row.sender == contact and row.recipient == user)]
+    items = [row for row in rows[::-1] if (row.sender == user and row.recipient == contact) or (row.sender == contact and row.recipient == user)]
+    client_side = next((person for person in (user, contact) if not is_staff(person)), None)
+    if client_side:
+        client = _find_client(client_side, frappe.db.get_value("User", client_side, "email"))
+        query_names = frappe.get_all("Query", filters={"client_name": client.name}, pluck="name", limit_page_length=0) if client else []
+        if query_names:
+            comments = frappe.get_all(
+                "Comment",
+                filters={"reference_doctype": "Query", "reference_name": ["in", query_names], "comment_type": "Comment"},
+                fields=["name", "content", "comment_email", "reference_name", "creation"],
+                limit_page_length=500,
+            )
+            for comment in comments:
+                items.append(frappe._dict({
+                    "name": "comment:" + comment.name,
+                    "sender": comment.comment_email,
+                    "recipient": client_side,
+                    "message": re.sub(r"<[^>]+>", "", comment.content or "").strip()[:2000],
+                    "query_reference": comment.reference_name,
+                    "creation": comment.creation,
+                    "delivered_at": None,
+                    "read_at": None,
+                    "is_comment": 1,
+                }))
+            items.sort(key=lambda row: str(row.creation))
+    return items
 
 
 @frappe.whitelist(methods=["POST"])
