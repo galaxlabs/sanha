@@ -1,11 +1,58 @@
 {
- "doctype":"DocType", "name":"Portal Message", "module":"Sanha", "autoname":"hash", "engine":"InnoDB",
- "field_order":["sender","recipient","query_reference","message"],
- "fields":[
-  {"fieldname":"sender","fieldtype":"Link","options":"User","label":"Sender","reqd":1},
-  {"fieldname":"recipient","fieldtype":"Link","options":"User","label":"Recipient","reqd":1},
-  {"fieldname":"query_reference","fieldtype":"Link","options":"Query","label":"Query"},
-  {"fieldname":"message","fieldtype":"Long Text","label":"Message","reqd":1}
+ "doctype": "DocType",
+ "name": "Portal Message",
+ "module": "Sanha",
+ "autoname": "hash",
+ "engine": "InnoDB",
+ "field_order": [
+  "sender",
+  "recipient",
+  "query_reference",
+  "message",
+  "delivered_at",
+  "read_at"
  ],
- "permissions":[], "sort_field":"creation", "sort_order":"DESC"
+ "fields": [
+  {
+   "fieldname": "sender",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Sender",
+   "reqd": 1
+  },
+  {
+   "fieldname": "recipient",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Recipient",
+   "reqd": 1
+  },
+  {
+   "fieldname": "query_reference",
+   "fieldtype": "Link",
+   "options": "Query",
+   "label": "Query"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Long Text",
+   "label": "Message",
+   "reqd": 1
+  },
+  {
+   "fieldname": "delivered_at",
+   "fieldtype": "Datetime",
+   "label": "Delivered At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "read_at",
+   "fieldtype": "Datetime",
+   "label": "Read At",
+   "read_only": 1
+  }
+ ],
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC"
 }

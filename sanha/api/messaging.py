@@ -1,6 +1,6 @@
 import frappe
 import json
-from frappe.utils import cint
+from frappe.utils import cint, now_datetime
 from sanha.api.auth import _find_client
 
 STAFF = {"Admin", "System Manager", "Administrator", "Evaluation", "SB User", "Certificate Manager"}
@@ -98,7 +98,7 @@ def conversation(contact):
     user = frappe.session.user
     if not allowed_contact(user, contact):
         frappe.throw("Contact is not allowed.", frappe.PermissionError)
-    rows = frappe.get_all("Portal Message", filters={"sender": ["in", [user, contact]], "recipient": ["in", [user, contact]]}, fields=["name", "sender", "recipient", "message", "query_reference", "creation"], order_by="creation desc", limit_page_length=100)
+    rows = frappe.get_all("Portal Message", filters={"sender": ["in", [user, contact]], "recipient": ["in", [user, contact]]}, fields=["name", "sender", "recipient", "message", "query_reference", "creation", "delivered_at", "read_at"], order_by="creation desc", limit_page_length=100)
     return [row for row in rows[::-1] if (row.sender == user and row.recipient == contact) or (row.sender == contact and row.recipient == user)]
 
 
@@ -114,3 +114,27 @@ def send(contact, message, query_reference=None):
     doc = frappe.get_doc({"doctype": "Portal Message", "sender": user, "recipient": contact, "message": message.strip(), "query_reference": query_reference or None})
     doc.insert(ignore_permissions=True)
     return doc.name
+
+
+@frappe.whitelist()
+def unread_summary():
+    """Unread counts for the signed-in user. Calling this marks incoming messages as delivered."""
+    user = frappe.session.user
+    if not is_staff(user) and "Client" not in frappe.get_roles(user):
+        frappe.throw("Messaging is not available for this account.", frappe.PermissionError)
+    now = now_datetime()
+    frappe.db.sql("UPDATE `tabPortal Message` SET delivered_at=%s WHERE recipient=%s AND delivered_at IS NULL", (now, user))
+    rows = frappe.db.sql("SELECT sender, COUNT(name) FROM `tabPortal Message` WHERE recipient=%s AND read_at IS NULL GROUP BY sender", (user,))
+    by_contact = {sender: int(count) for sender, count in rows if allowed_contact(user, sender)}
+    return {"total": sum(by_contact.values()), "by_contact": by_contact}
+
+
+@frappe.whitelist(methods=["POST"])
+def mark_read(contact):
+    """Mark messages from this contact to the signed-in user as read."""
+    user = frappe.session.user
+    if not allowed_contact(user, contact):
+        frappe.throw("Contact is not allowed.", frappe.PermissionError)
+    now = now_datetime()
+    frappe.db.sql("UPDATE `tabPortal Message` SET read_at=%s, delivered_at=COALESCE(delivered_at, %s) WHERE recipient=%s AND sender=%s AND read_at IS NULL", (now, now, user, contact))
+    return True
