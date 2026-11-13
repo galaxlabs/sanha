@@ -277,12 +277,12 @@ def ask(message, history=None):
 
 
 def _knowledge_context(message, staff):
-    from sanha.sanha.doctype.knowledge_source.knowledge_source import usable_for_ai
+    from sanha.sanha.doctype.knowledge_source.knowledge_source import fresh_summary, usable_for_ai
     words = {w.lower() for w in re.split(r"\W+", message or "") if len(w) >= 3}
     rows = frappe.get_all(
         "Knowledge Source",
         filters={"status": "Active", "badge": ["in", ["Approved", "Authentic"]]},
-        fields=["name", "title", "url", "publisher", "content_scope", "topics", "e_numbers", "trust_level", "badge", "last_checked_on", "valid_from", "valid_till", "status"],
+        fields=["name", "title", "url", "publisher", "content_scope", "topics", "e_numbers", "trust_level", "badge", "last_checked_on", "valid_from", "valid_till", "status", "file", "version", "source_type", "ai_summary", "ai_summary_hash"],
         limit_page_length=500,
     )
     output = []
@@ -301,6 +301,7 @@ def _knowledge_context(message, staff):
             "badge": row.badge,
             "scope": row.content_scope,
             "last_checked_on": str(row.last_checked_on or ""),
+            "summary": fresh_summary(row),
         })
         if len(output) >= 8:
             break
