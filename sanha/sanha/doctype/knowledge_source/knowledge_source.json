@@ -47,7 +47,7 @@
    "label": "Source Type",
    "reqd": 1,
    "in_list_view": 1,
-   "options": "Website\nPDF / Document\nBook\nArticle\nOIC Resolution\nInstitutional Clause\nRegulation\nOther"
+   "options": "Website\nPDF / Document\nBook\nArticle\nOIC Resolution\nInstitutional Clause\nRegulation\nStandard\nOther"
   },
   {
    "fieldname": "publisher",
