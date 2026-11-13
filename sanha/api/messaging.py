@@ -29,7 +29,9 @@ def contacts():
     roles = STAFF | ({"Client"} if is_staff(user) else set())
     names = frappe.get_all("Has Role", filters={"parenttype": "User", "role": ["in", list(roles)]}, pluck="parent")
     rows = frappe.get_all("User", filters={"name": ["in", list(set(names))], "enabled": 1}, fields=["name", "full_name"])
-    return [{**row, "departments": sorted(STAFF.intersection(frappe.get_roles(row.name))) or ["Client"]} for row in rows if allowed_contact(user, row.name)]
+    unread = {sender: int(count) for sender, count in frappe.db.sql("SELECT sender, COUNT(name) FROM `tabPortal Message` WHERE recipient=%s AND read_at IS NULL GROUP BY sender", (user,))}
+    last = {sender: str(when) for sender, when in frappe.db.sql("SELECT sender, MAX(creation) FROM `tabPortal Message` WHERE recipient=%s GROUP BY sender", (user,))}
+    return [{**row, "departments": sorted(STAFF.intersection(frappe.get_roles(row.name))) or ["Client"], "unread": unread.get(row.name, 0), "last_received_at": last.get(row.name)} for row in rows if allowed_contact(user, row.name)]
 
 
 def check_query(query, user):
