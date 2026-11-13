@@ -10,6 +10,12 @@ frappe.dom.set_style(`
     border-radius: 6px;
     transition: box-shadow 0.2s ease;
   }
+
+  .sanha-client-query .form-sidebar .form-attachments,
+  .sanha-client-query .form-sidebar .attachments-actions,
+  .sanha-client-query .form-sidebar .add-attachment-btn {
+    display: none !important;
+  }
 `);
 
 function query_header_is_complete(frm) {
@@ -38,7 +44,9 @@ function update_documents_gate(frm) {
 }
 
 function hide_standard_query_attachments(frm) {
-  if (!frappe.user.has_role("Client")) return;
+  const is_client = frappe.user.has_role("Client");
+  $(frm.page.wrapper).toggleClass("sanha-client-query", is_client);
+  if (!is_client) return;
 
   const hide_attachments = () => {
     if (frm.attachments && frm.attachments.parent) {
@@ -137,6 +145,10 @@ function remove_duplicate_document_attachments(frm) {
 }
 
 frappe.ui.form.on("Query", {
+  setup(frm) {
+    hide_standard_query_attachments(frm);
+  },
+
   onload(frm) {
     hide_standard_query_attachments(frm);
     remember_saved_document_attachments(frm);
