@@ -1,3 +1,6 @@
+import hashlib
+import json
+
 import frappe
 from frappe.model.document import Document
 from frappe.utils import getdate, now_datetime, nowdate
@@ -60,3 +63,25 @@ def usable_for_ai(source, on_date=None):
     if source.valid_till and getdate(source.valid_till) < today:
         return False
     return True
+
+
+def _fingerprint(doc):
+    basis = "|".join(str(doc.get(key) or "") for key in ("title", "publisher", "source_type", "content_scope", "topics", "e_numbers", "url", "version", "file"))
+    return hashlib.sha256(basis.encode("utf-8")).hexdigest()
+
+
+def cached_summary(doc):
+    """Return the stored AI summary, creating it once per content fingerprint. Stored in the database."""
+    from sanha.api import chat
+    current = _fingerprint(doc)
+    if doc.get("ai_summary") and doc.get("ai_summary_hash") == current:
+        return doc.get("ai_summary")
+    config = frappe.get_single("AI Agent Config").as_dict()
+    metadata = {key: doc.get(key) for key in ("title", "publisher", "source_type", "content_scope", "topics", "e_numbers", "version")}
+    messages = [
+        {"role": "system", "content": "Summarize this approved knowledge source for SANHA staff in Urdu, in at most 600 characters. Use only the metadata given. Do not invent requirements, numbers or claims; say when the details must be checked in the source document."},
+        {"role": "user", "content": json.dumps(metadata, ensure_ascii=False)},
+    ]
+    text = str(chat._call_llm(config, messages, purpose="knowledge_summary", reference=doc.name) or "").strip()[:2000]
+    frappe.db.set_value("Knowledge Source", doc.name, {"ai_summary": text, "ai_summary_hash": current, "ai_summary_on": now_datetime()}, update_modified=False)
+    return text

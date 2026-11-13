@@ -31,7 +31,11 @@
   "valid_till",
   "last_checked_on",
   "sec_notes",
-  "notes"
+  "notes",
+  "sec_cache",
+  "ai_summary",
+  "ai_summary_on",
+  "ai_summary_hash"
  ],
  "fields": [
   {
@@ -181,6 +185,29 @@
    "fieldname": "sec_notes",
    "fieldtype": "Section Break",
    "label": "اندرونی نوٹ"
+  },
+  {
+   "fieldname": "sec_cache",
+   "fieldtype": "Section Break",
+   "label": "AI کیشے (خودکار)"
+  },
+  {
+   "fieldname": "ai_summary",
+   "fieldtype": "Long Text",
+   "label": "AI Summary (cached)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_summary_hash",
+   "fieldtype": "Data",
+   "label": "Summary Fingerprint",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_summary_on",
+   "fieldtype": "Datetime",
+   "label": "Summary Created On",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 0,

@@ -272,6 +272,15 @@ def cited_findings(answer, source_ids):
     return output[:50]
 
 
+def _knowledge_text(row):
+    from sanha.sanha.doctype.knowledge_source.knowledge_source import cached_summary
+    try:
+        summary = cached_summary(frappe.get_doc("Knowledge Source", row.name))
+    except Exception:
+        summary = ""
+    return summary or json.dumps({"title": row.title, "badge": row.badge, "trust_level": row.trust_level, "content_scope": row.content_scope, "topics": row.topics}, ensure_ascii=False)
+
+
 def knowledge_references(doc, limit=5):
     """Approved or Authentic, Active, in-date Knowledge Sources related to this raw material.
     They are general guidance only, never proof of this product's composition."""
@@ -301,7 +310,7 @@ def knowledge_references(doc, limit=5):
             "badge": row.badge,
             "trust_level": row.trust_level,
             "last_checked_on": str(row.last_checked_on or ""),
-            "text": json.dumps({"title": row.title, "badge": row.badge, "trust_level": row.trust_level, "content_scope": row.content_scope, "topics": row.topics}, ensure_ascii=False),
+            "text": _knowledge_text(row),
         })
         if len(output) >= limit:
             break
