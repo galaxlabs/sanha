@@ -31,7 +31,10 @@ def contacts():
     rows = frappe.get_all("User", filters={"name": ["in", list(set(names))], "enabled": 1}, fields=["name", "full_name"])
     unread = {sender: int(count) for sender, count in frappe.db.sql("SELECT sender, COUNT(name) FROM `tabPortal Message` WHERE recipient=%s AND read_at IS NULL GROUP BY sender", (user,))}
     last = {sender: str(when) for sender, when in frappe.db.sql("SELECT sender, MAX(creation) FROM `tabPortal Message` WHERE recipient=%s GROUP BY sender", (user,))}
-    return [{**row, "departments": sorted(STAFF.intersection(frappe.get_roles(row.name))) or ["Client"], "unread": unread.get(row.name, 0), "last_received_at": last.get(row.name)} for row in rows if allowed_contact(user, row.name)]
+    received = {sender: int(count) for sender, count in frappe.db.sql("SELECT sender, COUNT(name) FROM `tabPortal Message` WHERE recipient=%s GROUP BY sender", (user,))}
+    sent = {recipient: int(count) for recipient, count in frappe.db.sql("SELECT recipient, COUNT(name) FROM `tabPortal Message` WHERE sender=%s GROUP BY recipient", (user,))}
+    recent = {sender: int(count) for sender, count in frappe.db.sql("SELECT sender, COUNT(name) FROM `tabPortal Message` WHERE recipient=%s AND creation >= NOW() - INTERVAL 1 DAY GROUP BY sender", (user,))}
+    return [{**row, "departments": sorted(STAFF.intersection(frappe.get_roles(row.name))) or ["Client"], "unread": unread.get(row.name, 0), "last_received_at": last.get(row.name), "total_messages": received.get(row.name, 0) + sent.get(row.name, 0), "new_messages": recent.get(row.name, 0)} for row in rows if allowed_contact(user, row.name)]
 
 
 def check_query(query, user):
