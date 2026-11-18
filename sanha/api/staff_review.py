@@ -258,6 +258,36 @@ def document_observations(documents, sources):
     return observations
 
 
+ISLAMIC_COUNTRIES = ("pakistan", "malaysia", "indonesia", "saudi", "uae", "emirates", "turkey", "türkiye", "egypt", "bangladesh", "iran", "qatar", "kuwait", "oman", "bahrain", "jordan", "morocco", "algeria", "tunisia", "iraq", "syria", "lebanon", "yemen", "libya", "sudan", "afghanistan", "brunei", "maldives", "mauritania", "somalia", "djibouti", "comoros")
+ISLAMIC_COUNTRY_NAMES = {"pakistan": "پاکستان", "malaysia": "ملائشیا", "indonesia": "انڈونیشیا", "saudi": "سعودی عرب", "uae": "متحدہ عرب امارات", "emirates": "متحدہ عرب امارات", "turkey": "ترکی", "türkiye": "ترکی", "egypt": "مصر", "bangladesh": "بنگلہ دیش", "iran": "ایران", "qatar": "قطر", "kuwait": "کویت", "oman": "عمان", "bahrain": "بحرین", "jordan": "اردن", "morocco": "مراکش", "algeria": "الجزائر", "tunisia": "تیونس", "iraq": "عراق", "syria": "شام", "lebanon": "لبنان", "yemen": "یمن", "libya": "لیبیا", "sudan": "سوڈان", "afghanistan": "افغانستان", "brunei": "برونئی", "maldives": "مالدیپ", "mauritania": "موریتانیا", "somalia": "صومالیہ", "djibouti": "جبوتی", "comoros": "کوموروس"}
+GENERIC_ABSENCE = ("نہیں کی گئی", "موجود نہیں", "واضح نہیں", "درج نہیں", "فراہم نہیں")
+
+
+def islamic_country_sentence(text_blob, product_text):
+    """Written by code: a halal-labelled product whose manufacturer is in an Islamic-majority country."""
+    lowered = text_blob.lower()
+    if not re.search(r"halal|حلال", product_text, re.IGNORECASE):
+        return ""
+    for key in ISLAMIC_COUNTRIES:
+        if re.search(r"" + re.escape(key) + r"", lowered):
+            name = ISLAMIC_COUNTRY_NAMES.get(key, key)
+            return f"یہ پروڈکٹ {name} کے مینوفیکچرر کی ہے اور اس پر حلال درج ہے، لہٰذا یہ اپنے ملک سے تصدیق شدہ ہے۔"
+    return ""
+
+
+def evidence_question(item):
+    """A question needs a document or reference source, and a reason that is not just 'missing information'."""
+    refs = item.get("sources") or []
+    if not any(ref.startswith(("D", "H", "C", "K")) for ref in refs):
+        return False
+    reason = str(item.get("reason") or "")
+    if not reason:
+        return False
+    if any(phrase in reason for phrase in GENERIC_ABSENCE) and not any(ref.startswith(("H", "C")) for ref in refs):
+        return False
+    return True
+
+
 def cited_findings(answer, source_ids):
     output = []
     for finding in answer if isinstance(answer, list) else []:
@@ -376,9 +406,15 @@ def collect_review(doc, config, language="ur"):
         allowed = {source["id"] for source in prompt_sources + result["research_sources"]} | {clause["id"] for clause in clauses}
         analysis = parsed.get("analysis")
         result["summaries"] = cited_findings([analysis] if isinstance(analysis, dict) else parsed.get("summaries"), allowed)[:1]
-        for summary in result["summaries"]: summary["text"] = summary["text"][:1400]
+        product_text = " ".join(str(doc.get(f) or "") for f in ("raw_material", "name", "query_types"))
+        blob = " ".join([str(doc.get(f) or "") for f in ("manufacturer", "manufacturer_contact")] + [s.get("text", "")[:3000] for s in prompt_sources])
+        country_line = islamic_country_sentence(blob, product_text + " " + blob)
+        for summary in result["summaries"]:
+            if country_line and country_line not in summary["text"]:
+                summary["text"] = country_line + " " + summary["text"]
+            summary["text"] = summary["text"][:1400]
         result["findings"] = cited_findings(parsed.get("findings"), allowed)[:5]
-        result["follow_up_questions"] = cited_findings(parsed.get("follow_up_questions"), allowed)[:8]
+        result["follow_up_questions"] = [item for item in cited_findings(parsed.get("follow_up_questions"), allowed) if evidence_question(item)][:8]
         notes = parsed.get("department_notes") or {}
         assessment = parsed.get("assessment") or {}
         result["assessment"] = {name: valid[0] for name in ("identity", "origin_process", "chemistry_uses", "halal_questions", "missing_evidence")
