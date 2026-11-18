@@ -33,7 +33,7 @@ def fingerprint(doc, config, facts=None, language="ur"):
     from sanha.api.decision_support import final_decisions
     decisions, count = final_decisions(doc.raw_material, doc.manufacturer, doc.supplier, doc.name)
     reference_facts = [{k: r[k] for k in ("name", "modified", "workflow_state", "match_basis", "same_entities")} for r in decisions[:10]]
-    payload = {"revision": "material-assessment-v6-word", "decisions": reference_facts, "decision_count": count, "query": {field: doc.get(field) for field in ("name", "raw_material", "query_types", "supplier", "manufacturer")}, "documents": file_facts(doc) if facts is None else facts, "clauses": config.get("review_clauses"), "terms": config.get("review_terms"), "routes": routing_signature()}
+    payload = {"revision": "material-assessment-v7-evidence", "decisions": reference_facts, "decision_count": count, "query": {field: doc.get(field) for field in ("name", "raw_material", "query_types", "supplier", "manufacturer")}, "documents": file_facts(doc) if facts is None else facts, "clauses": config.get("review_clauses"), "terms": config.get("review_terms"), "routes": routing_signature()}
     if language != "ur":
         payload["language"] = language
     return hashlib.sha256(json.dumps(payload, default=str, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
