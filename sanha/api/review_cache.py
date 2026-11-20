@@ -74,13 +74,16 @@ def latest(query, language="ur"):
 
 
 @frappe.whitelist(methods=["POST"])
-def ensure(query, retry=0, language="ur"):
+def ensure(query, retry=0, language="ur", regenerate=0):
     language = language if language in ("ur", "en") else "ur"
     doc = staff_review.check_query(query)
     if doc.workflow_state == "Delisted": return {"status": "not_applicable"}
     key = fingerprint(doc, review_config(), language=language)
     if not auto_enabled(): return {"status": "auto_disabled"}
     if not ready_profiles("review"): return {"status": "needs_configuration"}
+    if cint(regenerate) and frappe.db.exists("AI Query Review", key):
+        # Explicit request for a new review: reopen even a Complete saved review.
+        frappe.db.set_value("AI Query Review", key, {"status": "Queued", "error": ""})
     if cint(retry) and frappe.db.exists("AI Query Review", key):
         saved = frappe.get_doc("AI Query Review", key)
         if saved.status in {"Failed", "Unavailable"}:
