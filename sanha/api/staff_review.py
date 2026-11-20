@@ -420,9 +420,12 @@ def collect_review(doc, config, language="ur"):
         assessment = parsed.get("assessment") or {}
         result["assessment"] = {name: valid[0] for name in ("identity", "origin_process", "chemistry_uses", "halal_questions", "missing_evidence")
                                 if (valid := cited_findings([assessment.get(name)], allowed))}
+        halal_raw = assessment.get("halal_questions") if isinstance(assessment.get("halal_questions"), dict) else {}
+        if "halal_questions" not in result["assessment"] and str(halal_raw.get("text", "")).strip():
+            result["assessment"]["halal_questions"] = {"text": str(halal_raw["text"]).strip()[:600], "sources": [], "general": True}
         result["department_notes"] = {name: valid[0] for name in ("Evaluation", "SBM", "CM") if (valid := cited_findings([notes.get(name)], allowed))}
         result["provider_used"] = getattr(frappe.local, "ai_last_call", None)
-        full = bool(result["summaries"]) and len(result["assessment"]) == 5 and len(result["follow_up_questions"]) >= 3
+        full = bool(result["summaries"]) and len(result["assessment"]) == 5
         result["ai_status"] = "complete" if full else "partial_cited_output" if result["summaries"] or result["findings"] or result["assessment"] else "no_cited_output"
     except ProviderError as error:
         result["ai_status"] = "provider_error"

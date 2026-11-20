@@ -154,10 +154,11 @@ def run(query, reviewer=None, language="ur"):
         elif result.get("ai_status") == "partial_cited_output":
             record.error = "Analysis is incomplete: some required sections/questions could not be cited. Available evidence is retained."
         record.save(ignore_permissions=True); frappe.db.commit()
-    except Exception:
+    except Exception as exc:
         frappe.db.rollback()
+        frappe.log_error(title="AI review failed", message=frappe.get_traceback())
         if record and frappe.db.exists("AI Query Review", record.name):
-            frappe.db.set_value("AI Query Review", record.name, {"status": "Failed", "error": "Review failed. Check attachment access and provider settings.", "attempt_date": today()})
+            frappe.db.set_value("AI Query Review", record.name, {"status": "Failed", "error": "Review failed: " + type(exc).__name__ + ": " + str(exc)[:200], "attempt_date": today()})
             frappe.db.commit()
     finally:
         frappe.set_user(original)
